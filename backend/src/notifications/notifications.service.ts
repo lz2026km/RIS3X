@@ -150,13 +150,13 @@ export class NotificationsService {
   }
 
   /**
-   * POST /notifications/read —— 标记已读
+   * POST /notifications/read —— 标记已读 (仅限本人通知: 按 id + userId 双重限定)
    */
-  async markRead(id: string) {
+  async markRead(id: string, userId: string) {
     const model = (this.prisma as any).notification;
     if (!model?.update) return null;
     return model.update({
-      where: { id },
+      where: { id, userId },
       data: { read: true, readAt: new Date() },
     });
   }
@@ -177,21 +177,22 @@ export class NotificationsService {
   }
 
   /**
-   * DELETE /notifications/:id — 删除单条通知
+   * DELETE /notifications/:id —— 删除单条通知 (仅限本人通知: 按 id + userId 双重限定)
    */
-  async remove(id: string): Promise<{ id: string; deleted: boolean }> {
+  async remove(
+    id: string,
+    userId: string,
+  ): Promise<{ id: string; deleted: boolean }> {
     const model = (this.prisma as any).notification;
-    if (!model?.delete) return { id, deleted: false };
-    await model.delete({ where: { id } });
-    return { id, deleted: true };
+    if (!model?.deleteMany) return { id, deleted: false };
+    const result = await model.deleteMany({ where: { id, userId } });
+    return { id, deleted: (result?.count ?? 0) > 0 };
   }
 
   /**
    * GET /notifications/stats/:userId — 未读/今日/总数统计
    */
-  async getStats(
-    userId: string,
-  ): Promise<{
+  async getStats(userId: string): Promise<{
     userId: string;
     total: number;
     unread: number;

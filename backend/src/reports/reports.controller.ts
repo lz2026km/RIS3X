@@ -14,6 +14,7 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Roles } from "../common/decorators/roles.decorator";
+import { currentUserId } from "../common/auth/current-user";
 import type { Request, Response } from "express";
 import { z } from "zod";
 import * as path from "node:path";
@@ -101,10 +102,9 @@ const VerifySignatureSchema = z.object({
   content: SignatureContentSchema.optional(),
 });
 
-/** [v3.0.6.16-7] POST /reports/:id/signature 请求体 */
+/** [v3.0.6.16-7] POST /reports/:id/signature 请求体 (签署人由服务端从 JWT 推导, 不可指定) */
 const RecordSignatureSchema = z.object({
   signerName: z.string().max(128).optional(),
-  signedById: z.string().max(64).optional(),
   algorithm: z.string().max(32).optional(),
   content: SignatureContentSchema.optional(),
 });
@@ -122,7 +122,6 @@ const ResolveReviewTierSchema = z.object({
 
 const RecallSchema = z.object({
   reason: z.string().min(1).max(500),
-  actorId: z.string().max(64).optional(),
 });
 
 const RecallAckSchema = z.object({
@@ -189,7 +188,7 @@ export class ReportsController {
     body: { ids: string[]; format: string },
     @Req() req: Request,
   ) {
-    const actorId = (req.user as { id?: string } | undefined)?.id ?? "unknown";
+    const actorId = currentUserId(req);
     return this.reports.createBatchExport(body, actorId);
   }
 
@@ -213,7 +212,7 @@ export class ReportsController {
     },
     @Req() req: Request,
   ) {
-    const actorId = (req.user as { id?: string } | undefined)?.id ?? "unknown";
+    const actorId = currentUserId(req);
     return this.reports.batchTransition(
       body.ids,
       body.to as any,
@@ -313,7 +312,7 @@ export class ReportsController {
   // [G005 Wave 8] 报告冷归档: POST /reports/:id/archive
   @Post(":id/archive")
   archive(@Param("id") id: string, @Req() req: Request) {
-    const actorId = (req.user as { id?: string } | undefined)?.id ?? "unknown";
+    const actorId = currentUserId(req);
     return this.reports.archive(id, actorId);
   }
 
@@ -355,7 +354,7 @@ export class ReportsController {
     body: { reason: string },
     @Req() req: Request,
   ) {
-    const actorId = (req.user as { id?: string } | undefined)?.id ?? "unknown";
+    const actorId = currentUserId(req);
     return this.reports.delete(id, body.reason, actorId);
   }
 
@@ -366,7 +365,6 @@ export class ReportsController {
       new ZodValidationPipe(
         z.object({
           to: ReportStateEnum,
-          actorId: z.string().min(1).optional(),
           reason: z.string().optional(),
           qualityScore: z.number().int().min(0).max(100).optional(),
         }),
@@ -374,16 +372,13 @@ export class ReportsController {
     )
     body: {
       to: z.infer<typeof ReportStateEnum>;
-      actorId?: string;
       reason?: string;
       qualityScore?: number;
     },
     @Req() req: Request,
   ) {
-    const actorId =
-      (req.user as { id?: string } | undefined)?.id ??
-      body.actorId ??
-      "unknown";
+    // actor 由服务端从 JWT 推导; 客户端传入的 actorId 一律忽略
+    const actorId = currentUserId(req);
     return this.reports.transition(
       id,
       body.to as any,
@@ -402,7 +397,7 @@ export class ReportsController {
     body: { format: string },
     @Req() req: Request,
   ) {
-    const actorId = (req.user as { id?: string } | undefined)?.id ?? "unknown";
+    const actorId = currentUserId(req);
     return this.reports.exportReport(id, body.format, actorId);
   }
 
@@ -447,8 +442,11 @@ export class ReportsController {
     @Param("id") id: string,
     @Body(new ZodValidationPipe(RecordSignatureSchema))
     body: z.infer<typeof RecordSignatureSchema>,
+    @Req() req: Request,
   ) {
-    return this.reports.recordSignature(id, body);
+    // 签署人由服务端从 JWT 推导, 客户端传入的 signer 不可信
+    const actorId = currentUserId(req);
+    return this.reports.recordSignature(id, body, actorId);
   }
 
   // 结构化字段校验 (提交前; 未传 values 校验报告当前内容)
@@ -495,8 +493,9 @@ export class ReportsController {
     body: z.infer<typeof RecallSchema>,
     @Req() req: Request,
   ) {
-    const actorId = (req.user as { id?: string } | undefined)?.id ?? "unknown";
-    return this.reports.recallReport(id, body, actorId);
+    const actorId = currentUserId(req);
+    // actor 由服务端从 JWT 推导; 不透传客户端 body (含 actorId), 避免伪造操作人
+    return this.reports.recallReport(id, { reason: body.reason }, actorId);
   }
 
   // 召回回执状态
@@ -529,7 +528,7 @@ export class ReportsController {
     body: z.infer<typeof SaveImageAnnotationsSchema>,
     @Req() req: Request,
   ) {
-    const actorId = (req.user as { id?: string } | undefined)?.id ?? "unknown";
+    const actorId = currentUserId(req);
     return this.reports.saveImageAnnotations(id, body as any, actorId);
   }
 

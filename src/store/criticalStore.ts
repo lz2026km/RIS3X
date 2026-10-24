@@ -1,108 +1,168 @@
 // @deprecated v3.0.4: Consumers should use useStore() hook pattern instead of .getState()
 // TODO: Convert all getState() calls to useStore() for reactive subscriptions
-import { create } from 'zustand'
-import { createActor, type Actor } from 'xstate'
-import { criticalApi } from '../services/api'
-import type { CriticalValueDto } from '../services/api'
-import type { NotificationMethod as ApiNotificationMethod } from '../services/api/criticalApi'
-import { criticalValueMachine, type CriticalMachine, type NotificationMethod as MachineNotificationMethod } from '../machines/criticalValueMachine'
-import { criticalValueService } from '../services/quality/criticalValueService'
+import { create } from "zustand";
+import { createActor, type Actor } from "xstate";
+import { criticalApi } from "../services/api";
+import type { CriticalValueDto } from "../services/api";
+import type { NotificationMethod as ApiNotificationMethod } from "../services/api/criticalApi";
+import {
+  criticalValueMachine,
+  type CriticalMachine,
+  type NotificationMethod as MachineNotificationMethod,
+} from "../machines/criticalValueMachine";
+import { criticalValueService } from "../services/quality/criticalValueService";
 
-type NotificationMethod = MachineNotificationMethod
-type CriticalValueStatus = 'pending' | 'notified' | 'voice_called' | 'acknowledged' | 'receipted' | 'resolving' | 'resolved' | 'closed_loop' | 'escalated' | 'cancelled'
+type NotificationMethod = MachineNotificationMethod;
+type CriticalValueStatus =
+  | "pending"
+  | "notified"
+  | "voice_called"
+  | "acknowledged"
+  | "receipted"
+  | "resolving"
+  | "resolved"
+  | "closed_loop"
+  | "escalated"
+  | "cancelled";
 
 const NOTIFICATION_METHOD_MAP: Record<string, MachineNotificationMethod> = {
-  PHONE: 'phone', SMS: 'sms', SYSTEM: 'system', EMAIL: 'email', WECHAT: 'wechat', DINGTALK: 'dingtalk',
-}
+  PHONE: "phone",
+  SMS: "sms",
+  SYSTEM: "system",
+  EMAIL: "email",
+  WECHAT: "wechat",
+  DINGTALK: "dingtalk",
+};
 
 function toMachineMethod(method?: string): MachineNotificationMethod {
-  if (!method) return 'system'
-  const lower = NOTIFICATION_METHOD_MAP[method]
-  return lower ?? (method.toLowerCase() as MachineNotificationMethod)
+  if (!method) return "system";
+  const lower = NOTIFICATION_METHOD_MAP[method];
+  return lower ?? (method.toLowerCase() as MachineNotificationMethod);
 }
 
 interface CriticalState {
-  values: CriticalValueDto[]
-  loading: boolean
-  error: string | null
-  actors: Map<string, Actor<CriticalMachine>>
-  load: () => Promise<void>
-  voiceCall: (id: string, phoneNumber: string) => Promise<void>
-  acknowledge: (id: string) => Promise<void>
-  clinicalReceipt: (id: string, data: { confirmedBy: string; signature?: string; comment?: string }) => Promise<void>
-  resolve: (id: string) => Promise<void>
-  notify: (id: string, method?: ApiNotificationMethod) => Promise<void>
-  escalate: (id: string, to: string) => Promise<void>
-  startEscalationWatcher: () => void
-  stopEscalationWatcher: () => void
+  values: CriticalValueDto[];
+  loading: boolean;
+  error: string | null;
+  actors: Map<string, Actor<CriticalMachine>>;
+  load: () => Promise<void>;
+  voiceCall: (id: string, phoneNumber: string) => Promise<void>;
+  acknowledge: (id: string) => Promise<void>;
+  clinicalReceipt: (
+    id: string,
+    data: { confirmedBy: string; signature?: string; comment?: string },
+  ) => Promise<void>;
+  resolve: (id: string) => Promise<void>;
+  notify: (id: string, method?: ApiNotificationMethod) => Promise<void>;
+  escalate: (id: string, to: string) => Promise<void>;
+  startEscalationWatcher: () => void;
+  stopEscalationWatcher: () => void;
   /** [G005 PERF1] 页面卸载时调用: 停止全部 actor + 清除升级定时器 + 清空数据 */
-  dispose: () => void
+  dispose: () => void;
 }
 
 /** Map criticalMachine state value → store status string */
 const MACHINE_STATE_TO_STORE: Record<string, CriticalValueStatus> = {
-  found: 'pending',
-  notified: 'notified',
-  voice_called: 'voice_called',
-  acknowledged: 'acknowledged',
-  receipted: 'receipted',
-  resolving: 'resolving',
-  resolved: 'resolved',
-  closed_loop: 'resolved',
-  escalated: 'escalated',
-  cancelled: 'cancelled',
-}
+  found: "pending",
+  notified: "notified",
+  voice_called: "voice_called",
+  acknowledged: "acknowledged",
+  receipted: "receipted",
+  resolving: "resolving",
+  resolved: "resolved",
+  closed_loop: "resolved",
+  escalated: "escalated",
+  cancelled: "cancelled",
+};
 
 /** Actor 存在模块级 Map 中(不入 Zustand state,避免序列化问题) */
-const actorsMap = new Map<string, Actor<CriticalMachine>>()
+const actorsMap = new Map<string, Actor<CriticalMachine>>();
+
+/** 动作失败时抛出 (页面据此展示真实错误, 不再静默弹「成功」) */
+function toActionError(message: string | undefined, fallback: string): Error {
+  const text = message && message.trim() ? message.trim() : fallback;
+  return new Error(text);
+}
 
 /** 从列表 DTO 重建一个最小的 machine input 上下文。 */
 function buildActorFor(value: CriticalValueDto): Actor<CriticalMachine> {
   const actor = createActor(criticalValueMachine, {
     input: {
       criticalId: value.id,
-      reportId: value.reportId ?? '',
-      examId: value.examId ?? '',
-      patientId: value.patientId ?? '',
+      reportId: value.reportId ?? "",
+      examId: value.examId ?? "",
+      patientId: value.patientId ?? "",
       patientName: value.patientName,
       finding: value.finding,
-      category: value.category ?? '',
-      severity: (value.severity as 'critical' | 'urgent' | 'high') ?? 'critical',
-      reportedBy: '',
+      category: value.category ?? "",
+      severity:
+        (value.severity as "critical" | "urgent" | "high") ?? "critical",
+      reportedBy: "",
       reportedAt: value.triggeredAt,
     },
-  })
-  actor.start()
+  });
+  actor.start();
   // 把 actor 推进到当前 store status,这样后续 send() 才会被状态机接受
-  if (value.status === 'notified' || value.status === 'voice_called' || value.status === 'acknowledged' || value.status === 'receipted' || value.status === 'resolved' || value.status === 'escalated') {
+  if (
+    value.status === "notified" ||
+    value.status === "voice_called" ||
+    value.status === "acknowledged" ||
+    value.status === "receipted" ||
+    value.status === "resolved" ||
+    value.status === "escalated"
+  ) {
     actor.send({
-      type: 'NOTIFY',
-      to: '',
-      method: (value.notificationMethod as NotificationMethod) ?? 'system',
-      by: '',
-    })
+      type: "NOTIFY",
+      to: "",
+      method: (value.notificationMethod as NotificationMethod) ?? "system",
+      by: "",
+    });
   }
-  if (value.status === 'voice_called' || value.status === 'acknowledged' || value.status === 'receipted' || value.status === 'resolved') {
-    actor.send({ type: 'VOICE_CALL', by: value.voiceCalledBy ?? '', phoneNumber: '' })
+  if (
+    value.status === "voice_called" ||
+    value.status === "acknowledged" ||
+    value.status === "receipted" ||
+    value.status === "resolved"
+  ) {
+    actor.send({
+      type: "VOICE_CALL",
+      by: value.voiceCalledBy ?? "",
+      phoneNumber: "",
+    });
   }
-  if (value.status === 'acknowledged' || value.status === 'receipted' || value.status === 'resolved') {
-    actor.send({ type: 'ACKNOWLEDGE', by: '' })
+  if (
+    value.status === "acknowledged" ||
+    value.status === "receipted" ||
+    value.status === "resolved"
+  ) {
+    actor.send({ type: "ACKNOWLEDGE", by: "" });
   }
-  if (value.status === 'receipted' || value.status === 'resolved') {
-    actor.send({ type: 'RECEIPT', by: value.confirmedBy ?? '' })
+  if (value.status === "receipted" || value.status === "resolved") {
+    actor.send({ type: "RECEIPT", by: value.confirmedBy ?? "" });
   }
-  if (value.status === 'resolved') {
-    actor.send({ type: 'START_PROCESSING', doctorId: '' })
-    actor.send({ type: 'COMPLETE_PROCESSING', note: '' })
+  if (value.status === "resolved") {
+    actor.send({ type: "START_PROCESSING", doctorId: "" });
+    actor.send({ type: "COMPLETE_PROCESSING", note: "" });
   }
-  if (value.status === 'escalated') {
-    actor.send({ type: 'ESCALATE', to: (value as unknown as { escalatedTo?: string }).escalatedTo ?? '', reason: 'replay' })
+  if (value.status === "escalated") {
+    actor.send({
+      type: "ESCALATE",
+      to: (value as unknown as { escalatedTo?: string }).escalatedTo ?? "",
+      reason: "replay",
+    });
   }
-  return actor
+  return actor;
 }
 
-let _escalationTimer: ReturnType<typeof setInterval> | null = null
-const STUCK_STATES = ['found', 'notified', 'voice_called', 'acknowledged', 'receipted', 'resolving']
+let _escalationTimer: ReturnType<typeof setInterval> | null = null;
+const STUCK_STATES = [
+  "found",
+  "notified",
+  "voice_called",
+  "acknowledged",
+  "receipted",
+  "resolving",
+];
 
 export const useCriticalStore = create<CriticalState>((set, get) => ({
   values: [],
@@ -111,228 +171,294 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
   actors: actorsMap,
 
   load: async () => {
-    set({ loading: true, error: null })
+    set({ loading: true, error: null });
     try {
-      const res = await criticalApi.list()
+      const res = await criticalApi.list();
       // [W2-107] 兼容两种返回: 归一化后的 { items, total } 与旧数组 (测试/旧 mock)
-      const payload = res.data as unknown
+      const payload = res.data as unknown;
       const items: CriticalValueDto[] = Array.isArray(payload)
         ? (payload as CriticalValueDto[])
-        : (payload && typeof payload === 'object' && Array.isArray((payload as { items?: unknown }).items)
+        : payload &&
+            typeof payload === "object" &&
+            Array.isArray((payload as { items?: unknown }).items)
           ? (payload as { items: CriticalValueDto[] }).items
-          : [])
+          : [];
       if (res.success) {
-        const values = items
+        const values = items;
         // 清理不再出现的 actor
-        const currentIds = new Set(values.map(v => v.id))
+        const currentIds = new Set(values.map((v) => v.id));
         actorsMap.forEach((actor, id) => {
           if (!currentIds.has(id)) {
-            actor.stop()
-            actorsMap.delete(id)
+            actor.stop();
+            actorsMap.delete(id);
           }
-        })
+        });
         // 为新条目创建 actor
         values.forEach((v) => {
           if (!actorsMap.has(v.id)) {
-            actorsMap.set(v.id, buildActorFor(v))
+            actorsMap.set(v.id, buildActorFor(v));
           }
-        })
-        set({ values, loading: false, error: null })
-        get().startEscalationWatcher()
+        });
+        set({ values, loading: false, error: null });
+        get().startEscalationWatcher();
       } else {
-        set({ loading: false, error: res.error?.message ?? '加载失败' })
+        set({ loading: false, error: res.error?.message ?? "加载失败" });
       }
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
+      set({
+        loading: false,
+        error: err instanceof Error ? err.message : "网络错误",
+      });
     }
   },
 
   startEscalationWatcher: () => {
-    if (_escalationTimer) clearInterval(_escalationTimer)
+    if (_escalationTimer) clearInterval(_escalationTimer);
     _escalationTimer = setInterval(() => {
-      const { values } = get()
+      const { values } = get();
       values.forEach((v) => {
-        const actor = actorsMap.get(v.id)
-        if (!actor) return
-        const state = actor.getSnapshot().value as string
+        const actor = actorsMap.get(v.id);
+        if (!actor) return;
+        const state = actor.getSnapshot().value as string;
         if (STUCK_STATES.includes(state)) {
-          actor.send({ type: 'ESCALATE', to: '', reason: '通知超时' })
-          criticalValueService.runEscalationChain(v.id).catch(() => {})
+          actor.send({ type: "ESCALATE", to: "", reason: "通知超时" });
+          criticalValueService.runEscalationChain(v.id).catch(() => {});
           set((s) => ({
             values: s.values.map((x) =>
-              x.id === v.id ? { ...x, status: 'escalated' as CriticalValueStatus, escalatedAt: new Date().toISOString() } : x,
+              x.id === v.id
+                ? {
+                    ...x,
+                    status: "escalated" as CriticalValueStatus,
+                    escalatedAt: new Date().toISOString(),
+                  }
+                : x,
             ),
-          }))
+          }));
         }
-      })
-    }, 60000)
+      });
+    }, 60000);
   },
 
   stopEscalationWatcher: () => {
     if (_escalationTimer) {
-      clearInterval(_escalationTimer)
-      _escalationTimer = null
+      clearInterval(_escalationTimer);
+      _escalationTimer = null;
     }
   },
 
   dispose: () => {
-    get().stopEscalationWatcher()
-    actorsMap.forEach((actor) => actor.stop())
-    actorsMap.clear()
-    set({ values: [], loading: false, error: null })
+    get().stopEscalationWatcher();
+    actorsMap.forEach((actor) => actor.stop());
+    actorsMap.clear();
+    set({ values: [], loading: false, error: null });
   },
 
   voiceCall: async (id, phoneNumber) => {
-    set({ loading: true, error: null })
+    set({ loading: true, error: null });
     try {
-      const res = await criticalApi.voiceCall(id, { calledBy: 'current-user', phoneNumber })
-      if (res.success) {
-        const actor = get().actors.get(id)
-        if (actor) actor.send({ type: 'VOICE_CALL', by: 'current-user', phoneNumber })
-        set((s) => ({
-          values: s.values.map((v) =>
-            v.id === id
-              ? { ...v, status: 'voice_called' as const, voiceCalledAt: new Date().toISOString(), voiceCalledBy: 'current-user' }
-              : v
-          ),
-          loading: false,
-        }))
-      } else {
-        set({ loading: false, error: res.error?.message ?? '电话通知失败' })
+      const res = await criticalApi.voiceCall(id, {
+        calledBy: "current-user",
+        phoneNumber,
+      });
+      if (!res.success) {
+        throw toActionError(res.error?.message, "电话通知失败");
       }
+      const actor = get().actors.get(id);
+      if (actor)
+        actor.send({ type: "VOICE_CALL", by: "current-user", phoneNumber });
+      set((s) => ({
+        values: s.values.map((v) =>
+          v.id === id
+            ? {
+                ...v,
+                status: "voice_called" as const,
+                voiceCalledAt: new Date().toISOString(),
+                voiceCalledBy: "current-user",
+              }
+            : v,
+        ),
+        loading: false,
+      }));
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
+      const msg = err instanceof Error ? err.message : "网络错误";
+      set({ loading: false, error: msg });
+      throw err instanceof Error ? err : new Error(msg);
     }
   },
 
   clinicalReceipt: async (id, data) => {
-    set({ loading: true, error: null })
+    set({ loading: true, error: null });
     try {
-      const res = await criticalApi.clinicalReceipt(id, data)
-      if (res.success) {
-        const actor = get().actors.get(id)
-        if (actor) actor.send({ type: 'RECEIPT', by: data.confirmedBy, signature: data.signature, comment: data.comment })
-        set((s) => ({
-          values: s.values.map((v) =>
-            v.id === id
-              ? { ...v, status: 'receipted' as const, confirmedBy: data.confirmedBy, confirmedAt: new Date().toISOString(), confirmedSignature: data.signature, confirmedComment: data.comment }
-              : v
-          ),
-          loading: false,
-        }))
-      } else {
-        set({ loading: false, error: res.error?.message ?? '回执失败' })
+      const res = await criticalApi.clinicalReceipt(id, data);
+      if (!res.success) {
+        throw toActionError(res.error?.message, "回执失败");
       }
+      const actor = get().actors.get(id);
+      if (actor)
+        actor.send({
+          type: "RECEIPT",
+          by: data.confirmedBy,
+          signature: data.signature,
+          comment: data.comment,
+        });
+      set((s) => ({
+        values: s.values.map((v) =>
+          v.id === id
+            ? {
+                ...v,
+                status: "receipted" as const,
+                confirmedBy: data.confirmedBy,
+                confirmedAt: new Date().toISOString(),
+                confirmedSignature: data.signature,
+                confirmedComment: data.comment,
+              }
+            : v,
+        ),
+        loading: false,
+      }));
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
+      const msg = err instanceof Error ? err.message : "网络错误";
+      set({ loading: false, error: msg });
+      throw err instanceof Error ? err : new Error(msg);
     }
   },
 
   acknowledge: async (id) => {
-    set({ loading: true, error: null })
+    set({ loading: true, error: null });
     try {
-      const res = await criticalApi.acknowledge(id)
-      if (res.success) {
-        const actor = get().actors.get(id)
-        if (actor) actor.send({ type: 'ACKNOWLEDGE', by: '' })
-        set((s) => ({
-          values: s.values.map((v) =>
-            v.id === id ? { ...v, status: 'acknowledged' as const, acknowledgedAt: new Date().toISOString() } : v
-          ),
-          loading: false,
-        }))
-      } else {
-        set({ loading: false, error: res.error?.message ?? '确认失败' })
+      const res = await criticalApi.acknowledge(id);
+      if (!res.success) {
+        throw toActionError(res.error?.message, "确认失败");
       }
+      const actor = get().actors.get(id);
+      if (actor) actor.send({ type: "ACKNOWLEDGE", by: "" });
+      set((s) => ({
+        values: s.values.map((v) =>
+          v.id === id
+            ? {
+                ...v,
+                status: "acknowledged" as const,
+                acknowledgedAt: new Date().toISOString(),
+              }
+            : v,
+        ),
+        loading: false,
+      }));
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
+      const msg = err instanceof Error ? err.message : "网络错误";
+      set({ loading: false, error: msg });
+      throw err instanceof Error ? err : new Error(msg);
     }
   },
 
   resolve: async (id) => {
-    set({ loading: true, error: null })
+    set({ loading: true, error: null });
     try {
-      const res = await criticalApi.resolve(id)
-      if (res.success) {
-        const actor = get().actors.get(id)
-        if (actor) {
-          const current = actor.getSnapshot().value
-          if (current === 'notified') actor.send({ type: 'ACKNOWLEDGE', by: '' })
-          actor.send({ type: 'START_PROCESSING', doctorId: '' })
-          actor.send({ type: 'COMPLETE_PROCESSING', note: '已闭环' })
-        }
-        set((s) => ({
-          values: s.values.map((v) =>
-            v.id === id ? { ...v, status: 'resolved' as const, resolvedAt: new Date().toISOString() } : v
-          ),
-          loading: false,
-        }))
-      } else {
-        set({ loading: false, error: res.error?.message ?? '闭环失败' })
+      const res = await criticalApi.resolve(id);
+      if (!res.success) {
+        throw toActionError(res.error?.message, "闭环失败");
       }
+      const actor = get().actors.get(id);
+      if (actor) {
+        const current = actor.getSnapshot().value;
+        if (current === "notified") actor.send({ type: "ACKNOWLEDGE", by: "" });
+        actor.send({ type: "START_PROCESSING", doctorId: "" });
+        actor.send({ type: "COMPLETE_PROCESSING", note: "已闭环" });
+      }
+      set((s) => ({
+        values: s.values.map((v) =>
+          v.id === id
+            ? {
+                ...v,
+                status: "resolved" as const,
+                resolvedAt: new Date().toISOString(),
+              }
+            : v,
+        ),
+        loading: false,
+      }));
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
+      const msg = err instanceof Error ? err.message : "网络错误";
+      set({ loading: false, error: msg });
+      throw err instanceof Error ? err : new Error(msg);
     }
   },
 
   notify: async (id, method) => {
-    set({ loading: true, error: null })
+    set({ loading: true, error: null });
     try {
-      const finalMethod = toMachineMethod(method)
-      const apiMethod = method ?? 'SYSTEM'
-      const target = get().values.find((v) => v.id === id)
+      const finalMethod = toMachineMethod(method);
+      const apiMethod = method ?? "SYSTEM";
+      const target = get().values.find((v) => v.id === id);
       const categoryMap: Record<string, string> = {
-        '危及生命': 'LIFE_THREATENING', critical: 'LIFE_THREATENING',
-        危急: 'URGENT', urgent: 'URGENT',
-      }
+        危及生命: "LIFE_THREATENING",
+        critical: "LIFE_THREATENING",
+        危急: "URGENT",
+        urgent: "URGENT",
+      };
       const res = await criticalApi.notify(id, apiMethod, {
         patientName: target?.patientName,
         patientId: target?.patientId,
         finding: target?.finding,
-        category: target?.severity ? (categoryMap[String(target.severity)] ?? 'IMPORTANT') : undefined,
-      })
-      if (res.success) {
-        const actor = get().actors.get(id)
-        if (actor) actor.send({ type: 'NOTIFY', to: '', method: finalMethod, by: '' })
-        set((s) => ({
-          values: s.values.map((v) =>
-            v.id === id
-              ? { ...v, status: 'notified' as const, notifiedAt: new Date().toISOString(), notificationMethod: apiMethod as ApiNotificationMethod }
-              : v
-          ),
-          loading: false,
-        }))
-      } else {
-        set({ loading: false, error: res.error?.message ?? '通知失败' })
+        category: target?.severity
+          ? (categoryMap[String(target.severity)] ?? "IMPORTANT")
+          : undefined,
+      });
+      if (!res.success) {
+        throw toActionError(res.error?.message, "通知失败");
       }
+      const actor = get().actors.get(id);
+      if (actor)
+        actor.send({ type: "NOTIFY", to: "", method: finalMethod, by: "" });
+      set((s) => ({
+        values: s.values.map((v) =>
+          v.id === id
+            ? {
+                ...v,
+                status: "notified" as const,
+                notifiedAt: new Date().toISOString(),
+                notificationMethod: apiMethod as ApiNotificationMethod,
+              }
+            : v,
+        ),
+        loading: false,
+      }));
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
+      const msg = err instanceof Error ? err.message : "网络错误";
+      set({ loading: false, error: msg });
+      throw err instanceof Error ? err : new Error(msg);
     }
   },
 
   escalate: async (id, to) => {
-    set({ loading: true, error: null })
+    set({ loading: true, error: null });
     try {
-      const res = await criticalApi.escalate(id, to, '通知超时')
-      if (res.success) {
-        const actor = get().actors.get(id)
-        if (actor) actor.send({ type: 'ESCALATE', to, reason: '通知超时' })
-        set((s) => ({
-          values: s.values.map((v) =>
-            v.id === id
-              ? { ...v, status: 'escalated' as const, escalatedAt: new Date().toISOString(), escalatedTo: to }
-              : v
-          ),
-          loading: false,
-        }))
-      } else {
-        set({ loading: false, error: res.error?.message ?? '升级失败' })
+      const res = await criticalApi.escalate(id, to, "通知超时");
+      if (!res.success) {
+        throw toActionError(res.error?.message, "升级失败");
       }
+      const actor = get().actors.get(id);
+      if (actor) actor.send({ type: "ESCALATE", to, reason: "通知超时" });
+      set((s) => ({
+        values: s.values.map((v) =>
+          v.id === id
+            ? {
+                ...v,
+                status: "escalated" as const,
+                escalatedAt: new Date().toISOString(),
+                escalatedTo: to,
+              }
+            : v,
+        ),
+        loading: false,
+      }));
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
+      const msg = err instanceof Error ? err.message : "网络错误";
+      set({ loading: false, error: msg });
+      throw err instanceof Error ? err : new Error(msg);
     }
   },
-}))
+}));
 
 // 兼容旧引用:导出 MACHINE_STATE_TO_STORE 供页面使用
-export { MACHINE_STATE_TO_STORE }
+export { MACHINE_STATE_TO_STORE };

@@ -19,14 +19,32 @@
  * - POST   /template-library-v2/export                          批量导出 (JSON 序列化)
  * - POST   /template-library-v2/import                          导入 (JSON 序列化)
  */
-import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common'
-import { Roles } from '../../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { TemplateLibraryV2Service } from './template-library-v2.service'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+  Req,
+} from "@nestjs/common";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { z } from "zod";
+import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
+import { TemplateLibraryV2Service } from "./template-library-v2.service";
+import { currentUserId } from "../../common/auth/current-user";
+import type { Request } from "express";
 
-const PurposeEnum = z.enum(['STRUCTURED_REPORT', 'FOLLOWUP', 'URGENT', 'CONTRAST', 'PROCEDURE', 'TECHNIQUE'])
+const PurposeEnum = z.enum([
+  "STRUCTURED_REPORT",
+  "FOLLOWUP",
+  "URGENT",
+  "CONTRAST",
+  "PROCEDURE",
+  "TECHNIQUE",
+]);
 
 const CreateTemplateSchema = z.object({
   name: z.string().min(1),
@@ -37,7 +55,7 @@ const CreateTemplateSchema = z.object({
   tags: z.array(z.string()).optional(),
   content: z.string().min(1),
   createdBy: z.string().optional(),
-})
+});
 
 const SearchSchema = z.object({
   keyword: z.string().optional(),
@@ -48,7 +66,7 @@ const SearchSchema = z.object({
   bodyPart: z.string().optional(),
   page: z.coerce.number().int().positive().optional(),
   pageSize: z.coerce.number().int().positive().max(100).optional(),
-})
+});
 
 const RecommendSchema = z.object({
   modality: z.string().optional(),
@@ -57,130 +75,163 @@ const RecommendSchema = z.object({
   tags: z.array(z.string()).optional(),
   bodyPart: z.string().optional(),
   limit: z.coerce.number().int().positive().max(20).optional(),
-})
+});
 
-const ExportSchema = z.object({ ids: z.array(z.string()).min(1).optional() })
+const ExportSchema = z.object({ ids: z.array(z.string()).min(1).optional() });
 
-const ImportSchema = z.object({ json: z.string().min(1) })
+const ImportSchema = z.object({ json: z.string().min(1) });
 
-const UseSchema = z.object({ usedBy: z.string().optional() })
+const UseSchema = z.object({ usedBy: z.string().optional() });
 
-const CopySchema = z.object({ copiedBy: z.string().optional() })
+const CopySchema = z.object({ copiedBy: z.string().optional() });
 
 // [v3.0.6.11-104 Wave 1C] 收藏切换 body 校验 (此前 @Body() 未走 zod)
-export const FavoriteSchema = z.object({ userId: z.string().max(64).optional() })
+export const FavoriteSchema = z.object({
+  userId: z.string().max(64).optional(),
+});
 
-@ApiTags('template-library-v2')
+@ApiTags("template-library-v2")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
-@Controller('template-library-v2')
+@Roles("ADMIN", "DIRECTOR", "DOCTOR")
+@Controller("template-library-v2")
 export class TemplateLibraryV2Controller {
   constructor(private readonly service: TemplateLibraryV2Service) {}
 
-  @Get('categories')
-  @ApiOperation({ summary: '模板分类树 (检查类型/科室/用途)' })
+  @Get("categories")
+  @ApiOperation({ summary: "模板分类树 (检查类型/科室/用途)" })
   categories() {
-    return this.service.getCategoryTree()
+    return this.service.getCategoryTree();
   }
 
-  @Get('templates')
-  @ApiOperation({ summary: '模板列表' })
+  @Get("templates")
+  @ApiOperation({ summary: "模板列表" })
   listTemplates(@Query() query: Record<string, unknown>) {
     const parsed = z
-      .object({ modality: z.string().optional(), dept: z.string().optional(), purpose: PurposeEnum.optional(), keyword: z.string().optional() })
-      .safeParse(query)
-    return this.service.listTemplates(parsed.success ? parsed.data : {})
+      .object({
+        modality: z.string().optional(),
+        dept: z.string().optional(),
+        purpose: PurposeEnum.optional(),
+        keyword: z.string().optional(),
+      })
+      .safeParse(query);
+    return this.service.listTemplates(parsed.success ? parsed.data : {});
   }
 
-  @Get('search')
-  @ApiOperation({ summary: '模板搜索 (关键词/标签/类型)' })
+  @Get("search")
+  @ApiOperation({ summary: "模板搜索 (关键词/标签/类型)" })
   search(@Query() query: Record<string, unknown>) {
-    const parsed = SearchSchema.safeParse(query)
-    return this.service.search(parsed.success ? parsed.data : {})
+    const parsed = SearchSchema.safeParse(query);
+    return this.service.search(parsed.success ? parsed.data : {});
   }
 
-  @Get('recommend')
-  @ApiOperation({ summary: '模板推荐 (确定性评分)' })
+  @Get("recommend")
+  @ApiOperation({ summary: "模板推荐 (确定性评分)" })
   recommend(@Query() query: Record<string, unknown>) {
-    const parsed = RecommendSchema.safeParse(query)
-    return this.service.recommend(parsed.success ? parsed.data : {})
+    const parsed = RecommendSchema.safeParse(query);
+    return this.service.recommend(parsed.success ? parsed.data : {});
   }
 
-  @Get('favorites')
-  @ApiOperation({ summary: '我的收藏' })
-  listFavorites(@Query('userId') userId?: string) {
-    return this.service.listFavorites(userId)
+  @Get("favorites")
+  @ApiOperation({ summary: "我的收藏" })
+  listFavorites(@Query("userId") userId?: string) {
+    return this.service.listFavorites(userId);
   }
 
-  @Get('usage-history')
-  @ApiOperation({ summary: '最近使用历史' })
-  usageHistory(@Query('userId') userId?: string) {
-    return this.service.listUsageHistory(userId)
+  @Get("usage-history")
+  @ApiOperation({ summary: "最近使用历史" })
+  usageHistory(@Query("userId") userId?: string) {
+    return this.service.listUsageHistory(userId);
   }
 
-  @Get('stats')
-  @ApiOperation({ summary: '模板库统计' })
+  @Get("stats")
+  @ApiOperation({ summary: "模板库统计" })
   stats() {
-    return this.service.stats()
+    return this.service.stats();
   }
 
-  @Post('templates')
+  @Post("templates")
   @HttpCode(200)
-  @ApiOperation({ summary: '新建模板' })
-  createTemplate(@Body(new ZodValidationPipe(CreateTemplateSchema)) body: z.infer<typeof CreateTemplateSchema>) {
-    return this.service.createTemplate(body)
+  @ApiOperation({ summary: "新建模板" })
+  createTemplate(
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(CreateTemplateSchema))
+    body: z.infer<typeof CreateTemplateSchema>,
+  ) {
+    return this.service.createTemplate({
+      ...body,
+      createdBy: currentUserId(req),
+    });
   }
 
-  @Get('templates/:id')
-  @ApiOperation({ summary: '模板详情' })
-  getTemplate(@Param('id') id: string) {
-    return this.service.getTemplate(id)
+  @Get("templates/:id")
+  @ApiOperation({ summary: "模板详情" })
+  getTemplate(@Param("id") id: string) {
+    return this.service.getTemplate(id);
   }
 
-  @Get('templates/:id/stats')
-  @ApiOperation({ summary: '模板使用统计 (次数/采纳率/最近使用)' })
-  templateStats(@Param('id') id: string) {
-    return this.service.templateUsageStats(id)
+  @Get("templates/:id/stats")
+  @ApiOperation({ summary: "模板使用统计 (次数/采纳率/最近使用)" })
+  templateStats(@Param("id") id: string) {
+    return this.service.templateUsageStats(id);
   }
 
-  @Post('templates/:id/use')
+  @Post("templates/:id/use")
   @HttpCode(200)
-  @ApiOperation({ summary: '使用计数递增' })
-  recordUsage(@Param('id') id: string, @Body(new ZodValidationPipe(UseSchema)) body: z.infer<typeof UseSchema>) {
-    return this.service.recordUsage(id, body.usedBy)
+  @ApiOperation({ summary: "使用计数递增" })
+  recordUsage(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UseSchema)) body: z.infer<typeof UseSchema>,
+  ) {
+    return this.service.recordUsage(id, body.usedBy);
   }
 
-  @Post('templates/:id/favorite')
+  @Post("templates/:id/favorite")
   @HttpCode(200)
-  @ApiOperation({ summary: '收藏切换' })
-  toggleFavorite(@Param('id') id: string, @Body(new ZodValidationPipe(FavoriteSchema)) body: z.infer<typeof FavoriteSchema>) {
-    return this.service.toggleFavorite(id, body?.userId)
+  @ApiOperation({ summary: "收藏切换" })
+  toggleFavorite(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(FavoriteSchema))
+    body: z.infer<typeof FavoriteSchema>,
+  ) {
+    return this.service.toggleFavorite(id, body?.userId);
   }
 
-  @Post('templates/:id/copy')
+  @Post("templates/:id/copy")
   @HttpCode(200)
-  @ApiOperation({ summary: '复制模板' })
-  copyTemplate(@Param('id') id: string, @Body(new ZodValidationPipe(CopySchema)) body: z.infer<typeof CopySchema>) {
-    return this.service.copyTemplate(id, body.copiedBy)
+  @ApiOperation({ summary: "复制模板" })
+  copyTemplate(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(CopySchema)) body: z.infer<typeof CopySchema>,
+  ) {
+    void body;
+    return this.service.copyTemplate(id, currentUserId(req));
   }
 
-  @Get('templates/:id/export')
-  @ApiOperation({ summary: '单模板导出 (JSON 序列化)' })
-  exportTemplate(@Param('id') id: string) {
-    return this.service.exportTemplates([id])
+  @Get("templates/:id/export")
+  @ApiOperation({ summary: "单模板导出 (JSON 序列化)" })
+  exportTemplate(@Param("id") id: string) {
+    return this.service.exportTemplates([id]);
   }
 
-  @Post('export')
+  @Post("export")
   @HttpCode(200)
-  @ApiOperation({ summary: '批量导出 (JSON 序列化)' })
-  exportTemplates(@Body(new ZodValidationPipe(ExportSchema)) body: z.infer<typeof ExportSchema>) {
-    return this.service.exportTemplates(body.ids)
+  @ApiOperation({ summary: "批量导出 (JSON 序列化)" })
+  exportTemplates(
+    @Body(new ZodValidationPipe(ExportSchema))
+    body: z.infer<typeof ExportSchema>,
+  ) {
+    return this.service.exportTemplates(body.ids);
   }
 
-  @Post('import')
+  @Post("import")
   @HttpCode(200)
-  @ApiOperation({ summary: '导入 (JSON 序列化)' })
-  importTemplates(@Body(new ZodValidationPipe(ImportSchema)) body: z.infer<typeof ImportSchema>, @Query('importedBy') importedBy?: string) {
-    return this.service.importTemplates(body.json, importedBy)
+  @ApiOperation({ summary: "导入 (JSON 序列化)" })
+  importTemplates(
+    @Body(new ZodValidationPipe(ImportSchema))
+    body: z.infer<typeof ImportSchema>,
+    @Req() req: Request,
+  ) {
+    return this.service.importTemplates(body.json, currentUserId(req));
   }
 }

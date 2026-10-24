@@ -6,6 +6,7 @@ import { http, HttpResponse, delay } from "msw";
 import { get } from "./store";
 import type {
   SrDocument,
+  SrStatus,
   SrContentTree,
   SrConceptName,
   SrContentItem,
@@ -314,6 +315,81 @@ const buildRawContent = (content: SrContentTree, sopUID: string): string => {
 
 // ───────────────────────── 内存存储 ─────────────────────────
 let srDocuments: SrDocument[] = [];
+
+/**
+ * [v3.0.6.16-8] 种子 2 份确定性 SR 文档。
+ *
+ * 背景: `newPagesHandlers` 曾用**另一套形状**注册了同路径 `GET /dicom-sr`
+ * (裸数组 `{id,studyId,type,...}`), 且注册顺序早于本模块 —— 列表返回 SR-001,
+ * 而详情 `GET /dicom-sr/:id` 在本模块的空 store 里 404。已移除那个重复 handler,
+ * 改由此处用真实 `SrDocument` 形状种子, 使列表与详情同源。
+ */
+const seedSrDocuments = (): SrDocument[] => {
+  const seeds = [
+    {
+      id: "SR-001",
+      reportId: "RPT-20260628-001",
+      templateId: "tid1500" as const,
+      patientName: "李慧敏",
+      patientId: "P000001",
+      modality: "CT",
+      findings: "右肺上叶可见结节影, 最大径约 12.5 mm。",
+      impression: "右肺上叶结节, 建议随访。",
+      status: "final" as SrStatus,
+    },
+    {
+      id: "SR-002",
+      reportId: "RPT-20260627-003",
+      templateId: "tid2000" as const,
+      patientName: "张伟",
+      patientId: "P000002",
+      modality: "MG",
+      findings: "左乳外上象限可见簇状钙化。",
+      impression: "左乳 BI-RADS 4a, 建议活检。",
+      status: "preliminary" as SrStatus,
+    },
+  ];
+  return seeds.map((s) => {
+    const content = buildContentTree(
+      {
+        id: s.reportId,
+        patientName: s.patientName,
+        patientId: s.patientId,
+        modality: s.modality,
+        findings: s.findings,
+        impression: s.impression,
+      },
+      s.templateId,
+    );
+    const tmpl = srTemplates[s.templateId]!;
+    const sopUID = `1.2.840.10008.5.1.4.1.1.88.${s.id}.1`;
+    const now = new Date().toISOString();
+    return {
+      id: s.id,
+      reportId: s.reportId,
+      templateId: s.templateId,
+      tid: tmpl.tid,
+      status: s.status,
+      sopInstanceUid: sopUID,
+      studyInstanceUid: content.context.study.uid,
+      seriesInstanceUid: `${content.context.study.uid}.SR.1`,
+      sopClassUid: tmpl.sopClassUid,
+      patientName: s.patientName,
+      patientId: s.patientId,
+      modality: s.modality,
+      title: `${tmpl.labelEn} / ${s.impression.slice(0, 24)}`,
+      content,
+      rawContent: buildRawContent(content, sopUID),
+      hl7ControlId: null,
+      hl7Message: null,
+      pushedAt: null,
+      createdAt: now,
+      updatedAt: now,
+    } satisfies SrDocument;
+  });
+};
+
+srDocuments = seedSrDocuments();
 
 // [G005 Wave4B] G-01 Encapsulated PDF 元数据对象 (内存)
 let encapsulatedPdfs: {
@@ -668,7 +744,7 @@ export const srHandlers = [
     const existing = srDocuments.find(
       (d) => d.reportId === body.reportId && d.templateId === templateId,
     );
-    const now = nowIso();
+    const now = new Date().toISOString();
     const tmpl = srTemplates[templateId]!;
     const doc: SrDocument = {
       id: existing?.id ?? `sr-${Date.now()}`,
@@ -737,7 +813,7 @@ export const srHandlers = [
     }
     const templateId = body.templateId ?? "tid2000";
     const tmpl = srTemplates[templateId]!;
-    const now = nowIso();
+    const now = new Date().toISOString();
     const sopUID = `1.2.840.10008.5.1.4.1.1.88.11.1.${Date.now()}`;
     const findingsText = body.findings
       .map((f) => {

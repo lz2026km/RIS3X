@@ -134,6 +134,8 @@ export default function CriticalValuePage() {
   const [receiptCV, setReceiptCV] = useState<CriticalValue | null>(null);
   const [receiptDoctor, setReceiptDoctor] = useState("");
   const [receiptComment, setReceiptComment] = useState("");
+  // [F-6] 临床回执签名 (真实可操作, 随回执提交)
+  const [receiptSignature, setReceiptSignature] = useState("");
   // [W2-A] 升级操作 (POST /criticals/escalate)
   const [showEscalateModal, setShowEscalateModal] = useState(false);
   const [escalateCV, setEscalateCV] = useState<CriticalValue | null>(null);
@@ -163,8 +165,12 @@ export default function CriticalValuePage() {
       if (values.length > 0) {
         setCriticalValues(values as unknown as CriticalValue[]);
         setLoadError(null);
+      } else if (error) {
+        // [F-1] 接口失败 → 错误横幅; 空列表 → 由列表自身空态承接, 不弹错误横幅
+        setLoadError(error);
       } else {
-        setLoadError(error ?? t("common.empty.noData"));
+        setCriticalValues([]);
+        setLoadError(null);
       }
       setLoading(false);
       // [W2-4] 患者详情"危急值"跳转: /critical-value?cvId=xxx 自动打开该危急值详情
@@ -401,6 +407,12 @@ export default function CriticalValuePage() {
     );
   };
 
+  // [F-1] 动作失败时展示接口真实错误 (store 动作失败会 reject), 不再统一弹「成功」
+  const showActionError = (err: unknown) => {
+    const detail = err instanceof Error ? err.message : String(err ?? "");
+    message.error(detail || t("common.status.failed"));
+  };
+
   const handleVoiceCall = (cv: CriticalValue) => {
     setVoiceCallCV(cv);
     setVoiceCallPhone(cv.phone || "");
@@ -420,6 +432,8 @@ export default function CriticalValuePage() {
       setShowVoiceCallModal(false);
       setVoiceCallCV(null);
       setVoiceCallPhone("");
+    } catch (err) {
+      showActionError(err);
     } finally {
       setCvActionBusy(false);
     }
@@ -431,6 +445,8 @@ export default function CriticalValuePage() {
       await useCriticalStore.getState().acknowledge(cv.id);
       log("acknowledge", cv.id);
       showToast(t("criticalValuePage.clinicalAck"));
+    } catch (err) {
+      showActionError(err);
     } finally {
       setCvActionBusy(false);
     }
@@ -440,6 +456,7 @@ export default function CriticalValuePage() {
     setReceiptCV(cv);
     setReceiptDoctor("");
     setReceiptComment("");
+    setReceiptSignature("");
     setShowReceiptModal(true);
   };
 
@@ -447,12 +464,11 @@ export default function CriticalValuePage() {
     setCvActionBusy(true);
     try {
       if (receiptCV && receiptDoctor) {
-        await useCriticalStore
-          .getState()
-          .clinicalReceipt(receiptCV.id, {
-            confirmedBy: receiptDoctor,
-            comment: receiptComment,
-          });
+        await useCriticalStore.getState().clinicalReceipt(receiptCV.id, {
+          confirmedBy: receiptDoctor,
+          signature: receiptSignature || undefined,
+          comment: receiptComment,
+        });
         log("clinical_receipt", receiptCV.id, { confirmedBy: receiptDoctor });
         showToast(t("criticalValuePage.receiptRecorded"));
       }
@@ -460,6 +476,9 @@ export default function CriticalValuePage() {
       setReceiptCV(null);
       setReceiptDoctor("");
       setReceiptComment("");
+      setReceiptSignature("");
+    } catch (err) {
+      showActionError(err);
     } finally {
       setCvActionBusy(false);
     }
@@ -485,6 +504,8 @@ export default function CriticalValuePage() {
       }
       setShowNotifyModal(false);
       setNotifyCV(null);
+    } catch (err) {
+      showActionError(err);
     } finally {
       setCvActionBusy(false);
     }
@@ -610,6 +631,8 @@ export default function CriticalValuePage() {
       }
       setShowProcessModal(false);
       setProcessCV(null);
+    } catch (err) {
+      showActionError(err);
     } finally {
       setCvActionBusy(false);
     }
@@ -672,22 +695,38 @@ export default function CriticalValuePage() {
   const handleConfirm = async () => {
     setCvActionBusy(true);
     try {
+      // [F-1] 批量动作逐条判定成败: 任一条失败即如实报错, 不再整体弹「成功」
+      const failed: string[] = [];
       if (confirmType === "notify") {
         for (const id of Array.from(selectedIds)) {
-          await useCriticalStore.getState().notify(id, "SYSTEM");
-          log("batch_notify", id);
+          try {
+            await useCriticalStore.getState().notify(id, "SYSTEM");
+            log("batch_notify", id);
+          } catch (err) {
+            failed.push(id);
+            showActionError(err);
+          }
         }
-        showToast(
-          t("w9c.critical.batchNotifySuccess", { count: selectedIds.size }),
-        );
+        if (failed.length === 0) {
+          showToast(
+            t("w9c.critical.batchNotifySuccess", { count: selectedIds.size }),
+          );
+        }
       } else {
         for (const id of Array.from(selectedIds)) {
-          await useCriticalStore.getState().resolve(id);
-          log("batch_resolve", id);
+          try {
+            await useCriticalStore.getState().resolve(id);
+            log("batch_resolve", id);
+          } catch (err) {
+            failed.push(id);
+            showActionError(err);
+          }
         }
-        showToast(
-          t("w9c.critical.batchProcessSuccess", { count: selectedIds.size }),
-        );
+        if (failed.length === 0) {
+          showToast(
+            t("w9c.critical.batchProcessSuccess", { count: selectedIds.size }),
+          );
+        }
       }
       setSelectedIds(new Set());
       setShowConfirmModal(false);
@@ -1085,14 +1124,17 @@ export default function CriticalValuePage() {
         receiptCV={receiptCV}
         receiptDoctor={receiptDoctor}
         receiptComment={receiptComment}
+        receiptSignature={receiptSignature}
         onSetReceiptDoctor={setReceiptDoctor}
         onSetReceiptComment={setReceiptComment}
+        onSetReceiptSignature={setReceiptSignature}
         onConfirmReceipt={handleConfirmReceipt}
         onCancelReceipt={() => {
           setShowReceiptModal(false);
           setReceiptCV(null);
           setReceiptDoctor("");
           setReceiptComment("");
+          setReceiptSignature("");
         }}
         showConfirmModal={showConfirmModal}
         confirmMessage={confirmMessage}

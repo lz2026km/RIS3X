@@ -1354,14 +1354,15 @@ export class RegionalService {
   }
 
   /** [G005 Wave 4B] POST /regional/imaging/access-records — 记录跨院调阅 */
-  async createAccessRecord(body: Partial<AccessRecord>) {
+  // actorId: 真实调阅人 (由控制器从 JWT 传入), 优先于客户端传入的 accessor。
+  async createAccessRecord(body: Partial<AccessRecord>, actorId?: string) {
     const item: AccessRecord = {
       id: `ARC-${Date.now()}`,
       patientName: body.patientName ?? "",
       patientId: body.patientId ?? "",
       studyType: body.studyType ?? "",
       hospital: body.hospital ?? "",
-      accessor: body.accessor ?? "当前用户",
+      accessor: actorId?.trim() || body.accessor?.trim() || "unknown",
       purpose: body.purpose ?? "跨院调阅",
       accessTime: new Date().toISOString().slice(0, 16).replace("T", " "),
     };

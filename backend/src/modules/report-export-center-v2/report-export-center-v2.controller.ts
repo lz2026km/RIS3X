@@ -13,101 +13,144 @@
  * - GET    /report-export-center-v2/history                 导出历史
  * - GET    /report-export-center-v2/stats                   导出统计
  */
-import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common'
-import { Roles } from '../../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { ReportExportCenterV2Service } from './report-export-center-v2.service'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+  Req,
+} from "@nestjs/common";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { z } from "zod";
+import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
+import { ReportExportCenterV2Service } from "./report-export-center-v2.service";
+import { currentUserId } from "../../common/auth/current-user";
+import type { Request } from "express";
 
-const FormatEnum = z.enum(['PDF', 'DOCX', 'HTML', 'CSV', 'DICOM_SR'])
-const StateEnum = z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELED'])
+const FormatEnum = z.enum(["PDF", "DOCX", "HTML", "CSV", "DICOM_SR"]);
+const StateEnum = z.enum([
+  "PENDING",
+  "PROCESSING",
+  "COMPLETED",
+  "FAILED",
+  "CANCELED",
+]);
 
+// requestedBy 为操作人: 控制器一律用 JWT 认证身份覆盖客户端传入值, 避免署名可伪造。
 const CreateTaskSchema = z.object({
   format: FormatEnum,
   reportIds: z.array(z.string()).min(1),
-  requestedBy: z.string().default('当前用户'),
-  requestedByRole: z.string().default('DOCTOR'),
-})
+  requestedBy: z.string().optional(),
+  requestedByRole: z.string().default("DOCTOR"),
+});
 
 const BatchExportSchema = z.object({
   format: FormatEnum,
   reportIds: z.array(z.string()).min(1),
-  requestedBy: z.string().default('当前用户'),
-  requestedByRole: z.string().default('ADMIN'),
-})
+  requestedBy: z.string().optional(),
+  requestedByRole: z.string().default("ADMIN"),
+});
 
-@ApiTags('report-export-center-v2')
+@ApiTags("report-export-center-v2")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'CHIEF')
-@Controller('report-export-center-v2')
+@Roles("ADMIN", "DIRECTOR", "DOCTOR", "CHIEF")
+@Controller("report-export-center-v2")
 export class ReportExportCenterV2Controller {
   constructor(private readonly service: ReportExportCenterV2Service) {}
 
-  @Get('reports')
-  @ApiOperation({ summary: '可导出报告列表' })
+  @Get("reports")
+  @ApiOperation({ summary: "可导出报告列表" })
   listReports(@Query() query: Record<string, unknown>) {
-    const parsed = z.object({ examType: z.string().optional(), keyword: z.string().optional() }).safeParse(query)
-    return this.service.listReports(parsed.success ? parsed.data : {})
+    const parsed = z
+      .object({
+        examType: z.string().optional(),
+        keyword: z.string().optional(),
+      })
+      .safeParse(query);
+    return this.service.listReports(parsed.success ? parsed.data : {});
   }
 
-  @Post('tasks')
+  @Post("tasks")
   @HttpCode(200)
-  @ApiOperation({ summary: '创建导出任务 (PENDING)' })
-  createTask(@Body(new ZodValidationPipe(CreateTaskSchema)) body: z.infer<typeof CreateTaskSchema>) {
-    return this.service.createTask(body)
+  @ApiOperation({ summary: "创建导出任务 (PENDING)" })
+  createTask(
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(CreateTaskSchema))
+    body: z.infer<typeof CreateTaskSchema>,
+  ) {
+    return this.service.createTask({
+      ...body,
+      requestedBy: currentUserId(req),
+    });
   }
 
-  @Get('tasks')
-  @ApiOperation({ summary: '导出任务列表' })
+  @Get("tasks")
+  @ApiOperation({ summary: "导出任务列表" })
   listTasks(@Query() query: Record<string, unknown>) {
-    const parsed = z.object({ state: StateEnum.optional(), page: z.coerce.number().int().positive().optional(), pageSize: z.coerce.number().int().positive().max(100).optional() }).safeParse(query)
-    return this.service.listTasks(parsed.success ? parsed.data : {})
+    const parsed = z
+      .object({
+        state: StateEnum.optional(),
+        page: z.coerce.number().int().positive().optional(),
+        pageSize: z.coerce.number().int().positive().max(100).optional(),
+      })
+      .safeParse(query);
+    return this.service.listTasks(parsed.success ? parsed.data : {});
   }
 
-  @Get('tasks/:id')
-  @ApiOperation({ summary: '导出任务详情' })
-  getTask(@Param('id') id: string) {
-    return this.service.getTask(id)
+  @Get("tasks/:id")
+  @ApiOperation({ summary: "导出任务详情" })
+  getTask(@Param("id") id: string) {
+    return this.service.getTask(id);
   }
 
-  @Post('tasks/:id/process')
+  @Post("tasks/:id/process")
   @HttpCode(200)
-  @ApiOperation({ summary: '处理导出任务 (流转至 COMPLETED)' })
-  processTask(@Param('id') id: string) {
-    return this.service.processTask(id)
+  @ApiOperation({ summary: "处理导出任务 (流转至 COMPLETED)" })
+  processTask(@Param("id") id: string) {
+    return this.service.processTask(id);
   }
 
-  @Post('tasks/:id/cancel')
+  @Post("tasks/:id/cancel")
   @HttpCode(200)
-  @ApiOperation({ summary: '取消导出任务' })
-  cancelTask(@Param('id') id: string) {
-    return this.service.cancelTask(id)
+  @ApiOperation({ summary: "取消导出任务" })
+  cancelTask(@Param("id") id: string) {
+    return this.service.cancelTask(id);
   }
 
-  @Post('tasks/:id/download')
+  @Post("tasks/:id/download")
   @HttpCode(200)
-  @ApiOperation({ summary: '下载 (确定性内容)' })
-  download(@Param('id') id: string) {
-    return this.service.download(id)
+  @ApiOperation({ summary: "下载 (确定性内容)" })
+  download(@Param("id") id: string) {
+    return this.service.download(id);
   }
 
-  @Post('batch')
+  @Post("batch")
   @HttpCode(200)
-  @ApiOperation({ summary: '批量导出 (创建+处理, 权限校验)' })
-  batchExport(@Body(new ZodValidationPipe(BatchExportSchema)) body: z.infer<typeof BatchExportSchema>) {
-    return this.service.createAndProcess(body)
+  @ApiOperation({ summary: "批量导出 (创建+处理, 权限校验)" })
+  batchExport(
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(BatchExportSchema))
+    body: z.infer<typeof BatchExportSchema>,
+  ) {
+    return this.service.createAndProcess({
+      ...body,
+      requestedBy: currentUserId(req),
+    });
   }
 
-  @Get('history')
-  @ApiOperation({ summary: '导出历史' })
+  @Get("history")
+  @ApiOperation({ summary: "导出历史" })
   history() {
-    return this.service.history()
+    return this.service.history();
   }
 
-  @Get('stats')
-  @ApiOperation({ summary: '导出统计' })
+  @Get("stats")
+  @ApiOperation({ summary: "导出统计" })
   stats() {
-    return this.service.stats()
+    return this.service.stats();
   }
 }

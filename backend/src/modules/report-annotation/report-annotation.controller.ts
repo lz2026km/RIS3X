@@ -10,108 +10,126 @@
  *   - POST   /report-annotations/:id/reopen  重开
  *   - GET    /report-annotations/stats?reportId= 统计 (总数/未解决/按作者)
  */
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common'
-import { Roles } from '../../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from "@nestjs/common";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { z } from "zod";
+import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
 import {
   ReportAnnotationService,
   type ReportAnnotationActor,
-} from './report-annotation.service'
+} from "./report-annotation.service";
 
 const CreateSchema = z.object({
   reportId: z.string().min(1),
   content: z.string().min(2),
   quote: z.string().max(500).optional(),
   authorName: z.string().max(64).optional(),
-})
+});
 
 const UpdateSchema = z.object({
   content: z.string().min(2),
-})
+});
 
 const ReplySchema = z.object({
   content: z.string().min(2),
   authorName: z.string().max(64).optional(),
-})
+});
 
 const ResolveSchema = z.object({
   resolution: z.string().max(500).optional(),
-})
+});
 
-type AuthRequest = { user?: { sub?: string; username?: string } }
+type AuthRequest = { user?: { sub?: string; username?: string } };
 
-@ApiTags('report-annotation')
+@ApiTags("report-annotation")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
+@Roles("ADMIN", "DIRECTOR", "DOCTOR", "TECHNICIAN")
 @Controller()
 export class ReportAnnotationController {
   constructor(private readonly service: ReportAnnotationService) {}
 
   private actor(req: AuthRequest, name?: string): ReportAnnotationActor {
     return {
-      id: req.user?.sub ?? 'anonymous',
-      name: (name && name.trim()) || req.user?.username || '当前用户',
-    }
+      id: req.user?.sub ?? "anonymous",
+      name: (name && name.trim()) || req.user?.username || "unknown",
+    };
   }
 
-  @Get('report-annotations')
-  list(@Query('reportId') reportId?: string) {
-    const rid = String(reportId ?? '').trim()
-    if (!rid) throw new BadRequestException('reportId 必填')
-    return this.service.list(rid)
+  @Get("report-annotations")
+  list(@Query("reportId") reportId?: string) {
+    const rid = String(reportId ?? "").trim();
+    if (!rid) throw new BadRequestException("reportId 必填");
+    return this.service.list(rid);
   }
 
-  @Get('report-annotations/stats')
-  stats(@Query('reportId') reportId?: string) {
-    const rid = String(reportId ?? '').trim()
-    if (!rid) throw new BadRequestException('reportId 必填')
-    return this.service.stats(rid)
+  @Get("report-annotations/stats")
+  stats(@Query("reportId") reportId?: string) {
+    const rid = String(reportId ?? "").trim();
+    if (!rid) throw new BadRequestException("reportId 必填");
+    return this.service.stats(rid);
   }
 
-  @Post('report-annotations')
+  @Post("report-annotations")
   create(
     @Req() req: AuthRequest,
-    @Body(new ZodValidationPipe(CreateSchema)) body: z.infer<typeof CreateSchema>,
+    @Body(new ZodValidationPipe(CreateSchema))
+    body: z.infer<typeof CreateSchema>,
   ) {
-    return this.service.create(body, this.actor(req, body.authorName))
+    return this.service.create(body, this.actor(req, body.authorName));
   }
 
-  @Patch('report-annotations/:id')
+  @Patch("report-annotations/:id")
   update(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateSchema)) body: z.infer<typeof UpdateSchema>,
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateSchema))
+    body: z.infer<typeof UpdateSchema>,
   ) {
-    return this.service.update(id, body)
+    return this.service.update(id, body);
   }
 
-  @Delete('report-annotations/:id')
-  remove(@Param('id') id: string) {
-    this.service.remove(id)
-    return { success: true }
+  @Delete("report-annotations/:id")
+  remove(@Param("id") id: string) {
+    this.service.remove(id);
+    return { success: true };
   }
 
-  @Post('report-annotations/:id/reply')
+  @Post("report-annotations/:id/reply")
   reply(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Req() req: AuthRequest,
     @Body(new ZodValidationPipe(ReplySchema)) body: z.infer<typeof ReplySchema>,
   ) {
-    return this.service.reply(id, body.content, this.actor(req, body.authorName))
+    return this.service.reply(
+      id,
+      body.content,
+      this.actor(req, body.authorName),
+    );
   }
 
-  @Post('report-annotations/:id/resolve')
+  @Post("report-annotations/:id/resolve")
   resolve(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Req() req: AuthRequest,
-    @Body(new ZodValidationPipe(ResolveSchema)) body: z.infer<typeof ResolveSchema>,
+    @Body(new ZodValidationPipe(ResolveSchema))
+    body: z.infer<typeof ResolveSchema>,
   ) {
-    return this.service.resolve(id, body.resolution, this.actor(req))
+    return this.service.resolve(id, body.resolution, this.actor(req));
   }
 
-  @Post('report-annotations/:id/reopen')
-  reopen(@Param('id') id: string) {
-    return this.service.reopen(id)
+  @Post("report-annotations/:id/reopen")
+  reopen(@Param("id") id: string) {
+    return this.service.reopen(id);
   }
 }

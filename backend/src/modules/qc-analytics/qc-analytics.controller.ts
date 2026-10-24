@@ -15,113 +15,166 @@
  *   - POST /qc-analytics/loop/items/:id/close        关闭整改任务
  *   - GET  /qc-analytics/loop/stats                  闭环统计 (关闭率/平均闭环天数)
  */
-import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common'
-import { Roles } from '../../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { QcAnalyticsService } from './qc-analytics.service'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+  Req,
+} from "@nestjs/common";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { z } from "zod";
+import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
+import { QcAnalyticsService } from "./qc-analytics.service";
+import { currentUserId } from "../../common/auth/current-user";
+import type { Request } from "express";
 
 const CreateLoopItemSchema = z.object({
   defectId: z.string().min(1),
   assignee: z.string().optional(),
   assigneeName: z.string().optional(),
   title: z.string().optional(),
-})
+});
 
 const NoteSchema = z
   .object({
     actor: z.string().optional(),
     note: z.string().optional(),
   })
-  .optional()
+  .optional();
 
 const RecheckSchema = z.object({
-  result: z.enum(['pass', 'fail']),
+  result: z.enum(["pass", "fail"]),
   reviewer: z.string().min(1),
   note: z.string().optional(),
-})
+});
 
 const CloseSchema = z
   .object({
     note: z.string().optional(),
   })
-  .optional()
+  .optional();
 
-@ApiTags('qc-analytics')
+@ApiTags("qc-analytics")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
-@Controller('qc-analytics')
+@Roles("ADMIN", "DIRECTOR", "DOCTOR")
+@Controller("qc-analytics")
 export class QcAnalyticsController {
   constructor(private readonly service: QcAnalyticsService) {}
 
-  @Get('dashboard')
+  @Get("dashboard")
   async getDashboard() {
-    return { success: true, data: await this.service.getDashboard() }
+    return { success: true, data: await this.service.getDashboard() };
   }
 
-  @Get('trends')
-  async getTrends(@Query('period') period?: string) {
-    return { success: true, data: await this.service.getTrends(period === 'week' ? 'week' : 'month') }
+  @Get("trends")
+  async getTrends(@Query("period") period?: string) {
+    return {
+      success: true,
+      data: await this.service.getTrends(period === "week" ? "week" : "month"),
+    };
   }
 
-  @Get('pareto')
+  @Get("pareto")
   async getPareto() {
-    return { success: true, data: await this.service.getPareto() }
+    return { success: true, data: await this.service.getPareto() };
   }
 
-  @Get('departments')
+  @Get("departments")
   async getDepartments() {
-    return { success: true, data: await this.service.getDepartments() }
+    return { success: true, data: await this.service.getDepartments() };
   }
 
-  @Get('loop/defects')
-  async listLoopDefects(@Query('status') status?: string) {
-    return { success: true, data: await this.service.listLoopDefects(status) }
+  @Get("loop/defects")
+  async listLoopDefects(@Query("status") status?: string) {
+    return { success: true, data: await this.service.listLoopDefects(status) };
   }
 
-  @Post('loop/items')
+  @Post("loop/items")
   @HttpCode(200)
-  async createLoopItem(@Body(new ZodValidationPipe(CreateLoopItemSchema)) body: z.infer<typeof CreateLoopItemSchema>) {
-    return { success: true, data: await this.service.createLoopItem(body) }
+  async createLoopItem(
+    @Body(new ZodValidationPipe(CreateLoopItemSchema))
+    body: z.infer<typeof CreateLoopItemSchema>,
+  ) {
+    return { success: true, data: await this.service.createLoopItem(body) };
   }
 
-  @Get('loop/items')
-  async listLoopItems(@Query('status') status?: string) {
-    return { success: true, data: await this.service.listLoopItems(status) }
+  @Get("loop/items")
+  async listLoopItems(@Query("status") status?: string) {
+    return { success: true, data: await this.service.listLoopItems(status) };
   }
 
-  @Get('loop/items/:id')
-  async getLoopItem(@Param('id') id: string) {
-    return { success: true, data: await this.service.getLoopItem(id) }
+  @Get("loop/items/:id")
+  async getLoopItem(@Param("id") id: string) {
+    return { success: true, data: await this.service.getLoopItem(id) };
   }
 
-  @Post('loop/items/:id/start')
+  @Post("loop/items/:id/start")
   @HttpCode(200)
-  async startFix(@Param('id') id: string, @Body(new ZodValidationPipe(NoteSchema)) body?: z.infer<typeof NoteSchema>) {
-    return { success: true, data: await this.service.startFix(id, body ?? {}) }
+  async startFix(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(NoteSchema)) body?: z.infer<typeof NoteSchema>,
+  ) {
+    return {
+      success: true,
+      data: await this.service.startFix(id, body ?? {}, currentUserId(req)),
+    };
   }
 
-  @Post('loop/items/:id/fix')
+  @Post("loop/items/:id/fix")
   @HttpCode(200)
-  async submitFix(@Param('id') id: string, @Body(new ZodValidationPipe(NoteSchema)) body?: z.infer<typeof NoteSchema>) {
-    return { success: true, data: await this.service.submitFix(id, body ?? {}) }
+  async submitFix(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(NoteSchema)) body?: z.infer<typeof NoteSchema>,
+  ) {
+    return {
+      success: true,
+      data: await this.service.submitFix(id, body ?? {}, currentUserId(req)),
+    };
   }
 
-  @Post('loop/items/:id/recheck')
+  @Post("loop/items/:id/recheck")
   @HttpCode(200)
-  async recheckItem(@Param('id') id: string, @Body(new ZodValidationPipe(RecheckSchema)) body: z.infer<typeof RecheckSchema>) {
-    return { success: true, data: await this.service.recheckItem(id, body as { result: 'pass' | 'fail'; reviewer: string; note?: string }) }
+  async recheckItem(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(RecheckSchema))
+    body: z.infer<typeof RecheckSchema>,
+  ) {
+    return {
+      success: true,
+      data: await this.service.recheckItem(
+        id,
+        body as { result: "pass" | "fail"; reviewer: string; note?: string },
+      ),
+    };
   }
 
-  @Post('loop/items/:id/close')
+  @Post("loop/items/:id/close")
   @HttpCode(200)
-  async closeLoopItem(@Param('id') id: string, @Body(new ZodValidationPipe(CloseSchema)) body?: z.infer<typeof CloseSchema>) {
-    return { success: true, data: await this.service.closeLoopItem(id, body ?? {}) }
+  async closeLoopItem(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(CloseSchema))
+    body?: z.infer<typeof CloseSchema>,
+  ) {
+    return {
+      success: true,
+      data: await this.service.closeLoopItem(
+        id,
+        body ?? {},
+        currentUserId(req),
+      ),
+    };
   }
 
-  @Get('loop/stats')
+  @Get("loop/stats")
   getLoopStats() {
-    return { success: true, data: this.service.getLoopStats() }
+    return { success: true, data: this.service.getLoopStats() };
   }
 }

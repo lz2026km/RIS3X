@@ -19,163 +19,232 @@
  * - GET    /template-approval/favorites                 我的收藏
  * - GET    /template-approval/stats                     审批统计
  */
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common'
-import { Roles } from '../../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { TemplateApprovalService } from './template-approval.service'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from "@nestjs/common";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { z } from "zod";
+import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
+import { TemplateApprovalService } from "./template-approval.service";
+import { currentUserId } from "../../common/auth/current-user";
+import type { Request } from "express";
 
-const StateEnum = z.enum(['draft', 'pending', 'approved', 'rejected', 'published'])
+const StateEnum = z.enum([
+  "draft",
+  "pending",
+  "approved",
+  "rejected",
+  "published",
+]);
 
+// 操作人字段 (createdBy/changedBy/submittedBy/approvedBy/rejectedBy/publishedBy/by):
+// 控制器一律用 JWT 认证身份覆盖客户端传入值, 避免审批留痕可伪造。
 const CreateTemplateSchema = z.object({
   name: z.string().min(1),
-  category: z.string().default('通用'),
+  category: z.string().default("通用"),
   modality: z.string().optional(),
-  bodyPart: z.string().default('通用'),
+  bodyPart: z.string().default("通用"),
   content: z.string().min(1),
-  createdBy: z.string().default('当前用户'),
-})
+  createdBy: z.string().optional(),
+});
 
 const UpdateContentSchema = z.object({
   name: z.string().optional(),
   content: z.string().optional(),
   bodyPart: z.string().optional(),
-  changedBy: z.string().default('当前用户'),
+  changedBy: z.string().optional(),
   note: z.string().optional(),
-})
+});
 
 const SubmitSchema = z.object({
-  submittedBy: z.string().default('当前用户'),
+  submittedBy: z.string().optional(),
   comment: z.string().optional(),
-})
+});
 
 const ApproveSchema = z.object({
-  approvedBy: z.string().default('当前用户'),
+  approvedBy: z.string().optional(),
   comment: z.string().optional(),
-})
+});
 
 const RejectSchema = z.object({
-  rejectedBy: z.string().default('当前用户'),
+  rejectedBy: z.string().optional(),
   reason: z.string().min(1),
-})
+});
 
 const PublishSchema = z.object({
-  publishedBy: z.string().default('当前用户'),
+  publishedBy: z.string().optional(),
   comment: z.string().optional(),
-})
+});
 
 const ReworkSchema = z.object({
-  by: z.string().default('当前用户'),
+  by: z.string().optional(),
   comment: z.string().optional(),
-})
+});
 
 const AssignSchema = z.object({
-  dept: z.string().default('放射科'),
-  role: z.string().default('DIRECTOR'),
+  dept: z.string().default("放射科"),
+  role: z.string().default("DIRECTOR"),
   approverName: z.string().min(1),
-})
+});
 
-@ApiTags('template-approval')
+@ApiTags("template-approval")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
-@Controller('template-approval')
+@Roles("ADMIN", "DIRECTOR", "DOCTOR")
+@Controller("template-approval")
 export class TemplateApprovalController {
   constructor(private readonly service: TemplateApprovalService) {}
 
-  @Get('templates')
+  @Get("templates")
   listTemplates(@Query() query: Record<string, unknown>) {
     const parsed = z
-      .object({ state: StateEnum.optional(), category: z.string().optional(), keyword: z.string().optional() })
-      .safeParse(query)
-    return this.service.listTemplates(parsed.success ? parsed.data : {})
+      .object({
+        state: StateEnum.optional(),
+        category: z.string().optional(),
+        keyword: z.string().optional(),
+      })
+      .safeParse(query);
+    return this.service.listTemplates(parsed.success ? parsed.data : {});
   }
 
-  @Post('templates')
+  @Post("templates")
   @HttpCode(200)
-  createTemplate(@Body(new ZodValidationPipe(CreateTemplateSchema)) body: z.infer<typeof CreateTemplateSchema>) {
-    return this.service.createTemplate(body)
+  createTemplate(
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(CreateTemplateSchema))
+    body: z.infer<typeof CreateTemplateSchema>,
+  ) {
+    return this.service.createTemplate(
+      { ...body, createdBy: currentUserId(req) },
+      currentUserId(req),
+    );
   }
 
-  @Get('templates/:id')
-  getTemplate(@Param('id') id: string) {
-    return this.service.getTemplate(id)
+  @Get("templates/:id")
+  getTemplate(@Param("id") id: string) {
+    return this.service.getTemplate(id);
   }
 
-  @Patch('templates/:id/content')
+  @Patch("templates/:id/content")
   @HttpCode(200)
-  updateContent(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateContentSchema)) body: z.infer<typeof UpdateContentSchema>) {
-    return this.service.updateContent(id, body)
+  updateContent(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(UpdateContentSchema))
+    body: z.infer<typeof UpdateContentSchema>,
+  ) {
+    return this.service.updateContent(
+      id,
+      { ...body, changedBy: currentUserId(req) },
+      currentUserId(req),
+    );
   }
 
-  @Get('templates/:id/versions')
-  getVersions(@Param('id') id: string) {
-    return this.service.getVersions(id)
+  @Get("templates/:id/versions")
+  getVersions(@Param("id") id: string) {
+    return this.service.getVersions(id);
   }
 
-  @Get('templates/:id/approvals')
-  getApprovals(@Param('id') id: string) {
-    return this.service.getApprovals(id)
+  @Get("templates/:id/approvals")
+  getApprovals(@Param("id") id: string) {
+    return this.service.getApprovals(id);
   }
 
   // ===== 状态机 =====
-  @Post('templates/:id/submit')
+  @Post("templates/:id/submit")
   @HttpCode(200)
-  submit(@Param('id') id: string, @Body(new ZodValidationPipe(SubmitSchema)) body: z.infer<typeof SubmitSchema>) {
-    return this.service.submit(id, body)
+  submit(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(SubmitSchema))
+    body: z.infer<typeof SubmitSchema>,
+  ) {
+    return this.service.submit(id, body, currentUserId(req));
   }
 
-  @Post('templates/:id/approve')
+  @Post("templates/:id/approve")
   @HttpCode(200)
-  approve(@Param('id') id: string, @Body(new ZodValidationPipe(ApproveSchema)) body: z.infer<typeof ApproveSchema>) {
-    return this.service.approve(id, body)
+  approve(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(ApproveSchema))
+    body: z.infer<typeof ApproveSchema>,
+  ) {
+    return this.service.approve(id, body, currentUserId(req));
   }
 
-  @Post('templates/:id/reject')
+  @Post("templates/:id/reject")
   @HttpCode(200)
-  reject(@Param('id') id: string, @Body(new ZodValidationPipe(RejectSchema)) body: z.infer<typeof RejectSchema>) {
-    return this.service.reject(id, body)
+  reject(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(RejectSchema))
+    body: z.infer<typeof RejectSchema>,
+  ) {
+    return this.service.reject(id, body, currentUserId(req));
   }
 
-  @Post('templates/:id/publish')
+  @Post("templates/:id/publish")
   @HttpCode(200)
-  publish(@Param('id') id: string, @Body(new ZodValidationPipe(PublishSchema)) body: z.infer<typeof PublishSchema>) {
-    return this.service.publish(id, body)
+  publish(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(PublishSchema))
+    body: z.infer<typeof PublishSchema>,
+  ) {
+    return this.service.publish(id, body, currentUserId(req));
   }
 
-  @Post('templates/:id/rework')
+  @Post("templates/:id/rework")
   @HttpCode(200)
-  rework(@Param('id') id: string, @Body(new ZodValidationPipe(ReworkSchema)) body: z.infer<typeof ReworkSchema>) {
-    return this.service.rework(id, body)
+  rework(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(ReworkSchema))
+    body: z.infer<typeof ReworkSchema>,
+  ) {
+    return this.service.rework(id, body, currentUserId(req));
   }
 
-  @Post('templates/:id/assign')
+  @Post("templates/:id/assign")
   @HttpCode(200)
-  assignApprover(@Param('id') id: string, @Body(new ZodValidationPipe(AssignSchema)) body: z.infer<typeof AssignSchema>) {
-    return this.service.assignApprover(id, body)
+  assignApprover(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(AssignSchema))
+    body: z.infer<typeof AssignSchema>,
+  ) {
+    return this.service.assignApprover(id, body);
   }
 
   // ===== 收藏 / 使用 =====
-  @Post('templates/:id/favorite')
+  @Post("templates/:id/favorite")
   @HttpCode(200)
-  toggleFavorite(@Param('id') id: string, @Query('userId') userId?: string) {
-    return this.service.toggleFavorite(id, userId ?? 'u-001')
+  toggleFavorite(@Param("id") id: string, @Query("userId") userId?: string) {
+    return this.service.toggleFavorite(id, userId ?? "u-001");
   }
 
-  @Get('favorites')
-  listFavorites(@Query('userId') userId?: string) {
-    return this.service.listFavorites(userId ?? 'u-001')
+  @Get("favorites")
+  listFavorites(@Query("userId") userId?: string) {
+    return this.service.listFavorites(userId ?? "u-001");
   }
 
-  @Post('templates/:id/use')
+  @Post("templates/:id/use")
   @HttpCode(200)
-  recordUsage(@Param('id') id: string, @Query('usedBy') usedBy?: string) {
-    return this.service.recordUsage(id, usedBy)
+  recordUsage(@Param("id") id: string, @Query("usedBy") usedBy?: string) {
+    return this.service.recordUsage(id, usedBy);
   }
 
   // ===== 统计 =====
-  @Get('stats')
+  @Get("stats")
   stats() {
-    return this.service.stats()
+    return this.service.stats();
   }
 }

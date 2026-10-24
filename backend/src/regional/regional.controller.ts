@@ -7,11 +7,14 @@
   Param,
   Body,
   Query,
+  Req,
 } from "@nestjs/common";
 import { Roles } from "../common/decorators/roles.decorator";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { RegionalService } from "./regional.service";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
+import { currentUserId } from "../common/auth/current-user";
+import type { Request } from "express";
 import {
   UpdateScheduleSchema,
   CreateAccessApplicationSchema,
@@ -75,10 +78,11 @@ export class RegionalController {
   // [G005 Wave 4B] 跨院调阅记录 + 会诊参与 (RegionalCollaborationPage)
   @Post("imaging/access-records")
   createAccessRecord(
+    @Req() req: Request,
     @Body(new ZodValidationPipe(CreateAccessRecordSchema))
     body: Record<string, unknown>,
   ) {
-    return this.svc.createAccessRecord(body);
+    return this.svc.createAccessRecord(body, currentUserId(req));
   }
 
   @Post("imaging/consultations/:id/accept")

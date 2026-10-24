@@ -50,7 +50,7 @@ export class FhirService implements OnModuleInit {
 
   private async reloadSubscriptions() {
     const subs = await this.prisma.fhirResource.findMany({
-      where: { resourceType: "Subscription" },
+      where: { resourceType: "Subscription", tenantId: getCurrentTenantId() },
     });
     this.subscriptions.clear();
     for (const s of subs) {
@@ -67,7 +67,9 @@ export class FhirService implements OnModuleInit {
 
   // ── Patient ────────────────────────────────────────────
   async readPatient(id: string) {
-    const p = await this.prisma.patient.findUnique({ where: { id } });
+    const p = await this.prisma.patient.findFirst({
+      where: { id, tenantId: getCurrentTenantId() },
+    });
     if (!p) throw new NotFoundException(`Patient ${id} not found`);
     return this.toFhirPatient(p);
   }
@@ -78,7 +80,7 @@ export class FhirService implements OnModuleInit {
     birthdate?: string;
     _count?: string;
   }) {
-    const where: any = {};
+    const where: any = { tenantId: getCurrentTenantId() };
     if (query.name) where.name = { contains: query.name, mode: "insensitive" };
     if (query.identifier) where.idCard = query.identifier;
     if (query.birthdate) where.birthDate = new Date(query.birthdate);
@@ -96,7 +98,7 @@ export class FhirService implements OnModuleInit {
     };
     const p = await this.prisma.patient.create({
       data: {
-        tenantId: "default",
+        tenantId: getCurrentTenantId(),
         name: body.name?.[0]?.family ?? "",
         gender: genderMap[body.gender ?? ""] ?? "OTHER",
         birthDate: body.birthDate ? new Date(body.birthDate) : null,
@@ -117,10 +119,13 @@ export class FhirService implements OnModuleInit {
       other: "OTHER",
       unknown: "OTHER",
     };
-    const existing = await this.prisma.patient.findUnique({ where: { id } });
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.patient.findFirst({
+      where: { id, tenantId },
+    });
     if (!existing) throw new NotFoundException(`Patient ${id} not found`);
     const p = await this.prisma.patient.update({
-      where: { id },
+      where: { id, tenantId },
       data: {
         name: body.name?.[0]?.family ?? existing.name,
         gender: body.gender
@@ -139,7 +144,9 @@ export class FhirService implements OnModuleInit {
   }
 
   async deletePatient(id: string) {
-    await this.prisma.patient.delete({ where: { id } });
+    await this.prisma.patient.deleteMany({
+      where: { id, tenantId: getCurrentTenantId() },
+    });
     return {
       resourceType: "OperationOutcome",
       issue: [{ severity: "information", code: "deleted" }],
@@ -177,13 +184,15 @@ export class FhirService implements OnModuleInit {
 
   // ── Observation ────────────────────────────────────────
   async readObservation(id: string) {
-    const o = await this.prisma.report.findUnique({ where: { id } });
+    const o = await this.prisma.report.findFirst({
+      where: { id, tenantId: getCurrentTenantId() },
+    });
     if (!o) throw new NotFoundException(`Observation ${id} not found`);
     return this.toFhirObservation(o);
   }
 
   async searchObservation(query: { patient?: string; _count?: string }) {
-    const where: any = {};
+    const where: any = { tenantId: getCurrentTenantId() };
     if (query.patient) where.patientId = query.patient;
     const take = Number(query._count ?? 50);
     const obs = await this.prisma.report.findMany({ where, take });
@@ -192,8 +201,8 @@ export class FhirService implements OnModuleInit {
 
   // ── DiagnosticReport ───────────────────────────────────
   async readDiagnosticReport(id: string) {
-    const r = await this.prisma.report.findUnique({
-      where: { id },
+    const r = await this.prisma.report.findFirst({
+      where: { id, tenantId: getCurrentTenantId() },
       include: { patient: true },
     });
     if (!r) throw new NotFoundException(`DiagnosticReport ${id} not found`);
@@ -205,7 +214,7 @@ export class FhirService implements OnModuleInit {
     status?: string;
     _count?: string;
   }) {
-    const where: any = {};
+    const where: any = { tenantId: getCurrentTenantId() };
     if (query.patient) where.patientId = query.patient;
     if (query.status) where.state = query.status;
     const take = Number(query._count ?? 50);
@@ -219,7 +228,9 @@ export class FhirService implements OnModuleInit {
 
   // ── ImagingStudy ───────────────────────────────────────
   async readImagingStudy(id: string) {
-    const e = await this.prisma.exam.findUnique({ where: { id } });
+    const e = await this.prisma.exam.findFirst({
+      where: { id, tenantId: getCurrentTenantId() },
+    });
     if (!e) throw new NotFoundException(`ImagingStudy ${id} not found`);
     return this.toFhirImagingStudy(e);
   }
@@ -229,7 +240,7 @@ export class FhirService implements OnModuleInit {
     modality?: string;
     _count?: string;
   }) {
-    const where: any = {};
+    const where: any = { tenantId: getCurrentTenantId() };
     if (query.patient) where.patientId = query.patient;
     if (query.modality) where.modality = query.modality;
     const take = Number(query._count ?? 50);
@@ -239,12 +250,17 @@ export class FhirService implements OnModuleInit {
 
   // ── FHIR $everything ───────────────────────────────────
   async patientEverything(id: string) {
-    const patient = await this.prisma.patient.findUnique({ where: { id } });
-    if (!patient) throw new NotFoundException(`Patient ${id} not found`);
-    const reports = await this.prisma.report.findMany({
-      where: { patientId: id },
+    const patient = await this.prisma.patient.findFirst({
+      where: { id, tenantId: getCurrentTenantId() },
     });
-    const exams = await this.prisma.exam.findMany({ where: { patientId: id } });
+    if (!patient) throw new NotFoundException(`Patient ${id} not found`);
+    const tenantId = getCurrentTenantId();
+    const reports = await this.prisma.report.findMany({
+      where: { patientId: id, tenantId },
+    });
+    const exams = await this.prisma.exam.findMany({
+      where: { patientId: id, tenantId },
+    });
     return this.Bundle([
       this.toFhirPatient(patient),
       ...reports.map((r) => this.toFhirDiagnosticReport(r)),
@@ -267,7 +283,7 @@ export class FhirService implements OnModuleInit {
       const lines: string[] = [];
       try {
         if (!types || types.includes("Patient")) {
-          const where: any = {};
+          const where: any = { tenantId: getCurrentTenantId() };
           if (sinceDate) where.updatedAt = { gte: sinceDate };
           const patients = await this.prisma.patient.findMany({ where });
           for (const p of patients)
@@ -278,7 +294,7 @@ export class FhirService implements OnModuleInit {
           types.includes("Observation") ||
           types.includes("DiagnosticReport")
         ) {
-          const where: any = {};
+          const where: any = { tenantId: getCurrentTenantId() };
           if (sinceDate) where.updatedAt = { gte: sinceDate };
           const reports = await this.prisma.report.findMany({ where });
           for (const r of reports) {
@@ -289,7 +305,7 @@ export class FhirService implements OnModuleInit {
           }
         }
         if (!types || types.includes("ImagingStudy")) {
-          const where: any = {};
+          const where: any = { tenantId: getCurrentTenantId() };
           if (sinceDate) where.createdAt = { gte: sinceDate };
           const exams = await this.prisma.exam.findMany({ where });
           for (const e of exams)
@@ -363,7 +379,7 @@ export class FhirService implements OnModuleInit {
       where: { id: resource.id },
       create: {
         id: resource.id,
-        tenantId: "default",
+        tenantId: getCurrentTenantId(),
         resourceType: "Subscription",
         content: resource,
       },
@@ -375,7 +391,7 @@ export class FhirService implements OnModuleInit {
 
   async deleteSubscription(id: string) {
     await this.prisma.fhirResource
-      .delete({ where: { id } })
+      .deleteMany({ where: { id, tenantId: getCurrentTenantId() } })
       .catch((err) =>
         this.logger.warn(
           `Failed to delete FHIR resource ${id}: ${(err as Error).message}`,
@@ -389,14 +405,16 @@ export class FhirService implements OnModuleInit {
   }
 
   async getSubscription(id: string) {
-    const s = await this.prisma.fhirResource.findUnique({ where: { id } });
+    const s = await this.prisma.fhirResource.findFirst({
+      where: { id, tenantId: getCurrentTenantId() },
+    });
     if (!s) throw new NotFoundException(`Subscription ${id} not found`);
     return s.content;
   }
 
   async searchSubscription() {
     const subs = await this.prisma.fhirResource.findMany({
-      where: { resourceType: "Subscription" },
+      where: { resourceType: "Subscription", tenantId: getCurrentTenantId() },
     });
     return this.Bundle(subs.map((s) => s.content as any));
   }
@@ -529,7 +547,7 @@ export class FhirService implements OnModuleInit {
       where: { id: resource.id },
       create: {
         id: resource.id,
-        tenantId: "default",
+        tenantId: getCurrentTenantId(),
         resourceType: resource.resourceType,
         content: resource as any,
         patientId,
@@ -543,7 +561,9 @@ export class FhirService implements OnModuleInit {
   }
 
   async readFhirResource(resourceType: string, id: string) {
-    const r = await this.prisma.fhirResource.findUnique({ where: { id } });
+    const r = await this.prisma.fhirResource.findFirst({
+      where: { id, tenantId: getCurrentTenantId() },
+    });
     if (!r || r.resourceType !== resourceType)
       throw new NotFoundException(`${resourceType} ${id} not found`);
     return r.content;
@@ -553,7 +573,7 @@ export class FhirService implements OnModuleInit {
     resourceType: string,
     query: Record<string, string>,
   ) {
-    const where: any = { resourceType };
+    const where: any = { resourceType, tenantId: getCurrentTenantId() };
     if (query.patient) where.patientId = query.patient;
     const resources = await this.prisma.fhirResource.findMany({ where });
     return this.Bundle(resources.map((r) => r.content as any));

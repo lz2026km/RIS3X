@@ -1,10 +1,26 @@
 // [v3.0.6.8-32] 主数据池 → API DTO 适配函数
 // 把 v27 master pool (1720 实体) + v27 generators (1910 预生成)
 // 映射到前端 API client 期望的 DTO 结构
-import { PATIENT_MASTER, DEVICE_MASTER, DOCTOR_MASTER } from '../../data/master';
-import { EXAM_REPORT_PRE, QUALITY_SCORE_PRE } from '../../data/_generators';
-import type { PatientMaster, DeviceMaster, DoctorMaster, ExamItemMaster } from '../../data/master';
-import type { ExamReportRecord, DoctorPerformanceRecord, CriticalValueEvent, CosignTask, RadiologyKPIDaily, QualityScoreRecord } from '../../data/_generators/medicalDataGen';
+import {
+  PATIENT_MASTER,
+  DEVICE_MASTER,
+  DOCTOR_MASTER,
+} from "../../data/master";
+import { EXAM_REPORT_PRE, QUALITY_SCORE_PRE } from "../../data/_generators";
+import type {
+  PatientMaster,
+  DeviceMaster,
+  DoctorMaster,
+  ExamItemMaster,
+} from "../../data/master";
+import type {
+  ExamReportRecord,
+  DoctorPerformanceRecord,
+  CriticalValueEvent,
+  CosignTask,
+  RadiologyKPIDaily,
+  QualityScoreRecord,
+} from "../../data/_generators/medicalDataGen";
 
 // ==================== PatientDto ====================
 export interface PatientDto {
@@ -229,12 +245,13 @@ export function toExamDto(r: ExamReportRecord): ExamDto {
     status: r.status,
     priority: r.priority,
     scheduledAt: r.examAt,
-    patientType: '门诊',
+    patientType: "门诊",
     deviceId: r.deviceId,
     deviceModel: r.deviceModel,
     deviceName: r.deviceModel, // 别名 (DicomViewerPage 等老页面用)
     doctorId: r.reportDoctorId,
-    contrastUsed: r.criticalValueType !== null && r.criticalValueType !== undefined,
+    contrastUsed:
+      r.criticalValueType !== null && r.criticalValueType !== undefined,
     radiationDose: 0,
     dlp: 0,
     technicianId: r.doctorId,
@@ -243,14 +260,26 @@ export function toExamDto(r: ExamReportRecord): ExamDto {
     techNotes: (r as unknown as { techNotes?: string }).techNotes,
     qcNotes: (r as unknown as { qcNotes?: string }).qcNotes,
     qualityRating: (r as unknown as { qualityRating?: string }).qualityRating,
-    retakeCount: Number((r as unknown as { retakeCount?: number }).retakeCount ?? 0),
+    retakeCount: Number(
+      (r as unknown as { retakeCount?: number }).retakeCount ?? 0,
+    ),
     // [W6] Time-Out 门禁 / 重拍审批状态透出 (前端 start/retake 门禁依赖)
-    timeoutVerified: Boolean((r as unknown as { timeoutVerified?: boolean }).timeoutVerified),
-    retakeStatus: (r as unknown as { retakeStatus?: string | null }).retakeStatus ?? null,
-    retakeReason: (r as unknown as { retakeReason?: string | null }).retakeReason ?? null,
-    retakeApprover: (r as unknown as { retakeApprover?: string | null }).retakeApprover ?? null,
-    retakeApprovedAt: (r as unknown as { retakeApprovedAt?: string | null }).retakeApprovedAt ?? null,
-    retakeRequestNote: (r as unknown as { retakeRequestNote?: string | null }).retakeRequestNote ?? null,
+    timeoutVerified: Boolean(
+      (r as unknown as { timeoutVerified?: boolean }).timeoutVerified,
+    ),
+    retakeStatus:
+      (r as unknown as { retakeStatus?: string | null }).retakeStatus ?? null,
+    retakeReason:
+      (r as unknown as { retakeReason?: string | null }).retakeReason ?? null,
+    retakeApprover:
+      (r as unknown as { retakeApprover?: string | null }).retakeApprover ??
+      null,
+    retakeApprovedAt:
+      (r as unknown as { retakeApprovedAt?: string | null }).retakeApprovedAt ??
+      null,
+    retakeRequestNote:
+      (r as unknown as { retakeRequestNote?: string | null })
+        .retakeRequestNote ?? null,
     examItem: r.examItem,
     examItemName: r.examItem, // 别名
     examItemCode: r.examItemCode,
@@ -280,6 +309,8 @@ export interface ReportDto {
   createdTime: string;
   updatedTime: string;
   doctorId: string;
+  // [F-8] 报告医生姓名 (原先只透出工号, 报告检索「医生」列显示成 D002)
+  reportDoctorName?: string;
   qualityScore: number;
   reviewerId: string;
   coSignerId: string;
@@ -294,24 +325,32 @@ export interface ReportDto {
 
 // [W6] 报告小写 status → 后端大写 ReportState (toReportDto.state 透出 / 前端幂等门禁)
 const REPORT_STATUS_TO_STATE: Record<string, string> = {
-  draft: 'WRITING',
-  pending: 'PENDING_ASSIGNMENT',
-  submitted: 'SUBMITTED',
-  inreview: 'INITIAL_REVIEW',
-  in_review: 'INITIAL_REVIEW',
-  reviewed: 'REVIEWED',
-  cosigned: 'CO_SIGN_REVIEW',
-  signed: 'SIGNED',
-  published: 'PUBLISHED',
-  final: 'PUBLISHED',
-  amended: 'AMENDED',
-  rejected: 'REJECTED',
-  withdrawn: 'WITHDRAWN',
-  cancelled: 'WITHDRAWN',
-  archived: 'ARCHIVED',
-}
+  draft: "WRITING",
+  pending: "PENDING_ASSIGNMENT",
+  submitted: "SUBMITTED",
+  inreview: "INITIAL_REVIEW",
+  in_review: "INITIAL_REVIEW",
+  reviewed: "REVIEWED",
+  cosigned: "CO_SIGN_REVIEW",
+  signed: "SIGNED",
+  published: "PUBLISHED",
+  final: "PUBLISHED",
+  amended: "AMENDED",
+  rejected: "REJECTED",
+  withdrawn: "WITHDRAWN",
+  cancelled: "WITHDRAWN",
+  archived: "ARCHIVED",
+};
 
-export function toReportDto(r: ExamReportRecord, q?: QualityScoreRecord): ReportDto {
+// [F-8] 医生工号 → 姓名 (报告检索「医生」列需要姓名, 不能只给工号)
+const DOCTOR_NAME_BY_ID: Record<string, string> = Object.fromEntries(
+  DOCTOR_MASTER.map((d) => [d.id, d.name]),
+);
+
+export function toReportDto(
+  r: ExamReportRecord,
+  q?: QualityScoreRecord,
+): ReportDto {
   return {
     id: r.reportId,
     reportId: r.reportId,
@@ -322,19 +361,39 @@ export function toReportDto(r: ExamReportRecord, q?: QualityScoreRecord): Report
     bodyPart: r.bodyPart,
     status: mapReportStatus(r.status),
     // [W6] 透出后端大写 state (transition 落库或由 status 归一化) — 前端幂等流转门禁依赖
-    state: (r as unknown as { state?: string }).state ?? REPORT_STATUS_TO_STATE[String(r.status ?? '').toLowerCase()] ?? undefined,
+    state:
+      (r as unknown as { state?: string }).state ??
+      REPORT_STATUS_TO_STATE[String(r.status ?? "").toLowerCase()] ??
+      undefined,
     findings: r.findings,
     // [v3.0.6.11-98 Wave 1A P0] 富文本 HTML 持久化透出 (POST/PATCH 存于 exam 行, 随更新回读)
-    htmlContent: (r as any).htmlContent ?? '',
+    htmlContent: (r as any).htmlContent ?? "",
     diagnosis: r.impression,
     impression: r.impression,
     createdTime: r.examAt,
     updatedTime: r.signedAt || r.reviewedAt || r.reportAt,
     doctorId: r.reportDoctorId,
+    // [F-8] 透出报告医生姓名 (报告检索「医生」列需要姓名, 不能只给工号)
+    reportDoctorName:
+      (r as unknown as { reportDoctorName?: string }).reportDoctorName ||
+      DOCTOR_NAME_BY_ID[r.reportDoctorId] ||
+      "",
     qualityScore: q?.totalScore ?? r.qcScore,
-    reviewerId: r.reviewDoctorId || '',
-    coSignerId: r.cosignDoctorId || '',
-    qcGrade: q?.grade ?? (r.qcScore >= 95 ? 'A+' : r.qcScore >= 90 ? 'A' : r.qcScore >= 85 ? 'B+' : r.qcScore >= 80 ? 'B' : r.qcScore >= 75 ? 'C' : 'D'),
+    reviewerId: r.reviewDoctorId || "",
+    coSignerId: r.cosignDoctorId || "",
+    qcGrade:
+      q?.grade ??
+      (r.qcScore >= 95
+        ? "A+"
+        : r.qcScore >= 90
+          ? "A"
+          : r.qcScore >= 85
+            ? "B+"
+            : r.qcScore >= 80
+              ? "B"
+              : r.qcScore >= 75
+                ? "C"
+                : "D"),
     defectCount: r.defectCount,
     icd10: r.icd10,
     clinicalDiagnosis: r.clinicalDiagnosis,
@@ -343,17 +402,17 @@ export function toReportDto(r: ExamReportRecord, q?: QualityScoreRecord): Report
     // [v3.0.6.11-70] P0: 驳回原因透出 (transition → REJECTED 写入)
     rejectReason: (r as any).rejectReason,
     // [v3.0.6.11-70] P0: 报告正文透出 (所见/诊断/建议)
-    recommendations: (r as any).recommendations ?? '',
+    recommendations: (r as any).recommendations ?? "",
   };
 }
 
-function mapReportStatus(s: ExamReportRecord['status']): string {
+function mapReportStatus(s: ExamReportRecord["status"]): string {
   const map: Record<string, string> = {
-    draft: '草稿',
-    submitted: '已提交',
-    reviewed: '已审核',
-    cosigned: '已双签',
-    published: '已发布',
+    draft: "草稿",
+    submitted: "已提交",
+    reviewed: "已审核",
+    cosigned: "已双签",
+    published: "已发布",
   };
   return map[s] || s;
 }
@@ -373,8 +432,8 @@ export function adaptAllExams(): ExamDto[] {
 }
 export function adaptAllReports(): ReportDto[] {
   const qMap = new Map<string, QualityScoreRecord>();
-  QUALITY_SCORE_PRE.forEach(q => qMap.set(q.reportId, q));
-  return EXAM_REPORT_PRE.map(r => toReportDto(r, qMap.get(r.reportId)));
+  QUALITY_SCORE_PRE.forEach((q) => qMap.set(q.reportId, q));
+  return EXAM_REPORT_PRE.map((r) => toReportDto(r, qMap.get(r.reportId)));
 }
 
 // ==================== Doctor Performance DTO ====================
@@ -397,7 +456,9 @@ export interface DoctorPerformanceDto {
   peerReview: number;
 }
 
-export function toDoctorPerformanceDto(r: DoctorPerformanceRecord): DoctorPerformanceDto {
+export function toDoctorPerformanceDto(
+  r: DoctorPerformanceRecord,
+): DoctorPerformanceDto {
   return {
     id: r.id,
     doctorId: r.doctorId,

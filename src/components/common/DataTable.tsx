@@ -29,6 +29,11 @@ import {
 } from "../data/useTableColumnConfig";
 import { AppSkeleton } from "../feedback/Toast";
 import { t } from "../../i18n/appI18n";
+import {
+  EXAM_STATUS_MAP,
+  REPORT_STATUS_MAP,
+  displayReportStatus,
+} from "../../utils/statusMaps";
 
 type AnyColumn<RecordType extends object> =
   TableColumnType<RecordType> | TableColumnGroupType<RecordType>;
@@ -1021,7 +1026,10 @@ export function DataTable<RecordType extends object>({
             <Descriptions column={1} size="small" bordered>
               {(
                 drillDownFields ??
-                (inferDrillDownFields(drillRecord) as Array<{
+                (inferDrillDownFields(
+                  drillRecord,
+                  effectiveColumns as unknown as TableColumnsType<object>,
+                ) as Array<{
                   label: string;
                   key: string;
                   render?: (value: unknown, record: RecordType) => ReactNode;
@@ -1046,20 +1054,86 @@ export function DataTable<RecordType extends object>({
   );
 }
 
-/** [v3.0.6.16-6] 未显式提供 drillDownFields 时, 取该行全部标量字段 */ function inferDrillDownFields(
+/**
+ * [v3.0.6.16-6] 未显式提供 drillDownFields 时, 取该行全部标量字段。
+ *
+ * [F-9] 字段标签优先取列定义的 title (页面已给出中文表头), 操作列跳过;
+ *       没有对应列的字段用键名人性化, 绝不把机器键 (createdTime) 直接当标签。
+ */
+function inferDrillDownFields(
   record: object,
+  columns: TableColumnsType<object>,
 ): Array<{ label: string; key: string }> {
+  const titleMap = buildColumnTitleMap(columns);
   return Object.entries(record)
     .filter(
       ([, v]) =>
         v === null || ["string", "number", "boolean"].includes(typeof v),
     )
-    .map(([key]) => ({ label: key, key }));
+    .map(([key]) => ({
+      label: titleMap.get(key) ?? humanizeFieldKey(key),
+      key,
+    }));
+}
+
+/** [F-9] 列定义 → 字段名/标题 映射 (递归分组列, 跳过操作列) */
+function buildColumnTitleMap(
+  columns: TableColumnsType<object>,
+): Map<string, string> {
+  const map = new Map<string, string>();
+  const walk = (cols: TableColumnsType<object>): void => {
+    for (const col of cols) {
+      const anyCol = col as TableColumnType<object> & {
+        children?: TableColumnsType<object>;
+      };
+      if (Array.isArray(anyCol.children)) {
+        walk(anyCol.children);
+        continue;
+      }
+      if (isActionColumn(anyCol as AnyColumn<object>)) continue;
+      const title = anyCol.title;
+      if (typeof title !== "string" || title.trim() === "") continue;
+      const keys: string[] = [];
+      if (typeof anyCol.dataIndex === "string" && anyCol.dataIndex) {
+        keys.push(anyCol.dataIndex);
+      }
+      if (typeof anyCol.key === "string" && anyCol.key) keys.push(anyCol.key);
+      for (const key of keys) {
+        if (!map.has(key)) map.set(key, title.trim());
+      }
+    }
+  };
+  walk(columns);
+  return map;
+}
+
+/** [F-9] 键名人性化兜底 (createdTime → Created Time) */
+function humanizeFieldKey(key: string): string {
+  const words = key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .trim();
+  if (!words) return key;
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/**
+ * [F-9] 已知临床枚举 → 本地化标签 (复用仓库既有状态映射, 不另造映射表)。
+ * 未命中的值原样返回。
+ */
+function formatDrillDownEnum(value: string): string {
+  const key = value.trim();
+  if (!key) return value;
+  if (typeof REPORT_STATUS_MAP[key] === "string")
+    return displayReportStatus(key);
+  if (typeof EXAM_STATUS_MAP[key] === "string") return EXAM_STATUS_MAP[key];
+  return value;
 }
 
 function formatDrillDownValue(value: unknown): ReactNode {
   if (value === null || value === undefined) return "-";
   if (typeof value === "boolean") return value ? "是" : "否";
+  if (typeof value === "string") return formatDrillDownEnum(value);
   return String(value);
 }
 

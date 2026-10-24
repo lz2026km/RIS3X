@@ -3258,8 +3258,8 @@ const PendingAuditCard: React.FC<{
   onReject: (id: string) => void;
   onRequestInfo: (id: string) => void;
   onViewDetail: (id: string) => void;
-  t: (key: string) => string;
-}> = ({ audit, onApprove, onReject, onRequestInfo, onViewDetail, t }) => (
+  tr: (key: string) => string;
+}> = ({ audit, onApprove, onReject, onRequestInfo, onViewDetail, tr }) => (
   <div style={styles.card}>
     <div style={styles.cardHeader}>
       <div>
@@ -3281,10 +3281,10 @@ const PendingAuditCard: React.FC<{
           <Clock3 size={14} />
         )}
         {audit.urgency === "高"
-          ? t("highUrgency")
+          ? tr("highUrgency")
           : audit.urgency === "中"
-            ? t("mediumUrgency")
-            : t("lowUrgency")}
+            ? tr("mediumUrgency")
+            : tr("lowUrgency")}
       </span>
     </div>
 
@@ -3337,7 +3337,7 @@ const PendingAuditCard: React.FC<{
           }}
           onClick={() => onApprove(audit.id)}
         >
-          <Check size={16} /> {t("approve")}
+          <Check size={16} /> {tr("approve")}
         </button>
       </PermissionGate>
       <div
@@ -3361,7 +3361,7 @@ const PendingAuditCard: React.FC<{
           }}
           onClick={() => onReject(audit.id)}
         >
-          <X size={16} /> {t("reject")}
+          <X size={16} /> {tr("reject")}
         </button>
       </PermissionGate>
       <button
@@ -3373,7 +3373,7 @@ const PendingAuditCard: React.FC<{
         }}
         onClick={() => onRequestInfo(audit.id)}
       >
-        <MessageSquare size={16} /> {t("requestInfo")}
+        <MessageSquare size={16} /> {tr("requestInfo")}
       </button>
       <button
         type="button"
@@ -3393,22 +3393,22 @@ const PendingAuditCard: React.FC<{
 // 审核历史表格行
 // 审核历史结果单元格
 const HistoryResultCell: React.FC<{ result: string }> = ({ result }) => {
-  const { t } = useTranslation("insuranceAudit");
+  const { t: tr } = useTranslation("insuranceAudit");
   return (
     <StatusTag status={resultTone[result] ?? "warning"}>
       <ResultIcon result={result} />
       {result === "通过"
-        ? t("passed")
+        ? tr("passed")
         : result === "拒绝"
-          ? t("rejected")
-          : t("supplement")}
+          ? tr("rejected")
+          : tr("supplement")}
     </StatusTag>
   );
 };
 
 // 主组件
 export default function InsuranceAuditPage() {
-  const { t } = useTranslation("insuranceAudit");
+  const { t: tr } = useTranslation("insuranceAudit");
   const [indicationRulesState, setIndicationRules] =
     useState<IndicationRule[]>(indicationRules);
   const [activeTab, setActiveTab] = useState<TabKey>("pending");
@@ -3528,7 +3528,6 @@ export default function InsuranceAuditPage() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [voucherSearch, setVoucherSearch] = useState("");
   const [voucherFilterStatus, setVoucherFilterStatus] = useState("全部");
@@ -3968,19 +3967,19 @@ export default function InsuranceAuditPage() {
   const handleApprove = (id: string) => {
     setSelectedAudit(id);
     setToastType("success");
-    setToastMessage(t("approvedMsg") + `: ${id}`);
+    setToastMessage(tr("approvedMsg") + `: ${id}`);
     // 调用真实 API 并通过
     void insuranceApi.approve(id).then((res) => {
       if (!res.success) {
         setToastType("error");
         setToastMessage(
           res.error?.message ||
-            t("approveFailed", t("insuranceAudit.approveFailed")),
+            tr("approveFailed", t("insuranceAudit.approveFailed")),
         );
         return;
       }
       setToastType("success");
-      setToastMessage(t("approvedMsg") + `: ${id}`);
+      setToastMessage(tr("approvedMsg") + `: ${id}`);
       setPendingAudits((prev) => prev.filter((a) => a.id !== id));
     });
   };
@@ -3999,9 +3998,9 @@ export default function InsuranceAuditPage() {
     if (pendingId) {
       const reason =
         rejectReasonText.trim() ||
-        t("rejectDefaultReason", t("insuranceAudit.approveFailedReason"));
+        tr("rejectDefaultReason", t("insuranceAudit.approveFailedReason"));
       setToastType("error");
-      setToastMessage(t("rejectedMsg") + `: ${pendingId}`);
+      setToastMessage(tr("rejectedMsg") + `: ${pendingId}`);
       setShowRejectModal(false);
       setPendingId(null);
       setRejectReasonText("");
@@ -4013,7 +4012,7 @@ export default function InsuranceAuditPage() {
           setToastType("error");
           setToastMessage(
             res.error?.message ||
-              t("rejectFailed", t("insuranceAudit.rejectFailed")),
+              tr("rejectFailed", t("insuranceAudit.rejectFailed")),
           );
         }
       });
@@ -4023,7 +4022,7 @@ export default function InsuranceAuditPage() {
   const confirmRequestInfo = () => {
     if (pendingId) {
       setToastType("info");
-      setToastMessage(t("requestedMsg") + `: ${pendingId}`);
+      setToastMessage(tr("requestedMsg") + `: ${pendingId}`);
       setShowRequestInfoModal(false);
       setPendingId(null);
     }
@@ -4079,9 +4078,7 @@ export default function InsuranceAuditPage() {
     setCreating(false);
     if (res.success) {
       setToastType("success");
-      setToastMessage(
-        t("insuranceAudit.recordCreatedToast", { id: res.data.id }),
-      );
+      setToastMessage(`${t("w9.common.createSuccess")}: ${res.data.id}`);
       setShowCreateModal(false);
       // 同步刷新待审核列表
       const listRes = await insuranceApi.list();
@@ -4125,7 +4122,7 @@ export default function InsuranceAuditPage() {
         icon={
           <ShieldCheck size={22} style={{ color: "var(--color-primary)" }} />
         }
-        title={t("title")}
+        title={tr("title")}
         subtitle={
           /* [G005 Wave2B P2] statsData/fundTrendData 等大量硬编码 → 部分演示数据徽标 */
           <span
@@ -4147,20 +4144,20 @@ export default function InsuranceAuditPage() {
       {/* KPI 卡片 */}
       <div style={styles.kpiRow}>
         <StatCard
-          title={t("pendingCount")}
+          title={tr("pendingCount")}
           value={statsData.totalPending}
           icon={<ClipboardList size={22} />}
           color="info"
         />
         <StatCard
-          title={t("passRate")}
+          title={tr("passRate")}
           value={statsData.passRate}
           suffix="%"
           icon={<CheckCircle size={22} />}
           color="success"
         />
         <StatCard
-          title={t("todayProcessed")}
+          title={tr("todayProcessed")}
           value={statsData.todayProcessed}
           icon={<Activity size={22} />}
           color="warning"
@@ -4599,7 +4596,7 @@ export default function InsuranceAuditPage() {
             onClick={() => setActiveTab(key)}
           >
             {TAB_ICONS[key]}
-            {t(`tabs.${key}`)}
+            {tr(`tabs.${key}`)}
             {key === "pending" && (
               <span
                 style={{
@@ -4626,7 +4623,7 @@ export default function InsuranceAuditPage() {
               <Search size={16} color="var(--text-secondary)" />
               <input
                 style={styles.searchInput}
-                placeholder={t("searchPlaceholder")}
+                placeholder={tr("searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -4636,7 +4633,7 @@ export default function InsuranceAuditPage() {
               value={filterType}
               onChange={(v) => setFilterType(v)}
               options={[
-                { value: "全部", label: t("allTypes") },
+                { value: "全部", label: tr("allTypes") },
                 { value: "CT增强", label: t("insuranceAudit.typeCtEnhance") },
                 { value: "MRI增强", label: t("insuranceAudit.typeMriEnhance") },
                 { value: "DSA手术", label: t("insuranceAudit.typeDsaSurgery") },
@@ -4645,7 +4642,7 @@ export default function InsuranceAuditPage() {
             <button
               onClick={() => {
                 setToastType("success");
-                setToastMessage(t("refreshed"));
+                setToastMessage(tr("refreshed"));
                 // [Phase 2] 刷新时重新拉取医保平台数据
                 setAuditLoading(true);
                 void datareportApi.listInsuranceAudits().then((res) => {
@@ -4684,7 +4681,7 @@ export default function InsuranceAuditPage() {
               style={{ ...styles.btn, ...styles.btnOutline }}
             >
               <RefreshCw size={16} />
-              {t("refresh")}
+              {tr("refresh")}
             </button>
             <button
               onClick={openCreateModal}
@@ -4716,7 +4713,7 @@ export default function InsuranceAuditPage() {
                 style={{ marginBottom: "var(--space-3, 12px)", opacity: 0.5 }}
                 aria-hidden
               />
-              <div>{t("noPending")}</div>
+              <div>{tr("noPending")}</div>
               <div
                 style={{
                   fontSize: 12,
@@ -4738,7 +4735,7 @@ export default function InsuranceAuditPage() {
                     onReject={handleReject}
                     onRequestInfo={handleRequestInfo}
                     onViewDetail={handleViewDetail}
-                    t={t}
+                    tr={tr}
                   />
                 ))}
               </div>
@@ -4774,7 +4771,9 @@ export default function InsuranceAuditPage() {
                         return (
                           <button
                             key={page}
-                            aria-label={t("insuranceAudit.pageAria", { page })}
+                            aria-label={appT("w9a.insuranceAudit.pageAria", {
+                              page,
+                            })}
                             aria-current={
                               pendingPage === page ? "page" : undefined
                             }
@@ -4823,7 +4822,7 @@ export default function InsuranceAuditPage() {
               <Search size={16} color="var(--text-secondary)" />
               <input
                 style={styles.searchInput}
-                placeholder={t("searchPlaceholder")}
+                placeholder={tr("searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -4833,10 +4832,10 @@ export default function InsuranceAuditPage() {
               value={filterResult}
               onChange={(v) => setFilterResult(v)}
               options={[
-                { value: "全部", label: t("allResults") },
-                { value: "通过", label: t("passed") },
-                { value: "拒绝", label: t("rejected") },
-                { value: "补充资料", label: t("supplement") },
+                { value: "全部", label: tr("allResults") },
+                { value: "通过", label: tr("passed") },
+                { value: "拒绝", label: tr("rejected") },
+                { value: "补充资料", label: tr("supplement") },
               ]}
             />
             <button
@@ -4844,7 +4843,7 @@ export default function InsuranceAuditPage() {
               style={{ ...styles.btn, ...styles.btnOutline }}
             >
               <Filter size={16} />
-              {t("export")}
+              {tr("export")}
             </button>
           </div>
 
@@ -4856,44 +4855,44 @@ export default function InsuranceAuditPage() {
               scroll={{ x: 1400 }}
               columns={[
                 {
-                  title: t("history.auditTime"),
+                  title: tr("history.auditTime"),
                   dataIndex: "auditTime",
                   key: "auditTime",
                 },
                 {
-                  title: t("history.patientName"),
+                  title: tr("history.patientName"),
                   dataIndex: "patientName",
                   key: "patientName",
                 },
                 {
-                  title: t("history.patientId"),
+                  title: tr("history.patientId"),
                   dataIndex: "patientId",
                   key: "patientId",
                 },
                 {
-                  title: t("history.examItem"),
+                  title: tr("history.examItem"),
                   dataIndex: "examItem",
                   key: "examItem",
                 },
                 {
-                  title: t("history.drugName"),
+                  title: tr("history.drugName"),
                   dataIndex: "drugName",
                   key: "drugName",
                 },
                 {
-                  title: t("history.result"),
+                  title: tr("history.result"),
                   key: "result",
                   render: (_v, record) => (
                     <HistoryResultCell result={record.result} />
                   ),
                 },
                 {
-                  title: t("history.auditor"),
+                  title: tr("history.auditor"),
                   dataIndex: "auditor",
                   key: "auditor",
                 },
                 {
-                  title: t("history.notes"),
+                  title: tr("history.notes"),
                   key: "reason",
                   render: (_v, record) => record.reason || "-",
                 },
@@ -4903,9 +4902,7 @@ export default function InsuranceAuditPage() {
             <div style={styles.pagination}>
               <div style={styles.pageInfo}>
                 {t("history.totalRecords", {
-                  total: filteredHistory.length,
-                  page: historyPage,
-                  pages: totalPages,
+                  count: filteredHistory.length,
                 })}
               </div>
               <div style={styles.pageButtons}>
@@ -4966,7 +4963,7 @@ export default function InsuranceAuditPage() {
         <>
           <div style={styles.statsGrid}>
             <div style={styles.statCard}>
-              <div style={styles.statTitle}>{t("stats.monthlyTotal")}</div>
+              <div style={styles.statTitle}>{tr("stats.monthlyTotal")}</div>
               <div style={styles.statValue}>326</div>
               <TrendingUp
                 size={16}
@@ -7088,13 +7085,13 @@ export default function InsuranceAuditPage() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={t("confirmRejectTitle")}
+          aria-label={tr("confirmRejectTitle")}
           style={styles.modalOverlay}
           onClick={() => setShowRejectModal(false)}
         >
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalTitle}>{t("confirmRejectTitle")}</div>
-            <div style={styles.modalText}>{t("confirmRejectText")}</div>
+            <div style={styles.modalTitle}>{tr("confirmRejectTitle")}</div>
+            <div style={styles.modalText}>{tr("confirmRejectText")}</div>
             <textarea
               value={rejectReasonText}
               onChange={(e) => setRejectReasonText(e.target.value)}
@@ -7117,13 +7114,13 @@ export default function InsuranceAuditPage() {
                 style={{ ...styles.btn, ...styles.btnOutline }}
                 onClick={() => setShowRejectModal(false)}
               >
-                {t("cancel")}
+                {tr("cancel")}
               </button>
               <button
                 style={{ ...styles.btn, ...styles.btnDanger }}
                 onClick={confirmReject}
               >
-                {t("confirmReject")}
+                {tr("confirmReject")}
               </button>
             </div>
           </div>
@@ -7135,25 +7132,25 @@ export default function InsuranceAuditPage() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={t("confirmRequestTitle")}
+          aria-label={tr("confirmRequestTitle")}
           style={styles.modalOverlay}
           onClick={() => setShowRequestInfoModal(false)}
         >
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalTitle}>{t("confirmRequestTitle")}</div>
-            <div style={styles.modalText}>{t("confirmRequestText")}</div>
+            <div style={styles.modalTitle}>{tr("confirmRequestTitle")}</div>
+            <div style={styles.modalText}>{tr("confirmRequestText")}</div>
             <div style={styles.modalActions}>
               <button
                 style={{ ...styles.btn, ...styles.btnOutline }}
                 onClick={() => setShowRequestInfoModal(false)}
               >
-                {t("cancel")}
+                {tr("cancel")}
               </button>
               <button
                 style={{ ...styles.btn, ...styles.btnPrimary }}
                 onClick={confirmRequestInfo}
               >
-                {t("confirmSend")}
+                {tr("confirmSend")}
               </button>
             </div>
           </div>
@@ -7359,7 +7356,7 @@ export default function InsuranceAuditPage() {
                 onClick={() => setShowCreateModal(false)}
                 disabled={creating}
               >
-                {t("cancel")}
+                {tr("cancel")}
               </button>
               <button
                 style={{ ...styles.btn, ...styles.btnPrimary }}

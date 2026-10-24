@@ -346,11 +346,19 @@ export default function ReportSearchPage() {
         if (modality !== "all") params.modality = modality;
         if (status !== "all") params.status = status;
         const res = await reportApi.list(params);
-        if (res.success && Array.isArray(res.data)) {
-          const rows = (res.data as ReportDto[]).map((r) => ({
+        // [F-8] api.getList 统一归一为 { items, total }; 兼容旧裸数组形状
+        //       (此前只认裸数组 → 结果恒为空, 检索页永远「未检索到匹配报告」)
+        const listItems = Array.isArray(res.data)
+          ? (res.data as ReportDto[])
+          : ((res.data as { items?: ReportDto[] } | null)?.items ?? []);
+        if (res.success) {
+          const rows = (
+            listItems as (ReportDto & { reportDoctorName?: string })[]
+          ).map((r) => ({
             ...r,
             reportDate: r.createdTime || r.updatedTime || "",
-            doctorName: r.doctorId || "",
+            // [F-8] 「医生」列显示姓名, 姓名缺失时才回退到工号
+            doctorName: r.reportDoctorName || r.doctorId || "",
           }));
           let filtered = rows;
           if (bodyPart !== "all")

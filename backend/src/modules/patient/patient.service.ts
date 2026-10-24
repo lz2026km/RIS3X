@@ -1,115 +1,170 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
-import { PrismaService } from '../../prisma/prisma.service'
-import { currentTenantId } from '../../common/tenant/tenant-utils'
-import type { Patient } from '@prisma/client'
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { currentTenantId } from "../../common/tenant/tenant-utils";
+import { MAX_PAGE_SIZE } from "../../common/dto/pagination.dto";
+import type { Patient } from "@prisma/client";
 
 export interface CreatePatientDto {
-  name: string
-  gender: 'MALE' | 'FEMALE' | 'OTHER'
-  birthDate?: string
-  idCard?: string
-  phone?: string
-  type?: 'OUTPATIENT' | 'INPATIENT' | 'EMERGENCY' | 'PHYSICAL'
+  name: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  birthDate?: string;
+  idCard?: string;
+  phone?: string;
+  type?: "OUTPATIENT" | "INPATIENT" | "EMERGENCY" | "PHYSICAL";
 }
 
 export interface UpdatePatientDto {
-  name?: string
-  gender?: 'MALE' | 'FEMALE' | 'OTHER'
-  birthDate?: string
-  idCard?: string
-  phone?: string
-  type?: 'OUTPATIENT' | 'INPATIENT' | 'EMERGENCY' | 'PHYSICAL'
+  name?: string;
+  gender?: "MALE" | "FEMALE" | "OTHER";
+  birthDate?: string;
+  idCard?: string;
+  phone?: string;
+  type?: "OUTPATIENT" | "INPATIENT" | "EMERGENCY" | "PHYSICAL";
 }
 
 // ============ [G005 W6 登记/分诊深度] 结构化患者临床档案 (DB-less-safe 内存 overlay) ============
 // 证件类型: 身份证 / 护照 / 军官证 / 出生证 / 其他
-export type IdType = 'ID_CARD' | 'PASSPORT' | 'OFFICER_CARD' | 'BIRTH_CERT' | 'OTHER'
-export const ID_TYPES: IdType[] = ['ID_CARD', 'PASSPORT', 'OFFICER_CARD', 'BIRTH_CERT', 'OTHER']
+export type IdType =
+  "ID_CARD" | "PASSPORT" | "OFFICER_CARD" | "BIRTH_CERT" | "OTHER";
+export const ID_TYPES: IdType[] = [
+  "ID_CARD",
+  "PASSPORT",
+  "OFFICER_CARD",
+  "BIRTH_CERT",
+  "OTHER",
+];
 // 隔离标识 (基于传播途径)
-export type IsolationFlag = 'NONE' | 'CONTACT' | 'DROPLET' | 'AIRBORNE' | 'PROTECTIVE'
-export const ISOLATION_FLAGS: IsolationFlag[] = ['NONE', 'CONTACT', 'DROPLET', 'AIRBORNE', 'PROTECTIVE']
+export type IsolationFlag =
+  "NONE" | "CONTACT" | "DROPLET" | "AIRBORNE" | "PROTECTIVE";
+export const ISOLATION_FLAGS: IsolationFlag[] = [
+  "NONE",
+  "CONTACT",
+  "DROPLET",
+  "AIRBORNE",
+  "PROTECTIVE",
+];
 // 妊娠状态 (结构化)
-export type PregnancyStatus = 'NONE' | 'PREGNANT' | 'UNKNOWN' | 'NOT_APPLICABLE' | 'POSTPARTUM'
+export type PregnancyStatus =
+  "NONE" | "PREGNANT" | "UNKNOWN" | "NOT_APPLICABLE" | "POSTPARTUM";
 // eGFR 来源 (LIS 自动 / 手动录入 / 公式估算)
-export type EgfrSource = 'LIS' | 'MANUAL' | 'CALCULATED'
+export type EgfrSource = "LIS" | "MANUAL" | "CALCULATED";
 
 export interface StructuredAllergyCode {
   /** SNOMED-ish 编码, 如 373255001 (碘对比剂过敏) */
-  code: string
-  display: string
-  severity?: 'MILD' | 'MODERATE' | 'SEVERE' | 'UNKNOWN'
-  reaction?: string
+  code: string;
+  display: string;
+  severity?: "MILD" | "MODERATE" | "SEVERE" | "UNKNOWN";
+  reaction?: string;
 }
 
 export interface VitalsDto {
-  systolicBp?: number
-  diastolicBp?: number
-  heartRate?: number
-  temperature?: number
-  spo2?: number
-  respiratoryRate?: number
-  measuredAt?: string
+  systolicBp?: number;
+  diastolicBp?: number;
+  heartRate?: number;
+  temperature?: number;
+  spo2?: number;
+  respiratoryRate?: number;
+  measuredAt?: string;
 }
 
 export interface RenalFunctionDto {
-  egfr?: number
-  creatinine?: number
-  egfrSource?: EgfrSource
-  measuredAt?: string
+  egfr?: number;
+  creatinine?: number;
+  egfrSource?: EgfrSource;
+  measuredAt?: string;
 }
 
 export interface ClinicalProfileDto {
-  patientId: string
-  idType: IdType
-  documentType?: string
-  documentNo?: string
-  empiId: string
-  insuranceNo?: string
-  heightCm?: number
-  weightKg?: number
-  bmi?: number
-  structuredAllergyCodes: StructuredAllergyCode[]
-  pregnancyStatus: PregnancyStatus
-  renalFunction: RenalFunctionDto
-  isolationFlag: IsolationFlag
-  vitals: VitalsDto
-  updatedAt: string
+  patientId: string;
+  idType: IdType;
+  documentType?: string;
+  documentNo?: string;
+  empiId: string;
+  insuranceNo?: string;
+  heightCm?: number;
+  weightKg?: number;
+  bmi?: number;
+  structuredAllergyCodes: StructuredAllergyCode[];
+  pregnancyStatus: PregnancyStatus;
+  renalFunction: RenalFunctionDto;
+  isolationFlag: IsolationFlag;
+  vitals: VitalsDto;
+  updatedAt: string;
 }
 
 function hashSeed(input: string): number {
-  let h = 2166136261
+  let h = 2166136261;
   for (let i = 0; i < input.length; i++) {
-    h ^= input.charCodeAt(i)
-    h = Math.imul(h, 16777619)
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-  return h >>> 0
+  return h >>> 0;
 }
 
 /** 确定性临床档案 seed: 同一 patientId 恒同输出, 保证无 DB 时页面可复现 */
 export function seedClinicalProfile(patientId: string): ClinicalProfileDto {
-  const h = hashSeed(patientId || 'anonymous')
-  const idTypes: IdType[] = ['ID_CARD', 'PASSPORT', 'OFFICER_CARD', 'BIRTH_CERT', 'OTHER']
-  const isolations: IsolationFlag[] = ['NONE', 'NONE', 'CONTACT', 'DROPLET', 'AIRBORNE']
-  const pregnancies: PregnancyStatus[] = ['NOT_APPLICABLE', 'NONE', 'UNKNOWN', 'PREGNANT']
-  const heightCm = 158 + (h % 25)
-  const weightKg = 52 + (h % 40)
-  const bmi = Math.round((weightKg / ((heightCm / 100) * (heightCm / 100))) * 10) / 10
-  const egfr = 55 + (h % 60)
+  const h = hashSeed(patientId || "anonymous");
+  const idTypes: IdType[] = [
+    "ID_CARD",
+    "PASSPORT",
+    "OFFICER_CARD",
+    "BIRTH_CERT",
+    "OTHER",
+  ];
+  const isolations: IsolationFlag[] = [
+    "NONE",
+    "NONE",
+    "CONTACT",
+    "DROPLET",
+    "AIRBORNE",
+  ];
+  const pregnancies: PregnancyStatus[] = [
+    "NOT_APPLICABLE",
+    "NONE",
+    "UNKNOWN",
+    "PREGNANT",
+  ];
+  const heightCm = 158 + (h % 25);
+  const weightKg = 52 + (h % 40);
+  const bmi =
+    Math.round((weightKg / ((heightCm / 100) * (heightCm / 100))) * 10) / 10;
+  const egfr = 55 + (h % 60);
   return {
     patientId,
     idType: idTypes[h % idTypes.length]!,
-    documentType: '居民身份证',
-    documentNo: `110101${String(19600101 + (h % 20000)).slice(-8)}${String(h % 10000).padStart(4, '0')}`.slice(0, 18),
-    empiId: `EMPI-${String(h % 1000000).padStart(6, '0')}`,
-    insuranceNo: `YB-${String(h % 1000000000).padStart(9, '0')}`,
+    documentType: "居民身份证",
+    documentNo:
+      `110101${String(19600101 + (h % 20000)).slice(-8)}${String(h % 10000).padStart(4, "0")}`.slice(
+        0,
+        18,
+      ),
+    empiId: `EMPI-${String(h % 1000000).padStart(6, "0")}`,
+    insuranceNo: `YB-${String(h % 1000000000).padStart(9, "0")}`,
     heightCm,
     weightKg,
     bmi,
-    structuredAllergyCodes: h % 3 === 0
-      ? [{ code: '373255001', display: '碘对比剂过敏', severity: 'MODERATE', reaction: '皮疹/瘙痒' }]
-      : [],
+    structuredAllergyCodes:
+      h % 3 === 0
+        ? [
+            {
+              code: "373255001",
+              display: "碘对比剂过敏",
+              severity: "MODERATE",
+              reaction: "皮疹/瘙痒",
+            },
+          ]
+        : [],
     pregnancyStatus: pregnancies[h % pregnancies.length]!,
-    renalFunction: { egfr, creatinine: Math.round((9000 / egfr) * 10) / 10, egfrSource: h % 2 === 0 ? 'LIS' : 'MANUAL' as EgfrSource },
+    renalFunction: {
+      egfr,
+      creatinine: Math.round((9000 / egfr) * 10) / 10,
+      egfrSource: h % 2 === 0 ? "LIS" : ("MANUAL" as EgfrSource),
+    },
     isolationFlag: isolations[h % isolations.length]!,
     vitals: {
       systolicBp: 108 + (h % 70),
@@ -120,31 +175,38 @@ export function seedClinicalProfile(patientId: string): ClinicalProfileDto {
       respiratoryRate: 14 + (h % 10),
     },
     updatedAt: new Date(0).toISOString(),
-  }
+  };
 }
 
 /** 患者临床档案合并 (update 只覆盖显式传入字段) */
-export function mergeClinicalProfile(base: ClinicalProfileDto, patch: Partial<ClinicalProfileDto>): ClinicalProfileDto {
+export function mergeClinicalProfile(
+  base: ClinicalProfileDto,
+  patch: Partial<ClinicalProfileDto>,
+): ClinicalProfileDto {
   const next: ClinicalProfileDto = {
     ...base,
     ...patch,
-    structuredAllergyCodes: patch.structuredAllergyCodes ?? base.structuredAllergyCodes,
+    structuredAllergyCodes:
+      patch.structuredAllergyCodes ?? base.structuredAllergyCodes,
     renalFunction: { ...base.renalFunction, ...(patch.renalFunction ?? {}) },
     vitals: { ...base.vitals, ...(patch.vitals ?? {}) },
     updatedAt: new Date().toISOString(),
-  }
+  };
   if (next.heightCm && next.weightKg) {
-    next.bmi = Math.round((next.weightKg / ((next.heightCm / 100) * (next.heightCm / 100))) * 10) / 10
+    next.bmi =
+      Math.round(
+        (next.weightKg / ((next.heightCm / 100) * (next.heightCm / 100))) * 10,
+      ) / 10;
   }
-  return next
+  return next;
 }
 
 @Injectable()
 export class PatientService {
-  private readonly logger = new Logger(PatientService.name)
+  private readonly logger = new Logger(PatientService.name);
 
   // [G005 W6] 结构化临床档案内存 overlay (key = patientId)
-  private readonly clinicalProfiles = new Map<string, ClinicalProfileDto>()
+  private readonly clinicalProfiles = new Map<string, ClinicalProfileDto>();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -155,25 +217,49 @@ export class PatientService {
    * 数据源: patient + exam 派生; 空数据 seed 回退。
    */
   async getOverview() {
-    const where = { deletedAt: null, tenantId: currentTenantId() }
-    const start = new Date()
-    start.setHours(0, 0, 0, 0)
-    const monthAgo = new Date()
-    monthAgo.setDate(monthAgo.getDate() - 30)
-    const monthStart = new Date()
-    monthStart.setHours(0, 0, 0, 0)
-    monthStart.setDate(1)
+    const where = { deletedAt: null, tenantId: currentTenantId() };
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 30);
+    const monthStart = new Date();
+    monthStart.setHours(0, 0, 0, 0);
+    monthStart.setDate(1);
     try {
-      const [total, todayNew, activePatients, byType, byGender, monthlyNew] = await Promise.all([
-        this.prisma.patient.count({ where }),
-        this.prisma.patient.count({ where: { ...where, createdAt: { gte: start } } }),
-        this.prisma.exam.groupBy({ by: ['patientId'], where: { tenantId: currentTenantId(), createdAt: { gte: monthAgo } }, _count: { _all: true } }),
-        this.prisma.patient.groupBy({ by: ['type'], where, _count: { _all: true } }),
-        this.prisma.patient.groupBy({ by: ['gender'], where, _count: { _all: true } }),
-        this.prisma.patient.count({ where: { ...where, createdAt: { gte: monthStart } } }),
-      ])
-      const typeDistribution = Object.fromEntries(byType.map((g) => [g.type, g._count._all]))
-      const genderDistribution = Object.fromEntries(byGender.map((g) => [g.gender, g._count._all]))
+      const [total, todayNew, activePatients, byType, byGender, monthlyNew] =
+        await Promise.all([
+          this.prisma.patient.count({ where }),
+          this.prisma.patient.count({
+            where: { ...where, createdAt: { gte: start } },
+          }),
+          this.prisma.exam.groupBy({
+            by: ["patientId"],
+            where: {
+              tenantId: currentTenantId(),
+              createdAt: { gte: monthAgo },
+            },
+            _count: { _all: true },
+          }),
+          this.prisma.patient.groupBy({
+            by: ["type"],
+            where,
+            _count: { _all: true },
+          }),
+          this.prisma.patient.groupBy({
+            by: ["gender"],
+            where,
+            _count: { _all: true },
+          }),
+          this.prisma.patient.count({
+            where: { ...where, createdAt: { gte: monthStart } },
+          }),
+        ]);
+      const typeDistribution = Object.fromEntries(
+        byType.map((g) => [g.type, g._count._all]),
+      );
+      const genderDistribution = Object.fromEntries(
+        byGender.map((g) => [g.gender, g._count._all]),
+      );
       if (total === 0 && todayNew === 0) {
         return {
           total: 326,
@@ -181,11 +267,16 @@ export class PatientService {
           monthlyNew: 58,
           active: 42,
           activeRate: 12.9,
-          typeDistribution: { OUTPATIENT: 262, INPATIENT: 38, EMERGENCY: 14, PHYSICAL: 12 },
+          typeDistribution: {
+            OUTPATIENT: 262,
+            INPATIENT: 38,
+            EMERGENCY: 14,
+            PHYSICAL: 12,
+          },
           genderDistribution: { MALE: 168, FEMALE: 158 },
-        }
+        };
       }
-      const active = activePatients.length
+      const active = activePatients.length;
       return {
         total,
         todayNew,
@@ -194,18 +285,25 @@ export class PatientService {
         activeRate: total > 0 ? Number(((active / total) * 100).toFixed(1)) : 0,
         typeDistribution,
         genderDistribution,
-      }
+      };
     } catch (err) {
-      this.logger.warn(`[Patient] getOverview failed, fallback seed: ${(err as Error)?.message}`)
+      this.logger.warn(
+        `[Patient] getOverview failed, fallback seed: ${(err as Error)?.message}`,
+      );
       return {
         total: 326,
         todayNew: 7,
         monthlyNew: 58,
         active: 42,
         activeRate: 12.9,
-        typeDistribution: { OUTPATIENT: 262, INPATIENT: 38, EMERGENCY: 14, PHYSICAL: 12 },
+        typeDistribution: {
+          OUTPATIENT: 262,
+          INPATIENT: 38,
+          EMERGENCY: 14,
+          PHYSICAL: 12,
+        },
         genderDistribution: { MALE: 168, FEMALE: 158 },
-      }
+      };
     }
   }
 
@@ -216,45 +314,122 @@ export class PatientService {
   async getSummary(id: string) {
     const patient = await this.prisma.patient.findFirst({
       where: { id, deletedAt: null, tenantId: currentTenantId() },
-      select: { id: true, name: true, gender: true, birthDate: true, phone: true, type: true, createdAt: true },
-    })
-    if (!patient) throw new NotFoundException(`Patient ${id} not found`)
-    const where = { patientId: id, tenantId: currentTenantId() }
+      select: {
+        id: true,
+        name: true,
+        gender: true,
+        birthDate: true,
+        phone: true,
+        type: true,
+        createdAt: true,
+      },
+    });
+    if (!patient) throw new NotFoundException(`Patient ${id} not found`);
+    const where = { patientId: id, tenantId: currentTenantId() };
     const safeCount = async (model: any, extra: any = {}) => {
       try {
-        if (!model?.count) return 0
-        const n = await model.count({ where: { ...where, ...extra } })
-        return n ?? 0
-      } catch { return 0 }
-    }
+        if (!model?.count) return 0;
+        const n = await model.count({ where: { ...where, ...extra } });
+        return n ?? 0;
+      } catch {
+        return 0;
+      }
+    };
     const safeSum = async (model: any) => {
       try {
-        if (!model?.findMany) return 0
-        const rows = await model.findMany({ where, select: { totalAmount: true, paidAmount: true, status: true } })
-        return rows.reduce((a: number, r: any) => a + (Number(r.totalAmount ?? 0) - Number((r as any).paidAmount ?? 0)), 0)
-      } catch { return 0 }
-    }
-    const [examCount, reportCount, followUpCount, criticalCount, invoiceCount, totalCharges, recentExams, recentReports, followUps, criticals] = await Promise.all([
+        if (!model?.findMany) return 0;
+        const rows = await model.findMany({
+          where,
+          select: { totalAmount: true, paidAmount: true, status: true },
+        });
+        return rows.reduce(
+          (a: number, r: any) =>
+            a +
+            (Number(r.totalAmount ?? 0) - Number((r as any).paidAmount ?? 0)),
+          0,
+        );
+      } catch {
+        return 0;
+      }
+    };
+    const [
+      examCount,
+      reportCount,
+      followUpCount,
+      criticalCount,
+      invoiceCount,
+      totalCharges,
+      recentExams,
+      recentReports,
+      followUps,
+      criticals,
+    ] = await Promise.all([
       safeCount(this.prisma.exam),
       safeCount(this.prisma.report),
       safeCount((this.prisma as any).followUpPlan),
       safeCount(this.prisma.criticalValue),
       safeCount(this.prisma.invoice),
       safeSum(this.prisma.invoice),
-      this.prisma.exam.findMany({ where, orderBy: { createdAt: 'desc' }, take: 3, select: { id: true, modality: true, bodyPart: true, state: true, createdAt: true } }),
-      this.prisma.report.findMany({ where, orderBy: { createdAt: 'desc' }, take: 3, select: { id: true, state: true, conclusion: true, createdAt: true } }),
-      (this.prisma as any).followUpPlan?.findMany?.({ where, orderBy: { nextDate: 'asc' }, take: 3 }).catch(() => []) ?? [],
-      this.prisma.criticalValue.findMany({ where, orderBy: { createdAt: 'desc' }, take: 3, select: { id: true, description: true, severity: true, state: true, createdAt: true } }),
-    ])
+      this.prisma.exam.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        select: {
+          id: true,
+          modality: true,
+          bodyPart: true,
+          state: true,
+          createdAt: true,
+        },
+      }),
+      this.prisma.report.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        select: { id: true, state: true, conclusion: true, createdAt: true },
+      }),
+      (this.prisma as any).followUpPlan
+        ?.findMany?.({ where, orderBy: { nextDate: "asc" }, take: 3 })
+        .catch(() => []) ?? [],
+      this.prisma.criticalValue.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        select: {
+          id: true,
+          description: true,
+          severity: true,
+          state: true,
+          createdAt: true,
+        },
+      }),
+    ]);
     return {
       patient,
-      counts: { exams: examCount, reports: reportCount, followUps: followUpCount, criticalValues: criticalCount, invoices: invoiceCount },
+      counts: {
+        exams: examCount,
+        reports: reportCount,
+        followUps: followUpCount,
+        criticalValues: criticalCount,
+        invoices: invoiceCount,
+      },
       totalCharges: Math.round(totalCharges),
       recentExams,
       recentReports,
-      followUps: followUps.map((f: any) => ({ id: f.id, nextDate: f.nextDate?.toISOString?.() ?? '', status: f.status, note: f.note })),
-      criticals: criticals.map((c) => ({ id: c.id, description: c.description, severity: c.severity, state: c.state, createdAt: c.createdAt?.toISOString?.() ?? '' })),
-    }
+      followUps: followUps.map((f: any) => ({
+        id: f.id,
+        nextDate: f.nextDate?.toISOString?.() ?? "",
+        status: f.status,
+        note: f.note,
+      })),
+      criticals: criticals.map((c) => ({
+        id: c.id,
+        description: c.description,
+        severity: c.severity,
+        state: c.state,
+        createdAt: c.createdAt?.toISOString?.() ?? "",
+      })),
+    };
   }
 
   /**
@@ -262,46 +437,128 @@ export class PatientService {
    * 数据源: patientVisit/appointment/exam 派生; 空数据 seed 回退。
    */
   async getVisitHistory(id: string) {
-    const patient = await this.prisma.patient.findFirst({ where: { id, deletedAt: null, tenantId: currentTenantId() } })
-    if (!patient) throw new NotFoundException(`Patient ${id} not found`)
-    const where = { patientId: id, tenantId: currentTenantId() }
-    type VisitEvent = { type: string; label: string; date: string; detail: string; status: string }
-    const events: VisitEvent[] = []
+    const patient = await this.prisma.patient.findFirst({
+      where: { id, deletedAt: null, tenantId: currentTenantId() },
+    });
+    if (!patient) throw new NotFoundException(`Patient ${id} not found`);
+    const where = { patientId: id, tenantId: currentTenantId() };
+    type VisitEvent = {
+      type: string;
+      label: string;
+      date: string;
+      detail: string;
+      status: string;
+    };
+    const events: VisitEvent[] = [];
     try {
       const [visits, appointments, exams] = await Promise.all([
-        (this.prisma as any).patientVisit?.findMany?.({ where, orderBy: { createdAt: 'desc' } }).catch(() => []) ?? [],
-        this.prisma.appointment.findMany({ where, orderBy: { scheduledAt: 'desc' }, take: 20, select: { id: true, modality: true, bodyPart: true, scheduledAt: true, state: true } }),
-        this.prisma.exam.findMany({ where, orderBy: { createdAt: 'desc' }, take: 20, select: { id: true, modality: true, bodyPart: true, createdAt: true, state: true } }),
-      ])
+        (this.prisma as any).patientVisit
+          ?.findMany?.({ where, orderBy: { createdAt: "desc" } })
+          .catch(() => []) ?? [],
+        this.prisma.appointment.findMany({
+          where,
+          orderBy: { scheduledAt: "desc" },
+          take: 20,
+          select: {
+            id: true,
+            modality: true,
+            bodyPart: true,
+            scheduledAt: true,
+            state: true,
+          },
+        }),
+        this.prisma.exam.findMany({
+          where,
+          orderBy: { createdAt: "desc" },
+          take: 20,
+          select: {
+            id: true,
+            modality: true,
+            bodyPart: true,
+            createdAt: true,
+            state: true,
+          },
+        }),
+      ]);
       for (const v of visits) {
-        events.push({ type: 'visit', label: '就诊登记', date: v.createdAt?.toISOString?.() ?? '', detail: `就诊号 ${v.visitNumber ?? ''}`, status: v.status ?? '' })
+        events.push({
+          type: "visit",
+          label: "就诊登记",
+          date: v.createdAt?.toISOString?.() ?? "",
+          detail: `就诊号 ${v.visitNumber ?? ""}`,
+          status: v.status ?? "",
+        });
       }
       for (const a of appointments) {
-        events.push({ type: 'appointment', label: '预约登记', date: a.scheduledAt?.toISOString?.() ?? '', detail: `${a.modality} / ${a.bodyPart ?? ''}`, status: a.state })
+        events.push({
+          type: "appointment",
+          label: "预约登记",
+          date: a.scheduledAt?.toISOString?.() ?? "",
+          detail: `${a.modality} / ${a.bodyPart ?? ""}`,
+          status: a.state,
+        });
       }
       for (const e of exams) {
-        events.push({ type: 'exam', label: '检查执行', date: e.createdAt?.toISOString?.() ?? '', detail: `${e.modality} / ${e.bodyPart}`, status: e.state })
+        events.push({
+          type: "exam",
+          label: "检查执行",
+          date: e.createdAt?.toISOString?.() ?? "",
+          detail: `${e.modality} / ${e.bodyPart}`,
+          status: e.state,
+        });
       }
     } catch (err) {
-      this.logger.warn(`[Patient] getVisitHistory failed, fallback seed: ${(err as Error)?.message}`)
+      this.logger.warn(
+        `[Patient] getVisitHistory failed, fallback seed: ${(err as Error)?.message}`,
+      );
     }
     if (events.length === 0) {
-      const base = new Date()
+      const base = new Date();
       const days = (n: number) => {
-        const d = new Date(base)
-        d.setDate(d.getDate() - n)
-        return d.toISOString()
-      }
+        const d = new Date(base);
+        d.setDate(d.getDate() - n);
+        return d.toISOString();
+      };
       events.push(
-        { type: 'visit', label: '就诊登记', date: days(90), detail: '就诊号 V20260517001', status: 'discharged' },
-        { type: 'appointment', label: '预约登记', date: days(32), detail: 'CT / 胸部', status: 'COMPLETED' },
-        { type: 'exam', label: '检查执行', date: days(30), detail: 'CT / 胸部', status: 'COMPLETED' },
-        { type: 'visit', label: '就诊登记', date: days(12), detail: '就诊号 V20260704008', status: 'registered' },
-        { type: 'appointment', label: '预约登记', date: days(3), detail: 'MR / 头颅', status: 'SCHEDULED' },
-      )
+        {
+          type: "visit",
+          label: "就诊登记",
+          date: days(90),
+          detail: "就诊号 V20260517001",
+          status: "discharged",
+        },
+        {
+          type: "appointment",
+          label: "预约登记",
+          date: days(32),
+          detail: "CT / 胸部",
+          status: "COMPLETED",
+        },
+        {
+          type: "exam",
+          label: "检查执行",
+          date: days(30),
+          detail: "CT / 胸部",
+          status: "COMPLETED",
+        },
+        {
+          type: "visit",
+          label: "就诊登记",
+          date: days(12),
+          detail: "就诊号 V20260704008",
+          status: "registered",
+        },
+        {
+          type: "appointment",
+          label: "预约登记",
+          date: days(3),
+          detail: "MR / 头颅",
+          status: "SCHEDULED",
+        },
+      );
     }
-    events.sort((a, b) => (a.date > b.date ? -1 : 1))
-    return { patientId: id, total: events.length, events }
+    events.sort((a, b) => (a.date > b.date ? -1 : 1));
+    return { patientId: id, total: events.length, events };
   }
 
   /**
@@ -309,117 +566,162 @@ export class PatientService {
    * 数据源: patient birthDate 派生; 无 birthDate/空库 seed 回退。
    */
   async getAgeDistribution() {
-    const BUCKETS = ['0-17', '18-30', '31-45', '46-60', '61-75', '76+'] as const
+    const BUCKETS = [
+      "0-17",
+      "18-30",
+      "31-45",
+      "46-60",
+      "61-75",
+      "76+",
+    ] as const;
     const bucketOf = (age: number): string => {
-      if (age < 18) return '0-17'
-      if (age < 31) return '18-30'
-      if (age < 46) return '31-45'
-      if (age < 61) return '46-60'
-      if (age < 76) return '61-75'
-      return '76+'
-    }
+      if (age < 18) return "0-17";
+      if (age < 31) return "18-30";
+      if (age < 46) return "31-45";
+      if (age < 61) return "46-60";
+      if (age < 76) return "61-75";
+      return "76+";
+    };
     try {
       const patients = await this.prisma.patient.findMany({
-        where: { deletedAt: null, tenantId: currentTenantId(), birthDate: { not: null } },
+        where: {
+          deletedAt: null,
+          tenantId: currentTenantId(),
+          birthDate: { not: null },
+        },
         select: { birthDate: true, gender: true },
-      })
-      const now = new Date()
-      const buckets = BUCKETS.map((bucket) => ({ bucket, count: 0, male: 0, female: 0 }))
-      const bucketMap = new Map<string, { count: number; male: number; female: number }>()
-      for (const b of buckets) bucketMap.set(b.bucket, b)
-      let aged = 0
+      });
+      const now = new Date();
+      const buckets = BUCKETS.map((bucket) => ({
+        bucket,
+        count: 0,
+        male: 0,
+        female: 0,
+      }));
+      const bucketMap = new Map<
+        string,
+        { count: number; male: number; female: number }
+      >();
+      for (const b of buckets) bucketMap.set(b.bucket, b);
+      let aged = 0;
       for (const p of patients) {
-        if (!p.birthDate) continue
-        const age = Math.floor((now.getTime() - p.birthDate.getTime()) / (365.25 * 24 * 3600 * 1000))
-        const entry = bucketMap.get(bucketOf(age))!
-        entry.count += 1
-        if (p.gender === 'MALE') entry.male += 1
-        else if (p.gender === 'FEMALE') entry.female += 1
-        aged += 1
+        if (!p.birthDate) continue;
+        const age = Math.floor(
+          (now.getTime() - p.birthDate.getTime()) / (365.25 * 24 * 3600 * 1000),
+        );
+        const entry = bucketMap.get(bucketOf(age))!;
+        entry.count += 1;
+        if (p.gender === "MALE") entry.male += 1;
+        else if (p.gender === "FEMALE") entry.female += 1;
+        aged += 1;
       }
       if (aged === 0) {
         return {
           total: 326,
           items: [
-            { bucket: '0-17', count: 14, male: 8, female: 6 },
-            { bucket: '18-30', count: 42, male: 20, female: 22 },
-            { bucket: '31-45', count: 78, male: 41, female: 37 },
-            { bucket: '46-60', count: 95, male: 50, female: 45 },
-            { bucket: '61-75', count: 72, male: 38, female: 34 },
-            { bucket: '76+', count: 25, male: 11, female: 14 },
+            { bucket: "0-17", count: 14, male: 8, female: 6 },
+            { bucket: "18-30", count: 42, male: 20, female: 22 },
+            { bucket: "31-45", count: 78, male: 41, female: 37 },
+            { bucket: "46-60", count: 95, male: 50, female: 45 },
+            { bucket: "61-75", count: 72, male: 38, female: 34 },
+            { bucket: "76+", count: 25, male: 11, female: 14 },
           ],
-        }
+        };
       }
-      return { total: aged, items: buckets }
+      return { total: aged, items: buckets };
     } catch (err) {
-      this.logger.warn(`[Patient] getAgeDistribution failed, fallback seed: ${(err as Error)?.message}`)
+      this.logger.warn(
+        `[Patient] getAgeDistribution failed, fallback seed: ${(err as Error)?.message}`,
+      );
       return {
         total: 326,
         items: [
-          { bucket: '0-17', count: 14, male: 8, female: 6 },
-          { bucket: '18-30', count: 42, male: 20, female: 22 },
-          { bucket: '31-45', count: 78, male: 41, female: 37 },
-          { bucket: '46-60', count: 95, male: 50, female: 45 },
-          { bucket: '61-75', count: 72, male: 38, female: 34 },
-          { bucket: '76+', count: 25, male: 11, female: 14 },
+          { bucket: "0-17", count: 14, male: 8, female: 6 },
+          { bucket: "18-30", count: 42, male: 20, female: 22 },
+          { bucket: "31-45", count: 78, male: 41, female: 37 },
+          { bucket: "46-60", count: 95, male: 50, female: 45 },
+          { bucket: "61-75", count: 72, male: 38, female: 34 },
+          { bucket: "76+", count: 25, male: 11, female: 14 },
         ],
-      }
+      };
     }
   }
 
   // [v3.0.6.11-104 Wave 1C] 补齐 gender/type 筛选 (可选, 未传保持原行为)
-  async list(params: { skip?: number; take?: number; name?: string; phone?: string; gender?: string; type?: string }) {
-    const where: any = { deletedAt: null, tenantId: currentTenantId() }
-    if (params.name) where.name = { contains: params.name }
-    if (params.phone) where.phone = { contains: params.phone }
-    if (params.gender) where.gender = params.gender
-    if (params.type) where.type = params.type
+  async list(params: {
+    skip?: number;
+    take?: number;
+    name?: string;
+    phone?: string;
+    gender?: string;
+    type?: string;
+  }) {
+    const where: any = { deletedAt: null, tenantId: currentTenantId() };
+    if (params.name) where.name = { contains: params.name };
+    if (params.phone) where.phone = { contains: params.phone };
+    if (params.gender) where.gender = params.gender;
+    if (params.type) where.type = params.type;
     const [items, total] = await Promise.all([
       this.prisma.patient.findMany({
         where,
-        skip: params.skip ?? 0,
-        take: params.take ?? 50,
-        orderBy: { createdAt: 'desc' },
+        skip: Number.isFinite(params.skip)
+          ? Math.max(0, Math.trunc(params.skip as number))
+          : 0,
+        take: Number.isFinite(params.take)
+          ? Math.min(
+              MAX_PAGE_SIZE,
+              Math.max(1, Math.trunc(params.take as number)),
+            )
+          : 50,
+        orderBy: { createdAt: "desc" },
       }),
       this.prisma.patient.count({ where }),
-    ])
-    return { items, total }
+    ]);
+    return { items, total };
   }
 
   // ============ [G005 W6] 结构化临床档案: 证件/EMPI/医保/身高体重/结构化过敏/妊娠/肾功能/隔离/生命体征 ============
 
   /** GET /patients/:id/clinical-profile — 结构化临床档案 (内存 overlay, 无记录返回确定性 seed) */
   async getClinicalProfile(id: string): Promise<ClinicalProfileDto> {
-    const existing = this.clinicalProfiles.get(id)
-    if (existing) return existing
+    const existing = this.clinicalProfiles.get(id);
+    if (existing) return existing;
     // 校验患者存在性 (DB 不可用时静默跳过, 保持 DB-less-safe)
     try {
-      const p = await this.prisma.patient.findFirst({ where: { id, deletedAt: null, tenantId: currentTenantId() }, select: { id: true } })
-      if (!p) throw new NotFoundException(`Patient ${id} not found`)
+      const p = await this.prisma.patient.findFirst({
+        where: { id, deletedAt: null, tenantId: currentTenantId() },
+        select: { id: true },
+      });
+      if (!p) throw new NotFoundException(`Patient ${id} not found`);
     } catch (err) {
-      if (err instanceof NotFoundException) throw err
-      this.logger.warn(`[Patient] clinical-profile patient lookup skipped (DB unavailable): ${(err as Error)?.message}`)
+      if (err instanceof NotFoundException) throw err;
+      this.logger.warn(
+        `[Patient] clinical-profile patient lookup skipped (DB unavailable): ${(err as Error)?.message}`,
+      );
     }
-    const seeded = seedClinicalProfile(id)
-    this.clinicalProfiles.set(id, seeded)
-    return seeded
+    const seeded = seedClinicalProfile(id);
+    this.clinicalProfiles.set(id, seeded);
+    return seeded;
   }
 
   /** PATCH /patients/:id/clinical-profile — 更新结构化临床档案 (只覆盖显式传入字段) */
-  async updateClinicalProfile(id: string, patch: Partial<ClinicalProfileDto>): Promise<ClinicalProfileDto> {
-    const base = await this.getClinicalProfile(id)
-    const next = mergeClinicalProfile(base, patch)
-    this.clinicalProfiles.set(id, next)
-    return next
+  async updateClinicalProfile(
+    id: string,
+    patch: Partial<ClinicalProfileDto>,
+  ): Promise<ClinicalProfileDto> {
+    const base = await this.getClinicalProfile(id);
+    const next = mergeClinicalProfile(base, patch);
+    this.clinicalProfiles.set(id, next);
+    return next;
   }
 
   async get(id: string): Promise<Patient> {
     const p = await this.prisma.patient.findFirst({
       where: { id, deletedAt: null, tenantId: currentTenantId() },
       include: { reports: true, exams: true },
-    })
-    if (!p) throw new NotFoundException(`Patient ${id} not found`)
-    return p
+    });
+    if (!p) throw new NotFoundException(`Patient ${id} not found`);
+    return p;
   }
 
   async create(dto: CreatePatientDto): Promise<Patient> {
@@ -430,47 +732,78 @@ export class PatientService {
         birthDate: dto.birthDate ? new Date(dto.birthDate) : null,
         idCard: dto.idCard,
         phone: dto.phone,
-        type: dto.type ?? 'OUTPATIENT',
+        type: dto.type ?? "OUTPATIENT",
         tenantId: currentTenantId(),
       },
-    })
+    });
   }
 
   async update(id: string, dto: UpdatePatientDto): Promise<Patient> {
-    const existing = await this.prisma.patient.findFirst({ where: { id, deletedAt: null } })
-    if (!existing) throw new NotFoundException(`Patient ${id} not found`)
-    const data: any = { ...dto }
-    if (dto.birthDate) data.birthDate = new Date(dto.birthDate)
-    return this.prisma.patient.update({ where: { id }, data })
+    const tenantId = currentTenantId();
+    const existing = await this.prisma.patient.findFirst({
+      where: { id, deletedAt: null, tenantId },
+    });
+    if (!existing) throw new NotFoundException(`Patient ${id} not found`);
+    const data: any = { ...dto };
+    if (dto.birthDate) data.birthDate = new Date(dto.birthDate);
+    return this.prisma.patient.update({ where: { id, tenantId }, data });
   }
 
   async delete(id: string): Promise<{ ok: true }> {
-    const existing = await this.prisma.patient.findFirst({ where: { id, deletedAt: null } })
-    if (!existing) throw new NotFoundException(`Patient ${id} not found`)
-    await this.prisma.patient.update({ where: { id }, data: { deletedAt: new Date() } })
-    return { ok: true }
+    const tenantId = currentTenantId();
+    const existing = await this.prisma.patient.findFirst({
+      where: { id, deletedAt: null, tenantId },
+    });
+    if (!existing) throw new NotFoundException(`Patient ${id} not found`);
+    await this.prisma.patient.update({
+      where: { id, tenantId },
+      data: { deletedAt: new Date() },
+    });
+    return { ok: true };
   }
 
   // [W2-4] 患者合并: 事务内将源患者关联 (exam/report/appointment/criticalValue) 迁移至目标患者, 再软删源患者
   async merge(sourceId: string, targetId: string) {
     if (sourceId === targetId) {
-      throw new BadRequestException('Cannot merge a patient with itself')
+      throw new BadRequestException("Cannot merge a patient with itself");
     }
+    const tenantId = currentTenantId();
     const [source, target] = await Promise.all([
-      this.prisma.patient.findFirst({ where: { id: sourceId, deletedAt: null } }),
-      this.prisma.patient.findFirst({ where: { id: targetId, deletedAt: null } }),
-    ])
-    if (!source) throw new NotFoundException(`Source patient ${sourceId} not found`)
-    if (!target) throw new NotFoundException(`Target patient ${targetId} not found`)
-    const tenantId = currentTenantId()
+      this.prisma.patient.findFirst({
+        where: { id: sourceId, deletedAt: null, tenantId },
+      }),
+      this.prisma.patient.findFirst({
+        where: { id: targetId, deletedAt: null, tenantId },
+      }),
+    ]);
+    if (!source)
+      throw new NotFoundException(`Source patient ${sourceId} not found`);
+    if (!target)
+      throw new NotFoundException(`Target patient ${targetId} not found`);
     return this.prisma.$transaction(async (tx) => {
-      const [movedExams, movedReports, movedAppointments, movedCriticalValues] = await Promise.all([
-        tx.exam.updateMany({ where: { patientId: sourceId, tenantId }, data: { patientId: targetId } }),
-        tx.report.updateMany({ where: { patientId: sourceId, tenantId }, data: { patientId: targetId } }),
-        tx.appointment.updateMany({ where: { patientId: sourceId, tenantId }, data: { patientId: targetId } }),
-        tx.criticalValue.updateMany({ where: { patientId: sourceId, tenantId }, data: { patientId: targetId } }),
-      ])
-      await tx.patient.update({ where: { id: sourceId }, data: { deletedAt: new Date() } })
+      const [movedExams, movedReports, movedAppointments, movedCriticalValues] =
+        await Promise.all([
+          tx.exam.updateMany({
+            where: { patientId: sourceId, tenantId },
+            data: { patientId: targetId },
+          }),
+          tx.report.updateMany({
+            where: { patientId: sourceId, tenantId },
+            data: { patientId: targetId },
+          }),
+          tx.appointment.updateMany({
+            where: { patientId: sourceId, tenantId },
+            data: { patientId: targetId },
+          }),
+          tx.criticalValue.updateMany({
+            where: { patientId: sourceId, tenantId },
+            data: { patientId: targetId },
+          }),
+        ]);
+      await tx.patient.update({
+        where: { id: sourceId, tenantId },
+        data: { deletedAt: new Date() },
+      });
       return {
         ok: true,
         merged: {
@@ -481,82 +814,124 @@ export class PatientService {
           movedAppointments: movedAppointments.count,
           movedCriticalValues: movedCriticalValues.count,
         },
-      }
-    })
+      };
+    });
   }
 
   async getReports(patientId: string) {
-    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null, tenantId: currentTenantId() } })
-    if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
+    const patient = await this.prisma.patient.findFirst({
+      where: { id: patientId, deletedAt: null, tenantId: currentTenantId() },
+    });
+    if (!patient) throw new NotFoundException(`Patient ${patientId} not found`);
     return this.prisma.report.findMany({
       where: { patientId, tenantId: currentTenantId() },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: { exam: true },
-    })
+    });
   }
 
   async getExams(patientId: string) {
-    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null, tenantId: currentTenantId() } })
-    if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
+    const patient = await this.prisma.patient.findFirst({
+      where: { id: patientId, deletedAt: null, tenantId: currentTenantId() },
+    });
+    if (!patient) throw new NotFoundException(`Patient ${patientId} not found`);
     return this.prisma.exam.findMany({
       where: { patientId, tenantId: currentTenantId() },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: { device: true, reports: true },
-    })
+    });
   }
 
   async getTimeline(patientId: string) {
-    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null, tenantId: currentTenantId() } })
-    if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
+    const patient = await this.prisma.patient.findFirst({
+      where: { id: patientId, deletedAt: null, tenantId: currentTenantId() },
+    });
+    if (!patient) throw new NotFoundException(`Patient ${patientId} not found`);
     const [exams, reports] = await Promise.all([
       this.prisma.exam.findMany({
         where: { patientId, tenantId: currentTenantId() },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, modality: true, bodyPart: true, state: true, createdAt: true, scheduledAt: true },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          modality: true,
+          bodyPart: true,
+          state: true,
+          createdAt: true,
+          scheduledAt: true,
+        },
       }),
       this.prisma.report.findMany({
         where: { patientId, tenantId: currentTenantId() },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         select: { id: true, state: true, findings: true, createdAt: true },
       }),
-    ])
+    ]);
     const events = [
-      ...exams.map((e) => ({ type: 'exam' as const, id: e.id, modality: e.modality, bodyPart: e.bodyPart, state: e.state, date: (e.scheduledAt ?? e.createdAt)?.toISOString?.() ?? '' })),
-      ...reports.map((r) => ({ type: 'report' as const, id: r.id, state: r.state, findings: r.findings?.slice(0, 100) ?? '', date: r.createdAt?.toISOString?.() ?? '' })),
-    ].sort((a, b) => (a.date > b.date ? -1 : 1))
-    return events
+      ...exams.map((e) => ({
+        type: "exam" as const,
+        id: e.id,
+        modality: e.modality,
+        bodyPart: e.bodyPart,
+        state: e.state,
+        date: (e.scheduledAt ?? e.createdAt)?.toISOString?.() ?? "",
+      })),
+      ...reports.map((r) => ({
+        type: "report" as const,
+        id: r.id,
+        state: r.state,
+        findings: r.findings?.slice(0, 100) ?? "",
+        date: r.createdAt?.toISOString?.() ?? "",
+      })),
+    ].sort((a, b) => (a.date > b.date ? -1 : 1));
+    return events;
   }
 
   // [W4-A] 批量导入: 逐条创建 + 冲突跳过 (idCard 或 name+phone 判重), 错误逐条收集
-  async importMany(rows: CreatePatientDto[]): Promise<{ imported: number; skipped: number; errors: { index: number; message: string }[] }> {
-    const tenantId = currentTenantId()
-    const result: { imported: number; skipped: number; errors: { index: number; message: string }[] } = { imported: 0, skipped: 0, errors: [] }
+  async importMany(
+    rows: CreatePatientDto[],
+  ): Promise<{
+    imported: number;
+    skipped: number;
+    errors: { index: number; message: string }[];
+  }> {
+    const tenantId = currentTenantId();
+    const result: {
+      imported: number;
+      skipped: number;
+      errors: { index: number; message: string }[];
+    } = { imported: 0, skipped: 0, errors: [] };
     for (let i = 0; i < rows.length; i++) {
-      const row = rows[i]
+      const row = rows[i];
       try {
-        if (!row || typeof row !== 'object') {
-          result.errors.push({ index: i, message: '第 ' + (i + 1) + ' 行数据为空' })
-          continue
+        if (!row || typeof row !== "object") {
+          result.errors.push({
+            index: i,
+            message: "第 " + (i + 1) + " 行数据为空",
+          });
+          continue;
         }
-        const name = (row.name ?? '').trim()
+        const name = (row.name ?? "").trim();
         if (!name) {
-          result.errors.push({ index: i, message: '第 ' + (i + 1) + ' 行: 姓名不能为空' })
-          continue
+          result.errors.push({
+            index: i,
+            message: "第 " + (i + 1) + " 行: 姓名不能为空",
+          });
+          continue;
         }
-        const gender = normalizeGender(row.gender)
-        const phone = row.phone?.trim() || undefined
-        const idCard = row.idCard?.trim() || undefined
-        const orClauses: any[] = []
-        if (idCard) orClauses.push({ idCard })
-        if (name && phone) orClauses.push({ name, phone })
+        const gender = normalizeGender(row.gender);
+        const phone = row.phone?.trim() || undefined;
+        const idCard = row.idCard?.trim() || undefined;
+        const orClauses: any[] = [];
+        if (idCard) orClauses.push({ idCard });
+        if (name && phone) orClauses.push({ name, phone });
         if (orClauses.length > 0) {
           const dup = await this.prisma.patient.findFirst({
             where: { tenantId, deletedAt: null, OR: orClauses },
             select: { id: true },
-          })
+          });
           if (dup) {
-            result.skipped++
-            continue
+            result.skipped++;
+            continue;
           }
         }
         await this.prisma.patient.create({
@@ -566,40 +941,62 @@ export class PatientService {
             birthDate: row.birthDate ? new Date(row.birthDate) : null,
             idCard,
             phone,
-            type: row.type ?? 'OUTPATIENT',
+            type: row.type ?? "OUTPATIENT",
             tenantId,
           },
-        })
-        result.imported++
+        });
+        result.imported++;
       } catch (e: any) {
-        result.errors.push({ index: i, message: '第 ' + (i + 1) + ' 行: ' + (e?.message ?? String(e)) })
+        result.errors.push({
+          index: i,
+          message: "第 " + (i + 1) + " 行: " + (e?.message ?? String(e)),
+        });
       }
     }
-    return result
+    return result;
   }
 
   // [W4-A] CSV 导出 (全部或按 name/phone 筛选)
-  async exportCsv(params: { name?: string; phone?: string } = {}): Promise<{ filename: string; content: string; count: number }> {
-    const where: any = { tenantId: currentTenantId(), deletedAt: null }
-    if (params.name) where.name = { contains: params.name }
-    if (params.phone) where.phone = { contains: params.phone }
-    const items = await this.prisma.patient.findMany({ where, orderBy: { createdAt: 'desc' } })
-    const header = ['id', 'name', 'gender', 'birthDate', 'idCard', 'phone', 'type', 'state', 'createdAt']
+  async exportCsv(
+    params: { name?: string; phone?: string } = {},
+  ): Promise<{ filename: string; content: string; count: number }> {
+    const where: any = { tenantId: currentTenantId(), deletedAt: null };
+    if (params.name) where.name = { contains: params.name };
+    if (params.phone) where.phone = { contains: params.phone };
+    const items = await this.prisma.patient.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
+    const header = [
+      "id",
+      "name",
+      "gender",
+      "birthDate",
+      "idCard",
+      "phone",
+      "type",
+      "state",
+      "createdAt",
+    ];
     const esc = (v: unknown) => {
-      const s = String(v ?? '')
-      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
-    }
-    const lines = [header.join(',')]
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const lines = [header.join(",")];
     for (const p of items) {
-      lines.push(header.map((h) => esc((p as any)[h])).join(','))
+      lines.push(header.map((h) => esc((p as any)[h])).join(","));
     }
-    const date = new Date().toISOString().slice(0, 10)
-    return { filename: `patients_${date}.csv`, content: '\ufeff' + lines.join('\n'), count: items.length }
+    const date = new Date().toISOString().slice(0, 10);
+    return {
+      filename: `patients_${date}.csv`,
+      content: "\ufeff" + lines.join("\n"),
+      count: items.length,
+    };
   }
 }
 
-function normalizeGender(g: string | undefined): 'MALE' | 'FEMALE' | 'OTHER' {
-  if (g === 'MALE' || g === '男') return 'MALE'
-  if (g === 'FEMALE' || g === '女') return 'FEMALE'
-  return 'OTHER'
+function normalizeGender(g: string | undefined): "MALE" | "FEMALE" | "OTHER" {
+  if (g === "MALE" || g === "男") return "MALE";
+  if (g === "FEMALE" || g === "女") return "FEMALE";
+  return "OTHER";
 }

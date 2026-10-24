@@ -13,12 +13,24 @@
  *   - GET  /critical-escalation/chains/:id/steps            升级步骤时间线
  *   - GET  /critical-escalation/stats                       响应耗时统计 (按级别)
  */
-import { Body, Controller, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common'
-import { Roles } from '../../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { CriticalEscalationService } from './critical-escalation.service'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+} from "@nestjs/common";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { z } from "zod";
+import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
+import { CriticalEscalationService } from "./critical-escalation.service";
+import { currentUserId } from "../../common/auth/current-user";
+import type { Request } from "express";
 
 const LevelConfigSchema = z.object({
   level: z.number().int().min(1).max(3),
@@ -26,11 +38,11 @@ const LevelConfigSchema = z.object({
   role: z.string().optional(),
   timeoutMinutes: z.number().int().min(1).max(240),
   channels: z.array(z.string().min(1).max(16)).max(4).optional(),
-})
+});
 
 const UpdateConfigSchema = z.object({
   levels: z.array(LevelConfigSchema).length(3),
-})
+});
 
 const StartChainSchema = z.object({
   criticalValueId: z.string().min(1),
@@ -38,98 +50,114 @@ const StartChainSchema = z.object({
   modality: z.string().optional(),
   title: z.string().optional(),
   severity: z.string().optional(),
-})
+});
 
 const AcknowledgeSchema = z.object({
   confirmedBy: z.string().min(1),
   comment: z.string().optional(),
-})
+});
 
 const EscalateSchema = z
   .object({
     reason: z.string().optional(),
     escalatedBy: z.string().optional(),
   })
-  .optional()
+  .optional();
 
 const CloseSchema = z
   .object({
     closedBy: z.string().optional(),
     comment: z.string().optional(),
   })
-  .optional()
+  .optional();
 
-@ApiTags('critical-escalation')
+@ApiTags("critical-escalation")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
-@Controller('critical-escalation')
+@Roles("ADMIN", "DIRECTOR", "DOCTOR")
+@Controller("critical-escalation")
 export class CriticalEscalationController {
   constructor(private readonly service: CriticalEscalationService) {}
 
-  @Get('config')
+  @Get("config")
   getConfig() {
-    return { success: true, data: this.service.getConfig() }
+    return { success: true, data: this.service.getConfig() };
   }
 
-  @Put('config')
+  @Put("config")
   @HttpCode(200)
-  updateConfig(@Body(new ZodValidationPipe(UpdateConfigSchema)) body: z.infer<typeof UpdateConfigSchema>) {
-    return { success: true, data: this.service.updateConfig(body) }
+  updateConfig(
+    @Body(new ZodValidationPipe(UpdateConfigSchema))
+    body: z.infer<typeof UpdateConfigSchema>,
+  ) {
+    return { success: true, data: this.service.updateConfig(body) };
   }
 
-  @Get('chains')
-  listChains(@Query('status') status?: string) {
-    return { success: true, data: this.service.listChains({ status }) }
+  @Get("chains")
+  listChains(@Query("status") status?: string) {
+    return { success: true, data: this.service.listChains({ status }) };
   }
 
-  @Post('chains')
+  @Post("chains")
   @HttpCode(200)
-  async startChain(@Body(new ZodValidationPipe(StartChainSchema)) body: z.infer<typeof StartChainSchema>) {
-    return { success: true, data: await this.service.startChain(body) }
+  async startChain(
+    @Body(new ZodValidationPipe(StartChainSchema))
+    body: z.infer<typeof StartChainSchema>,
+  ) {
+    return { success: true, data: await this.service.startChain(body) };
   }
 
-  @Get('chains/:id')
-  getChain(@Param('id') id: string) {
-    return { success: true, data: this.service.getChain(id) }
+  @Get("chains/:id")
+  getChain(@Param("id") id: string) {
+    return { success: true, data: this.service.getChain(id) };
   }
 
-  @Post('chains/:id/tick')
+  @Post("chains/:id/tick")
   @HttpCode(200)
-  tick(@Param('id') id: string) {
-    return { success: true, data: this.service.tick(id) }
+  tick(@Param("id") id: string) {
+    return { success: true, data: this.service.tick(id) };
   }
 
-  @Post('chains/:id/acknowledge')
+  @Post("chains/:id/acknowledge")
   @HttpCode(200)
-  async acknowledge(@Param('id') id: string, @Body(new ZodValidationPipe(AcknowledgeSchema)) body: z.infer<typeof AcknowledgeSchema>) {
-    return { success: true, data: await this.service.acknowledge(id, body) }
+  async acknowledge(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(AcknowledgeSchema))
+    body: z.infer<typeof AcknowledgeSchema>,
+  ) {
+    return { success: true, data: await this.service.acknowledge(id, body) };
   }
 
-  @Post('chains/:id/escalate')
+  @Post("chains/:id/escalate")
   @HttpCode(200)
   async escalate(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(EscalateSchema)) body?: z.infer<typeof EscalateSchema>,
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(EscalateSchema))
+    body?: z.infer<typeof EscalateSchema>,
   ) {
-    return { success: true, data: await this.service.escalate(id, body ?? {}) }
+    return { success: true, data: await this.service.escalate(id, body ?? {}) };
   }
 
-  @Post('chains/:id/close')
+  @Post("chains/:id/close")
   @HttpCode(200)
   async closeChain(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(CloseSchema)) body?: z.infer<typeof CloseSchema>,
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(CloseSchema))
+    body?: z.infer<typeof CloseSchema>,
   ) {
-    return { success: true, data: await this.service.closeChain(id, body ?? {}) }
+    return {
+      success: true,
+      data: await this.service.closeChain(id, body ?? {}, currentUserId(req)),
+    };
   }
 
-  @Get('chains/:id/steps')
-  steps(@Param('id') id: string) {
-    return { success: true, data: this.service.stepsOf(id) }
+  @Get("chains/:id/steps")
+  steps(@Param("id") id: string) {
+    return { success: true, data: this.service.stepsOf(id) };
   }
 
-  @Get('stats')
+  @Get("stats")
   getStats() {
-    return { success: true, data: this.service.getStats() }
+    return { success: true, data: this.service.getStats() };
   }
 }

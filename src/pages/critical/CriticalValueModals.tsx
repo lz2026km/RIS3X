@@ -16,7 +16,7 @@ import {
   Plus,
   Edit3,
 } from "lucide-react";
-import { Spin, Switch } from "antd";
+import { Button, Spin, Switch } from "antd";
 import type { CriticalValue } from "./types";
 import { PRIMARY_COLOR, PRIMARY_LIGHT } from "./types";
 import type { NotificationMethod } from "../../services/api/criticalApi";
@@ -697,8 +697,10 @@ export const ClinicalReceiptModal = ({
   cv,
   doctor,
   comment,
+  signature,
   onSetDoctor,
   onSetComment,
+  onSetSignature,
   onConfirm,
   onCancel,
   confirmBusy,
@@ -706,8 +708,10 @@ export const ClinicalReceiptModal = ({
   cv: CriticalValue | null;
   doctor: string;
   comment: string;
+  signature: string;
   onSetDoctor: (v: string) => void;
   onSetComment: (v: string) => void;
+  onSetSignature: (v: string) => void;
   onConfirm: () => void;
   onCancel: () => void;
   confirmBusy?: boolean;
@@ -845,15 +849,33 @@ export const ClinicalReceiptModal = ({
                 borderRadius: 8,
                 padding: "12px 16px",
                 border: "2px dashed var(--color-success-border)",
-                textAlign: "center",
               }}
             >
-              <div
-                style={{ fontSize: 28, marginBottom: "var(--space-1, 4px)" }}
-              ></div>
-              <div style={{ fontSize: 12, color: "var(--color-success-600)" }}>
+              <input
+                id="cv-receipt-signature"
+                type="text"
+                value={signature}
+                onChange={(e) => onSetSignature(e.target.value)}
+                aria-label={t("cvModals.signatureConfirm")}
+                style={{
+                  width: "100%",
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  border: "1px solid var(--border-color)",
+                  fontSize: 14,
+                  boxSizing: "border-box",
+                }}
+              />
+              <Button
+                type="dashed"
+                block
+                size="small"
+                disabled={!doctor}
+                onClick={() => onSetSignature(doctor)}
+                style={{ marginTop: "var(--space-2, 8px)" }}
+              >
                 {t("cvModals.clickToSign")}
-              </div>
+              </Button>
             </div>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
@@ -2643,8 +2665,10 @@ export interface CriticalValueModalsProps {
   receiptCV: CriticalValue | null;
   receiptDoctor: string;
   receiptComment: string;
+  receiptSignature: string;
   onSetReceiptDoctor: (v: string) => void;
   onSetReceiptComment: (v: string) => void;
+  onSetReceiptSignature: (v: string) => void;
   onConfirmReceipt: () => void;
   onCancelReceipt: () => void;
   showConfirmModal: boolean;
@@ -2708,8 +2732,10 @@ export const CriticalValueModals = (p: CriticalValueModalsProps) => (
         cv={p.receiptCV}
         doctor={p.receiptDoctor}
         comment={p.receiptComment}
+        signature={p.receiptSignature}
         onSetDoctor={p.onSetReceiptDoctor}
         onSetComment={p.onSetReceiptComment}
+        onSetSignature={p.onSetReceiptSignature}
         onConfirm={p.onConfirmReceipt}
         onCancel={p.onCancelReceipt}
         confirmBusy={p.confirmBusy}

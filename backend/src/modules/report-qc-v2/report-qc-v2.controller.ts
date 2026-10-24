@@ -16,12 +16,23 @@
  *   - GET  /report-qc-v2/records                       质控记录历史
  *   - GET  /report-qc-v2/stats                         统计 (缺陷分布/月度趋势/等级分布)
  */
-import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common'
-import { Roles } from '../../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { ReportQcV2Service, ReviewOpinion } from './report-qc-v2.service'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+  Req,
+} from "@nestjs/common";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { z } from "zod";
+import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
+import { ReportQcV2Service, ReviewOpinion } from "./report-qc-v2.service";
+import { currentUserId } from "../../common/auth/current-user";
+import type { Request } from "express";
 
 const ScoreSchema = z.object({
   reportId: z.string().min(1),
@@ -36,7 +47,7 @@ const ScoreSchema = z.object({
   structuredCompletion: z.number().min(0).max(100).optional(),
   reportTimeMinutes: z.number().int().min(0).optional(),
   techParams: z.string().optional(),
-})
+});
 
 const CreateTaskSchema = z.object({
   reportId: z.string().min(1),
@@ -45,105 +56,146 @@ const CreateTaskSchema = z.object({
   assignee: z.string().min(1).optional(),
   assigneeName: z.string().optional(),
   scoreInput: ScoreSchema.optional(),
-})
+});
 
 const AssignSchema = z.object({
   assignee: z.string().min(1),
   assigneeName: z.string().optional(),
-})
+});
 
 const ReviewSchema = z.object({
   reviewer: z.string().min(1),
-  opinion: z.enum(['pass', 'return']),
+  opinion: z.enum(["pass", "return"]),
   comment: z.string().optional(),
-})
+});
 
 const CloseSchema = z
   .object({
     comment: z.string().optional(),
   })
-  .optional()
+  .optional();
 
-@ApiTags('report-qc-v2')
+@ApiTags("report-qc-v2")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
-@Controller('report-qc-v2')
+@Roles("ADMIN", "DIRECTOR", "DOCTOR")
+@Controller("report-qc-v2")
 export class ReportQcV2Controller {
   constructor(private readonly service: ReportQcV2Service) {}
 
-  @Get('dimensions')
+  @Get("dimensions")
   getDimensions() {
-    return { success: true, data: this.service.getDimensions() }
+    return { success: true, data: this.service.getDimensions() };
   }
 
-  @Post('score')
+  @Post("score")
   @HttpCode(200)
-  async score(@Body(new ZodValidationPipe(ScoreSchema)) body: z.infer<typeof ScoreSchema>) {
-    return { success: true, data: await this.service.scoreReport(body) }
+  async score(
+    @Body(new ZodValidationPipe(ScoreSchema)) body: z.infer<typeof ScoreSchema>,
+  ) {
+    return { success: true, data: await this.service.scoreReport(body) };
   }
 
-  @Get('scores')
+  @Get("scores")
   async listScores() {
-    return { success: true, data: await this.service.listScores() }
+    return { success: true, data: await this.service.listScores() };
   }
 
-  @Get('scores/:id')
-  async getScore(@Param('id') id: string) {
-    return { success: true, data: await this.service.getScore(id) }
+  @Get("scores/:id")
+  async getScore(@Param("id") id: string) {
+    return { success: true, data: await this.service.getScore(id) };
   }
 
-  @Get('tasks')
-  listTasks(@Query('status') status?: string) {
-    return { success: true, data: this.service.listTasks({ status }) }
+  @Get("tasks")
+  listTasks(@Query("status") status?: string) {
+    return { success: true, data: this.service.listTasks({ status }) };
   }
 
-  @Post('tasks')
+  @Post("tasks")
   @HttpCode(200)
-  async createTask(@Body(new ZodValidationPipe(CreateTaskSchema)) body: z.infer<typeof CreateTaskSchema>) {
-    return { success: true, data: await this.service.createTask(body) }
+  async createTask(
+    @Body(new ZodValidationPipe(CreateTaskSchema))
+    body: z.infer<typeof CreateTaskSchema>,
+  ) {
+    return { success: true, data: await this.service.createTask(body) };
   }
 
-  @Get('tasks/:id')
-  getTask(@Param('id') id: string) {
-    return { success: true, data: this.service.getTask(id) }
+  @Get("tasks/:id")
+  getTask(@Param("id") id: string) {
+    return { success: true, data: this.service.getTask(id) };
   }
 
-  @Post('tasks/:id/assign')
+  @Post("tasks/:id/assign")
   @HttpCode(200)
-  async assignTask(@Param('id') id: string, @Body(new ZodValidationPipe(AssignSchema)) body: z.infer<typeof AssignSchema>) {
-    return { success: true, data: await this.service.assignTask(id, body) }
+  async assignTask(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(AssignSchema))
+    body: z.infer<typeof AssignSchema>,
+  ) {
+    return {
+      success: true,
+      data: await this.service.assignTask(id, body, currentUserId(req)),
+    };
   }
 
-  @Post('tasks/:id/review')
+  @Post("tasks/:id/review")
   @HttpCode(200)
-  async reviewTask(@Param('id') id: string, @Body(new ZodValidationPipe(ReviewSchema)) body: z.infer<typeof ReviewSchema>) {
-    return { success: true, data: await this.service.reviewTask(id, body as { reviewer: string; opinion: ReviewOpinion; comment?: string }) }
+  async reviewTask(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(ReviewSchema))
+    body: z.infer<typeof ReviewSchema>,
+  ) {
+    return {
+      success: true,
+      data: await this.service.reviewTask(
+        id,
+        body as { reviewer: string; opinion: ReviewOpinion; comment?: string },
+      ),
+    };
   }
 
-  @Post('tasks/:id/second-review')
+  @Post("tasks/:id/second-review")
   @HttpCode(200)
-  async secondReviewTask(@Param('id') id: string, @Body(new ZodValidationPipe(ReviewSchema)) body: z.infer<typeof ReviewSchema>) {
-    return { success: true, data: await this.service.secondReviewTask(id, body as { reviewer: string; opinion: ReviewOpinion; comment?: string }) }
+  async secondReviewTask(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(ReviewSchema))
+    body: z.infer<typeof ReviewSchema>,
+  ) {
+    return {
+      success: true,
+      data: await this.service.secondReviewTask(
+        id,
+        body as { reviewer: string; opinion: ReviewOpinion; comment?: string },
+      ),
+    };
   }
 
-  @Post('tasks/:id/close')
+  @Post("tasks/:id/close")
   @HttpCode(200)
-  async closeTask(@Param('id') id: string, @Body(new ZodValidationPipe(CloseSchema)) body?: z.infer<typeof CloseSchema>) {
-    return { success: true, data: await this.service.closeTask(id, body ?? {}) }
+  async closeTask(
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(CloseSchema))
+    body?: z.infer<typeof CloseSchema>,
+  ) {
+    return {
+      success: true,
+      data: await this.service.closeTask(id, body ?? {}, currentUserId(req)),
+    };
   }
 
-  @Get('tasks/:id/reviews')
-  listReviews(@Param('id') id: string) {
-    return { success: true, data: this.service.listReviews(id) }
+  @Get("tasks/:id/reviews")
+  listReviews(@Param("id") id: string) {
+    return { success: true, data: this.service.listReviews(id) };
   }
 
-  @Get('records')
+  @Get("records")
   listRecords() {
-    return { success: true, data: this.service.listRecords() }
+    return { success: true, data: this.service.listRecords() };
   }
 
-  @Get('stats')
+  @Get("stats")
   getStats() {
-    return { success: true, data: this.service.getStats() }
+    return { success: true, data: this.service.getStats() };
   }
 }

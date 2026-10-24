@@ -10,12 +10,14 @@
  * - POST /critical-alert/alerts/:id/resolve     解决
  * - POST /critical-alert/alerts/:id/escalate    升级 (body: { assignee })
  */
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
-import { Roles } from '../../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { CriticalAlertService } from './critical-alert.service'
+import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { z } from "zod";
+import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
+import { CriticalAlertService } from "./critical-alert.service";
+import { currentUserId } from "../../common/auth/current-user";
+import type { Request } from "express";
 
 const ListQuerySchema = z.object({
   status: z.string().optional(),
@@ -23,30 +25,32 @@ const ListQuerySchema = z.object({
   alertType: z.string().optional(),
   page: z.coerce.number().int().min(1).optional(),
   pageSize: z.coerce.number().int().min(1).max(200).optional(),
-})
+});
 
 const AcknowledgeSchema = z
   .object({
     comment: z.string().optional(),
   })
-  .optional()
+  .optional();
 
 const ResolveSchema = z
   .object({
     resolution: z.string().min(1),
     comment: z.string().optional(),
   })
-  .optional()
+  .optional();
 
 const EscalateSchema = z
   .object({
     assignee: z.string().min(1).optional(),
   })
-  .optional()
+  .optional();
 
 const CreateAlertSchema = z.object({
   criticalValueId: z.string().min(1).optional(),
-  level: z.enum(['info', 'warning', 'critical', 'emergency']).default('critical'),
+  level: z
+    .enum(["info", "warning", "critical", "emergency"])
+    .default("critical"),
   patientId: z.string().optional(),
   patientName: z.string().optional(),
   studyId: z.string().optional(),
@@ -55,171 +59,190 @@ const CreateAlertSchema = z.object({
   description: z.string().optional(),
   // [G005 Wave 8] 报告→危急值反向引用
   reportId: z.string().optional(),
-})
+});
 
 // [G005 Wave 2A] 电话/短信网关
 const AutoCallSchema = z
   .object({
     phone: z.string().min(5).max(32).optional(),
   })
-  .optional()
+  .optional();
 
 const AutoSmsSchema = z
   .object({
     phone: z.string().min(5).max(32).optional(),
     content: z.string().min(1).max(500).optional(),
   })
-  .optional()
+  .optional();
 
 // [v3.0.6.11-103 Wave 13] 危急值 5 步流程请求体
 const NotifyStepSchema = z
   .object({
-    method: z.enum(['phone', 'sms']).optional(),
+    method: z.enum(["phone", "sms"]).optional(),
     phone: z.string().max(32).optional(),
     recipient: z.string().max(64).optional(),
   })
-  .optional()
+  .optional();
 
 const ConfirmStepSchema = z
   .object({
     receiver: z.string().max(64).optional(),
     comment: z.string().max(500).optional(),
   })
-  .optional()
+  .optional();
 
 const TreatStepSchema = z
   .object({
     treatment: z.string().max(1000).optional(),
     orders: z.string().max(1000).optional(),
   })
-  .optional()
+  .optional();
 
 const CloseStepSchema = z
   .object({
     summary: z.string().max(1000).optional(),
     closedBy: z.string().max(64).optional(),
   })
-  .optional()
+  .optional();
 
-function parseListQuery(query: Record<string, unknown>): z.infer<typeof ListQuerySchema> {
-  const parsed = ListQuerySchema.safeParse(query)
-  return parsed.success ? parsed.data : {}
+function parseListQuery(
+  query: Record<string, unknown>,
+): z.infer<typeof ListQuerySchema> {
+  const parsed = ListQuerySchema.safeParse(query);
+  return parsed.success ? parsed.data : {};
 }
 
-@ApiTags('critical-alert')
+@ApiTags("critical-alert")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
-@Controller('critical-alert')
+@Roles("ADMIN", "DIRECTOR", "DOCTOR")
+@Controller("critical-alert")
 export class CriticalAlertController {
   constructor(private readonly service: CriticalAlertService) {}
 
   @Get()
   listRoot(@Query() query: Record<string, unknown>) {
-    return this.service.listAlerts(parseListQuery(query))
+    return this.service.listAlerts(parseListQuery(query));
   }
 
-  @Get('stats')
+  @Get("stats")
   getStats() {
-    return this.service.stats()
+    return this.service.stats();
   }
 
-  @Get('alerts')
+  @Get("alerts")
   listAlerts(@Query() query: Record<string, unknown>) {
-    return this.service.listAlerts(parseListQuery(query))
+    return this.service.listAlerts(parseListQuery(query));
   }
 
-  @Get('alerts/:id')
-  getAlert(@Param('id') id: string) {
-    return this.service.getAlert(id)
+  @Get("alerts/:id")
+  getAlert(@Param("id") id: string) {
+    return this.service.getAlert(id);
   }
 
   // [G005 Wave 8] 按报告查询关联危急值告警 (反向引用)
-  @Get('for-report/:reportId')
-  forReport(@Param('reportId') reportId: string) {
-    return this.service.forReport(reportId)
+  @Get("for-report/:reportId")
+  forReport(@Param("reportId") reportId: string) {
+    return this.service.forReport(reportId);
   }
 
   @Post()
-  create(@Body(new ZodValidationPipe(CreateAlertSchema)) body: z.infer<typeof CreateAlertSchema>) {
-    return this.service.create(body)
+  create(
+    @Body(new ZodValidationPipe(CreateAlertSchema))
+    body: z.infer<typeof CreateAlertSchema>,
+  ) {
+    return this.service.create(body);
   }
 
-  @Post('alerts/:id/acknowledge')
+  @Post("alerts/:id/acknowledge")
   acknowledge(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(AcknowledgeSchema)) body?: z.infer<typeof AcknowledgeSchema>,
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(AcknowledgeSchema))
+    body?: z.infer<typeof AcknowledgeSchema>,
   ) {
-    return this.service.acknowledge(id, body ?? {})
+    return this.service.acknowledge(id, body ?? {}, currentUserId(req));
   }
 
-  @Post('alerts/:id/resolve')
+  @Post("alerts/:id/resolve")
   resolve(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(ResolveSchema)) body?: z.infer<typeof ResolveSchema>,
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(ResolveSchema))
+    body?: z.infer<typeof ResolveSchema>,
   ) {
-    return this.service.resolve(id, body ?? {})
+    return this.service.resolve(id, body ?? {}, currentUserId(req));
   }
 
-  @Post('alerts/:id/escalate')
+  @Post("alerts/:id/escalate")
   escalate(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(EscalateSchema)) body?: z.infer<typeof EscalateSchema>,
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(EscalateSchema))
+    body?: z.infer<typeof EscalateSchema>,
   ) {
-    return this.service.escalate(id, body?.assignee)
+    return this.service.escalate(id, body?.assignee);
   }
 
   // ===== [v3.0.6.11-103 Wave 13] 危急值 5 步流程 (触发→通知→确认→处置→记录) =====
-  @Post('alerts/:id/notify')
+  @Post("alerts/:id/notify")
   notify(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(NotifyStepSchema)) body?: z.infer<typeof NotifyStepSchema>,
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(NotifyStepSchema))
+    body?: z.infer<typeof NotifyStepSchema>,
   ) {
-    return this.service.notify(id, body ?? {})
+    return this.service.notify(id, body ?? {}, currentUserId(req));
   }
 
-  @Post('alerts/:id/confirm')
+  @Post("alerts/:id/confirm")
   confirm(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(ConfirmStepSchema)) body?: z.infer<typeof ConfirmStepSchema>,
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(ConfirmStepSchema))
+    body?: z.infer<typeof ConfirmStepSchema>,
   ) {
-    return this.service.confirm(id, body ?? {})
+    return this.service.confirm(id, body ?? {}, currentUserId(req));
   }
 
-  @Post('alerts/:id/treat')
+  @Post("alerts/:id/treat")
   treat(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(TreatStepSchema)) body?: z.infer<typeof TreatStepSchema>,
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(TreatStepSchema))
+    body?: z.infer<typeof TreatStepSchema>,
   ) {
-    return this.service.treat(id, body ?? {})
+    return this.service.treat(id, body ?? {});
   }
 
-  @Post('alerts/:id/close')
+  @Post("alerts/:id/close")
   close(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(CloseStepSchema)) body?: z.infer<typeof CloseStepSchema>,
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body(new ZodValidationPipe(CloseStepSchema))
+    body?: z.infer<typeof CloseStepSchema>,
   ) {
-    return this.service.close(id, body ?? {})
+    return this.service.close(id, body ?? {}, currentUserId(req));
   }
 
   // ===== [G005 Wave 2A] 电话/短信网关 =====
-  @Post('alerts/:id/auto-call')
+  @Post("alerts/:id/auto-call")
   autoCall(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(AutoCallSchema)) body?: z.infer<typeof AutoCallSchema>,
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(AutoCallSchema))
+    body?: z.infer<typeof AutoCallSchema>,
   ) {
-    return this.service.autoCall(id, body ?? {})
+    return this.service.autoCall(id, body ?? {});
   }
 
-  @Post('alerts/:id/auto-sms')
+  @Post("alerts/:id/auto-sms")
   autoSms(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(AutoSmsSchema)) body?: z.infer<typeof AutoSmsSchema>,
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(AutoSmsSchema))
+    body?: z.infer<typeof AutoSmsSchema>,
   ) {
-    return this.service.autoSms(id, body ?? {})
+    return this.service.autoSms(id, body ?? {});
   }
 
-  @Get('alerts/:id/communication-log')
-  communicationLog(@Param('id') id: string) {
-    return this.service.communicationLog(id)
+  @Get("alerts/:id/communication-log")
+  communicationLog(@Param("id") id: string) {
+    return this.service.communicationLog(id);
   }
 }

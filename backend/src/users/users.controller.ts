@@ -1,66 +1,90 @@
-﻿import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
-import { Roles } from '../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { UsersService } from './users.service'
+﻿import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from "@nestjs/common";
+import { Roles } from "../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { z } from "zod";
+import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
+import { UsersService } from "./users.service";
 
 const CreateUserSchema = z.object({
   username: z.string().min(2).max(64),
   password: z.string().min(6).max(128),
   fullName: z.string().min(1).max(64),
-  role: z.enum(['DOCTOR', 'TECHNICIAN', 'NURSE', 'ADMIN', 'DIRECTOR']),
+  role: z.enum(["DOCTOR", "TECHNICIAN", "NURSE", "ADMIN", "DIRECTOR"]),
   department: z.string().max(128).optional(),
-})
+});
 
 const UpdateUserSchema = z.object({
   fullName: z.string().min(1).max(64).optional(),
-  role: z.enum(['DOCTOR', 'TECHNICIAN', 'NURSE', 'ADMIN', 'DIRECTOR']).optional(),
+  role: z
+    .enum(["DOCTOR", "TECHNICIAN", "NURSE", "ADMIN", "DIRECTOR"])
+    .optional(),
   department: z.string().max(128).optional(),
   active: z.boolean().optional(),
-})
+});
 
-@ApiTags('users')
+// 分页参数解析: 非法值 (NaN / Infinity) 回退默认值, 避免把 NaN 传给 Prisma
+function toPageNumber(value: string | undefined, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.trunc(parsed) : fallback;
+}
+
+@ApiTags("users")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
-@Controller('users')
+@Roles("ADMIN", "DIRECTOR")
+@Controller("users")
 export class UsersController {
   constructor(private readonly users: UsersService) {}
 
   @Get()
-  list(@Query('skip') skip?: string, @Query('take') take?: string) {
-    return this.users.list(Number(skip ?? 0), Number(take ?? 20))
+  list(@Query("skip") skip?: string, @Query("take") take?: string) {
+    return this.users.list(toPageNumber(skip, 0), toPageNumber(take, 20));
   }
 
-  @Get(':id')
-  get(@Param('id') id: string) {
-    return this.users.findById(id)
+  @Get(":id")
+  get(@Param("id") id: string) {
+    return this.users.findById(id);
   }
 
   @Post()
-  create(@Body(new ZodValidationPipe(CreateUserSchema)) body: z.infer<typeof CreateUserSchema>) {
-    return this.users.create(body)
+  create(
+    @Body(new ZodValidationPipe(CreateUserSchema))
+    body: z.infer<typeof CreateUserSchema>,
+  ) {
+    return this.users.create(body);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateUserSchema)) body: z.infer<typeof UpdateUserSchema>) {
-    return this.users.update(id, body)
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateUserSchema))
+    body: z.infer<typeof UpdateUserSchema>,
+  ) {
+    return this.users.update(id, body);
   }
 
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.users.delete(id)
+  @Delete(":id")
+  delete(@Param("id") id: string) {
+    return this.users.delete(id);
   }
 
-  @Get(':id/activity')
-  getActivity(@Param('id') id: string) {
-    return this.users.getActivity(id)
+  @Get(":id/activity")
+  getActivity(@Param("id") id: string) {
+    return this.users.getActivity(id);
   }
 
   // [G005 Wave2A P1] 重置密码: 生成一次性临时密码并更新密码哈希, 仅返回一次 { temporaryPassword }
-  @Post(':id/reset-password')
-  @ApiOperation({ summary: '重置密码 (生成一次性临时密码并返回)' })
-  resetPassword(@Param('id') id: string) {
-    return this.users.resetPassword(id)
+  @Post(":id/reset-password")
+  @ApiOperation({ summary: "重置密码 (生成一次性临时密码并返回)" })
+  resetPassword(@Param("id") id: string) {
+    return this.users.resetPassword(id);
   }
 }

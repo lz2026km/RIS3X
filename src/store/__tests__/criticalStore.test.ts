@@ -1,15 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useCriticalStore } from '../criticalStore';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { useCriticalStore } from "../criticalStore";
 
-const { mockList, mockAcknowledge, mockResolve, mockNotify, mockEscalate } = vi.hoisted(() => ({
-  mockList: vi.fn(),
-  mockAcknowledge: vi.fn(),
-  mockResolve: vi.fn(),
-  mockNotify: vi.fn(),
-  mockEscalate: vi.fn(),
-}));
+const { mockList, mockAcknowledge, mockResolve, mockNotify, mockEscalate } =
+  vi.hoisted(() => ({
+    mockList: vi.fn(),
+    mockAcknowledge: vi.fn(),
+    mockResolve: vi.fn(),
+    mockNotify: vi.fn(),
+    mockEscalate: vi.fn(),
+  }));
 
-vi.mock('@services/api', () => ({
+vi.mock("@services/api", () => ({
   criticalApi: {
     list: mockList,
     acknowledge: mockAcknowledge,
@@ -20,40 +21,49 @@ vi.mock('@services/api', () => ({
 }));
 
 const createValue = (overrides: Record<string, unknown> = {}) => ({
-  id: 'cv-1',
-  patientName: '张三',
-  finding: '血钾 6.8mmol/L',
-  severity: 'critical',
-  status: 'pending',
+  id: "cv-1",
+  patientName: "张三",
+  finding: "血钾 6.8mmol/L",
+  severity: "critical",
+  status: "pending",
   triggeredAt: new Date().toISOString(),
   ...overrides,
 });
 
-describe('criticalStore', () => {
+describe("criticalStore", () => {
   beforeEach(() => {
-    useCriticalStore.setState({ values: [], loading: false, error: null, actors: new Map() });
+    useCriticalStore.setState({
+      values: [],
+      loading: false,
+      error: null,
+      actors: new Map(),
+    });
     vi.clearAllMocks();
   });
 
-  describe('load', () => {
-    it('loads critical values from API', async () => {
+  describe("load", () => {
+    it("loads critical values from API", async () => {
       const data = [createValue()];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
       expect(useCriticalStore.getState().values).toHaveLength(1);
-      expect(useCriticalStore.getState().values[0]!.id).toBe('cv-1');
+      expect(useCriticalStore.getState().values[0]!.id).toBe("cv-1");
       expect(useCriticalStore.getState().loading).toBe(false);
       expect(useCriticalStore.getState().error).toBeNull();
     });
 
-    it('handles API failure', async () => {
-      mockList.mockResolvedValue({ success: false, data: null, error: { message: '网络错误' } });
+    it("handles API failure", async () => {
+      mockList.mockResolvedValue({
+        success: false,
+        data: null,
+        error: { message: "网络错误" },
+      });
       await useCriticalStore.getState().load();
       expect(useCriticalStore.getState().values).toHaveLength(0);
-      expect(useCriticalStore.getState().error).toBe('网络错误');
+      expect(useCriticalStore.getState().error).toBe("网络错误");
     });
 
-    it('maintains existing values on reload', async () => {
+    it("maintains existing values on reload", async () => {
       const data = [createValue()];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
@@ -65,66 +75,94 @@ describe('criticalStore', () => {
     });
   });
 
-  describe('notify', () => {
-    it('notifies and updates status to notified', async () => {
-      const data = [createValue({ status: 'pending' })];
+  describe("notify", () => {
+    it("notifies and updates status to notified", async () => {
+      const data = [createValue({ status: "pending" })];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
-      mockNotify.mockResolvedValue({ success: true, data: null as unknown as Record<string, unknown>, error: undefined });
-      await useCriticalStore.getState().notify('cv-1', 'PHONE');
-      expect(useCriticalStore.getState().values[0]!.status).toBe('notified');
+      mockNotify.mockResolvedValue({
+        success: true,
+        data: null as unknown as Record<string, unknown>,
+        error: undefined,
+      });
+      await useCriticalStore.getState().notify("cv-1", "PHONE");
+      expect(useCriticalStore.getState().values[0]!.status).toBe("notified");
     });
   });
 
-  describe('acknowledge', () => {
-    it('acknowledges and updates status', async () => {
-      const data = [createValue({ status: 'notified', notificationMethod: 'PHONE' })];
+  describe("acknowledge", () => {
+    it("acknowledges and updates status", async () => {
+      const data = [
+        createValue({ status: "notified", notificationMethod: "PHONE" }),
+      ];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
       mockAcknowledge.mockResolvedValue({ success: true });
-      await useCriticalStore.getState().acknowledge('cv-1');
-      expect(useCriticalStore.getState().values[0]!.status).toBe('acknowledged');
+      await useCriticalStore.getState().acknowledge("cv-1");
+      expect(useCriticalStore.getState().values[0]!.status).toBe(
+        "acknowledged",
+      );
     });
 
-    it('handles acknowledge API failure', async () => {
-      const data = [createValue({ status: 'notified', notificationMethod: 'PHONE' })];
+    it("handles acknowledge API failure", async () => {
+      const data = [
+        createValue({ status: "notified", notificationMethod: "PHONE" }),
+      ];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
-      mockAcknowledge.mockResolvedValue({ success: false, data: null, error: { message: '确认失败' } });
-      await useCriticalStore.getState().acknowledge('cv-1');
-      expect(useCriticalStore.getState().values[0]!.status).toBe('notified');
+      mockAcknowledge.mockResolvedValue({
+        success: false,
+        data: null,
+        error: { message: "确认失败" },
+      });
+      // [F-1] 失败必须 reject: 页面据此展示真实错误, 不再吞掉错误后弹「成功」
+      await expect(
+        useCriticalStore.getState().acknowledge("cv-1"),
+      ).rejects.toThrow("确认失败");
+      expect(useCriticalStore.getState().values[0]!.status).toBe("notified");
+      expect(useCriticalStore.getState().error).toBe("确认失败");
     });
   });
 
-  describe('resolve', () => {
-    it('resolves from acknowledged status', async () => {
-      const data = [createValue({ status: 'acknowledged' })];
+  describe("resolve", () => {
+    it("resolves from acknowledged status", async () => {
+      const data = [createValue({ status: "acknowledged" })];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
       mockResolve.mockResolvedValue({ success: true });
-      await useCriticalStore.getState().resolve('cv-1');
-      expect(useCriticalStore.getState().values[0]!.status).toBe('resolved');
+      await useCriticalStore.getState().resolve("cv-1");
+      expect(useCriticalStore.getState().values[0]!.status).toBe("resolved");
     });
 
-    it('handles resolve API failure', async () => {
-      const data = [createValue({ status: 'acknowledged' })];
+    it("handles resolve API failure", async () => {
+      const data = [createValue({ status: "acknowledged" })];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
-      mockResolve.mockResolvedValue({ success: false, data: null, error: { message: '处理失败' } });
-      await useCriticalStore.getState().resolve('cv-1');
-      expect(useCriticalStore.getState().values[0]!.status).not.toBe('resolved');
+      mockResolve.mockResolvedValue({
+        success: false,
+        data: null,
+        error: { message: "处理失败" },
+      });
+      // [F-1] 失败必须 reject: 页面据此展示真实错误, 不再吞掉错误后弹「成功」
+      await expect(useCriticalStore.getState().resolve("cv-1")).rejects.toThrow(
+        "处理失败",
+      );
+      expect(useCriticalStore.getState().values[0]!.status).not.toBe(
+        "resolved",
+      );
+      expect(useCriticalStore.getState().error).toBe("处理失败");
     });
   });
 
-  describe('escalate', () => {
-    it('escalates from pending or notified', async () => {
-      const data = [createValue({ status: 'pending' })];
+  describe("escalate", () => {
+    it("escalates from pending or notified", async () => {
+      const data = [createValue({ status: "pending" })];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
       mockEscalate.mockResolvedValue({ success: true });
-      await useCriticalStore.getState().escalate('cv-1', 'chief');
-      expect(useCriticalStore.getState().values[0]!.status).toBe('escalated');
-      expect(useCriticalStore.getState().values[0]!.escalatedTo).toBe('chief');
+      await useCriticalStore.getState().escalate("cv-1", "chief");
+      expect(useCriticalStore.getState().values[0]!.status).toBe("escalated");
+      expect(useCriticalStore.getState().values[0]!.escalatedTo).toBe("chief");
     });
   });
 });

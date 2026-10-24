@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import type { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { getCurrentTenantId } from "../common/interceptors/tenant-context.interceptor";
 import type { CreateEyeStudyDto } from "./dto/create-eye.dto";
@@ -1203,6 +1204,7 @@ export class EyeService {
     const rows = await this.withSeed(
       () =>
         this.prisma.eyeStudy.findMany({
+          where: { tenantId: getCurrentTenantId() },
           orderBy: { createdAt: "desc" },
           take: 100,
           include: { patient: true },
@@ -1219,7 +1221,7 @@ export class EyeService {
     const row = await this.withSeed(
       () =>
         this.prisma.eyeStudy.findMany({
-          where: { id },
+          where: { id, tenantId: getCurrentTenantId() },
           take: 1,
           include: { patient: true },
         }),
@@ -1270,39 +1272,53 @@ export class EyeService {
   }
 
   async updateStudy(id: string, dto: UpdateEyeStudyDto) {
-    const existing = await this.prisma.eyeStudy.findUnique({ where: { id } });
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.eyeStudy.findFirst({
+      where: { id, tenantId },
+    });
     if (!existing) throw new NotFoundException(`EyeStudy ${id} not found`);
-    return this.prisma.eyeStudy.update({ where: { id }, data: dto as any });
+    // [SEC] 显式字段白名单: 客户端只能改写以下列, 不可借 DTO 越权改 tenantId/patientId 等
+    const data: Prisma.EyeStudyUpdateInput = {};
+    if (dto.modality !== undefined) data.modality = dto.modality;
+    if (dto.bodyPart !== undefined) data.bodyPart = dto.bodyPart;
+    if (dto.studyDate !== undefined) data.studyDate = new Date(dto.studyDate);
+    if (dto.findings !== undefined) data.findings = dto.findings;
+    if (dto.impressions !== undefined) data.impressions = dto.impressions;
+    if (dto.status !== undefined) data.status = dto.status;
+    return this.prisma.eyeStudy.update({ where: { id, tenantId }, data });
   }
 
   async deleteStudy(id: string) {
-    const existing = await this.prisma.eyeStudy.findUnique({ where: { id } });
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.eyeStudy.findFirst({
+      where: { id, tenantId },
+    });
     if (!existing) throw new NotFoundException(`EyeStudy ${id} not found`);
-    return this.prisma.eyeStudy.delete({ where: { id } });
+    return this.prisma.eyeStudy.delete({ where: { id, tenantId } });
   }
 
   listStudiesByPatient(patientId: string) {
     return this.prisma.eyeStudy.findMany({
-      where: { patientId },
+      where: { patientId, tenantId: getCurrentTenantId() },
       orderBy: { createdAt: "desc" },
     });
   }
 
   async getEmr(patientId: string) {
-    const patient = await this.prisma.patient.findUnique({
-      where: { id: patientId },
+    const patient = await this.prisma.patient.findFirst({
+      where: { id: patientId, tenantId: getCurrentTenantId() },
     });
     if (!patient) throw new NotFoundException(`Patient ${patientId} not found`);
     const studies = await this.prisma.eyeStudy.findMany({
-      where: { patientId },
+      where: { patientId, tenantId: getCurrentTenantId() },
       orderBy: { createdAt: "desc" },
     });
     return { patient, studies };
   }
 
   async updateEmr(patientId: string, data: { notes?: string }) {
-    const patient = await this.prisma.patient.findUnique({
-      where: { id: patientId },
+    const patient = await this.prisma.patient.findFirst({
+      where: { id: patientId, tenantId: getCurrentTenantId() },
     });
     if (!patient) throw new NotFoundException(`Patient ${patientId} not found`);
     return { patient, updated: true };
@@ -1310,6 +1326,7 @@ export class EyeService {
 
   listAiModels() {
     return this.prisma.eyeAiInference.findMany({
+      where: { tenantId: getCurrentTenantId() },
       select: { modelId: true },
       distinct: ["modelId"],
     });
@@ -1464,6 +1481,7 @@ export class EyeService {
     const rows = await this.withSeed(
       () =>
         this.prisma.eyeStudy.findMany({
+          where: { tenantId: getCurrentTenantId() },
           orderBy: { createdAt: "desc" },
           take: 100,
           include: { patient: true },
@@ -1503,7 +1521,7 @@ export class EyeService {
     const row = await this.withSeed(
       () =>
         this.prisma.eyeStudy.findMany({
-          where: { id },
+          where: { id, tenantId: getCurrentTenantId() },
           take: 1,
           include: { patient: true },
         }),
@@ -1636,8 +1654,8 @@ export class EyeService {
 
   private async getStudyOrSeed(id: string) {
     try {
-      const row = await this.prisma.eyeStudy.findUnique({
-        where: { id },
+      const row = await this.prisma.eyeStudy.findFirst({
+        where: { id, tenantId: getCurrentTenantId() },
         include: { patient: true },
       });
       if (row) {
@@ -1889,6 +1907,7 @@ export class EyeService {
     const rows = await this.withSeed(
       () =>
         this.prisma.eyeAiInference.findMany({
+          where: { tenantId: getCurrentTenantId() },
           orderBy: { createdAt: "desc" },
           take: 100,
         }),
@@ -1916,7 +1935,11 @@ export class EyeService {
 
   async getAiInference(id: string) {
     const item = await this.withSeed(
-      () => this.prisma.eyeAiInference.findMany({ where: { id }, take: 1 }),
+      () =>
+        this.prisma.eyeAiInference.findMany({
+          where: { id, tenantId: getCurrentTenantId() },
+          take: 1,
+        }),
       [],
     );
     if (item.length > 0) {

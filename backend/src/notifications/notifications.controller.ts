@@ -5,6 +5,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -12,12 +13,15 @@ import {
   Post,
   Put,
   Query,
+  Req,
   ServiceUnavailableException,
 } from "@nestjs/common";
+import type { Request } from "express";
 import { Roles } from "../common/decorators/roles.decorator";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { z } from "zod";
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
+import { currentUserId } from "../common/auth/current-user";
 import {
   NotificationsService,
   CreateNotificationDto,
@@ -94,9 +98,31 @@ export const HistoryQuerySchema = z.object({
 export class NotificationsController {
   constructor(private readonly service: NotificationsService) {}
 
+  /**
+   * 读路径的目标用户: 一律取调用者自身 (JWT payload 的 sub)。
+   * 请求里带的 userId 不作为授权依据 —— 传入他人 id 时按调用者自身数据返回。
+   */
+  private readUserId(req: Request): string {
+    return currentUserId(req);
+  }
+
+  /**
+   * 写路径的目标用户: 必须与调用者一致, 否则 403
+   * (禁止把他人通知标记已读 / 改写他人偏好与订阅)。
+   */
+  private writeUserId(req: Request, userId: string): string {
+    const self = currentUserId(req);
+    if (userId !== self) {
+      throw new ForbiddenException(
+        "Not allowed to operate on another user's notifications",
+      );
+    }
+    return self;
+  }
+
   @Get("unread/:userId")
-  unread(@Param("userId") userId: string) {
-    return this.service.getUnreadCount(userId);
+  unread(@Param("userId") userId: string, @Req() req: Request) {
+    return this.service.getUnreadCount(this.readUserId(req));
   }
 
   /**
@@ -106,13 +132,14 @@ export class NotificationsController {
    */
   @Get()
   list(
-    @Query("userId") userId?: string,
-    @Query("page") page?: string,
-    @Query("pageSize") pageSize?: string,
-    @Query("type") type?: string,
+    @Query("userId") userId: string | undefined,
+    @Query("page") page: string | undefined,
+    @Query("pageSize") pageSize: string | undefined,
+    @Query("type") type: string | undefined,
+    @Req() req: Request,
   ) {
     return this.service.list({
-      userId,
+      userId: this.readUserId(req),
       page: page ? Number(page) : undefined,
       pageSize: pageSize ? Number(pageSize) : undefined,
       type,
@@ -121,20 +148,24 @@ export class NotificationsController {
 
   // [v3.0.6.11-99 Wave 10D] 通知总览 (按类型/未读/今日) — 静态子路由先于 :id 注册
   @Get("overview")
-  overview(@Query("userId") userId?: string) {
-    return this.service.getOverview(userId);
+  overview(@Query("userId") userId: string | undefined, @Req() req: Request) {
+    return this.service.getOverview(this.readUserId(req));
   }
 
   // [v3.0.6.11-99 Wave 10D] 近 30 日通知趋势
   @Get("daily-trend")
-  dailyTrend(@Query("days") days?: string, @Query("userId") userId?: string) {
-    return this.service.getDailyTrend(Number(days ?? 30), userId);
+  dailyTrend(
+    @Query("days") days: string | undefined,
+    @Query("userId") userId: string | undefined,
+    @Req() req: Request,
+  ) {
+    return this.service.getDailyTrend(Number(days ?? 30), this.readUserId(req));
   }
 
   // [v3.0.6.11-99 Wave 10D] 用户偏好 (类型开关 + 渠道 + 免打扰)
   @Get("preferences/:userId")
-  preferences(@Param("userId") userId: string) {
-    return this.service.getPreferences(userId);
+  preferences(@Param("userId") userId: string, @Req() req: Request) {
+    return this.service.getPreferences(this.readUserId(req));
   }
 
   @Put("preferences/:userId")
@@ -161,8 +192,9 @@ export class NotificationsController {
       channels?: Record<string, boolean>;
       quietHours?: { enabled: boolean; from: string; to: string };
     },
+    @Req() req: Request,
   ) {
-    return this.service.updatePreferences(userId, body);
+    return this.service.updatePreferences(this.writeUserId(req, userId), body);
   }
 
   @Get("history/:userId")
@@ -170,30 +202,36 @@ export class NotificationsController {
     @Param("userId") userId: string,
     @Query(new ZodValidationPipe(HistoryQuerySchema))
     query: z.infer<typeof HistoryQuerySchema>,
+    @Req() req: Request,
   ) {
     const pageSize = query.limit ?? query.pageSize;
     const skip = (query.page - 1) * pageSize;
-    return this.service.getHistory(userId, pageSize, skip, query.type);
+    return this.service.getHistory(
+      this.readUserId(req),
+      pageSize,
+      skip,
+      query.type,
+    );
   }
 
   @Get("stats/:userId")
-  stats(@Param("userId") userId: string) {
-    return this.service.getStats(userId);
+  stats(@Param("userId") userId: string, @Req() req: Request) {
+    return this.service.getStats(this.readUserId(req));
   }
 
   @Post("read/:id")
-  read(@Param("id") id: string) {
-    return this.service.markRead(id);
+  read(@Param("id") id: string, @Req() req: Request) {
+    return this.service.markRead(id, this.readUserId(req));
   }
 
   @Post("read-all/:userId")
-  readAll(@Param("userId") userId: string) {
-    return this.service.markAllRead(userId);
+  readAll(@Param("userId") userId: string, @Req() req: Request) {
+    return this.service.markAllRead(this.writeUserId(req, userId));
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.service.remove(id);
+  remove(@Param("id") id: string, @Req() req: Request) {
+    return this.service.remove(id, this.readUserId(req));
   }
 
   @Post()
@@ -282,8 +320,8 @@ export class NotificationsController {
   //   GET /notifications/subscriptions/:userId  (查订阅类型)
   //   PUT /notifications/subscriptions/:userId  (更新订阅类型, body { types: [...] })
   @Get("subscriptions/:userId")
-  subscriptions(@Param("userId") userId: string) {
-    return this.service.getSubscriptionConfig(userId);
+  subscriptions(@Param("userId") userId: string, @Req() req: Request) {
+    return this.service.getSubscriptionConfig(this.readUserId(req));
   }
 
   @Put("subscriptions/:userId")
@@ -294,7 +332,11 @@ export class NotificationsController {
     body: {
       types: Array<"CRITICAL" | "REPORT" | "FOLLOWUP" | "QUALITY" | "SYSTEM">;
     },
+    @Req() req: Request,
   ) {
-    return this.service.updateSubscriptionConfig(userId, body.types);
+    return this.service.updateSubscriptionConfig(
+      this.writeUserId(req, userId),
+      body.types,
+    );
   }
 }

@@ -481,12 +481,13 @@ export class ReportsService {
     actorId = "unknown",
   ) {
     const { findings, conclusion, htmlContent } = dto;
+    const tenantId = currentTenantId();
     return this.prisma.$transaction(async (tx) => {
-      const current = await tx.report.findUnique({ where: { id } });
+      const current = await tx.report.findUnique({ where: { id, tenantId } });
       if (!current) throw new NotFoundException(`Report ${id} not found`);
       try {
         const r = await tx.report.update({
-          where: { id, version: current.version },
+          where: { id, version: current.version, tenantId },
           data: {
             ...(findings !== undefined ? { findings } : {}),
             ...(conclusion !== undefined ? { conclusion } : {}),
@@ -529,12 +530,14 @@ export class ReportsService {
     if (!actorId || !actorId.trim()) {
       throw new BadRequestException("actorId is required for report deletion");
     }
-    const existing = await this.prisma.report.findUnique({ where: { id } });
+    const existing = await this.prisma.report.findUnique({
+      where: { id, tenantId: currentTenantId() },
+    });
     if (!existing) throw new NotFoundException(`Report ${id} not found`);
     return this.prisma
       .$transaction(async (tx) => {
         const r = await tx.report.update({
-          where: { id },
+          where: { id, tenantId: currentTenantId() },
           data: { state: "WITHDRAWN" },
           include: {
             patient: { select: { id: true, name: true, gender: true } },
@@ -652,6 +655,36 @@ export class ReportsService {
     return task;
   }
 
+  /**
+   * [SEC] 双签/双阅门禁: 危急报告 (isCritical) 或分级审核链解析为 dual-sign / dual-read 时,
+   * 必须先走 CO_SIGN_REVIEW (第二签名) 才能进入 REVIEWED / SIGNED。
+   * 分级规则引擎未注入时按 isCritical 兜底。
+   */
+  private async requiresCoSignReview(report: Report): Promise<boolean> {
+    if (report.isCritical) return true;
+    if (!this.reviewTierService) return false;
+    try {
+      const exam = await this.prisma.exam
+        .findFirst({ where: { id: report.examId ?? "" } })
+        .catch(() => null);
+      const resolution = this.reviewTierService.resolve({
+        reportId: report.id,
+        modality: (exam as { modality?: string } | null)?.modality,
+        isCritical: report.isCritical,
+        authorId: report.radiologistId ?? undefined,
+      });
+      return (
+        resolution.requiredTier === "dual-sign" ||
+        resolution.requiredTier === "dual-read"
+      );
+    } catch (err) {
+      this.logger.warn(
+        `[ReviewTier] resolve failed for report ${report.id}: ${(err as Error).message}`,
+      );
+      return false;
+    }
+  }
+
   async transition(
     id: string,
     to: ReportState,
@@ -661,7 +694,7 @@ export class ReportsService {
   ) {
     // [v3.0.6.11-100 Wave2C P3] include patient → 随访触发取患者姓名
     const report = await this.prisma.report.findUnique({
-      where: { id },
+      where: { id, tenantId: currentTenantId() },
       include: { patient: { select: { name: true } } },
     });
     if (!report) throw new NotFoundException(`Report ${id} not found`);
@@ -674,6 +707,16 @@ export class ReportsService {
     if (to === "REJECTED" && !reason?.trim()) {
       throw new BadRequestException(
         "INVALID_TRANSITION: REJECTED 必须提供 reason",
+      );
+    }
+    // [SEC] 双签/双阅门禁: 危急/双签报告未走 CO_SIGN_REVIEW 不得进入 REVIEWED/SIGNED
+    if (
+      (to === "REVIEWED" || to === "SIGNED") &&
+      report.state !== "CO_SIGN_REVIEW" &&
+      (await this.requiresCoSignReview(report as Report))
+    ) {
+      throw new BadRequestException(
+        `CO_SIGN_REQUIRED: Report ${id} ${report.state} → ${to} 不允许 (危急/双签报告须先进入 CO_SIGN_REVIEW 完成第二签名)`,
       );
     }
     const now = new Date();
@@ -706,7 +749,7 @@ export class ReportsService {
     return this.prisma
       .$transaction(async (tx) => {
         const r = await tx.report.update({
-          where: { id },
+          where: { id, tenantId: currentTenantId() },
           data,
           include: {
             patient: { select: { id: true, name: true, gender: true } },
@@ -920,7 +963,9 @@ export class ReportsService {
     task: ReportArchiveTask;
     alreadyArchived?: boolean;
   }> {
-    const report = await this.prisma.report.findUnique({ where: { id } });
+    const report = await this.prisma.report.findFirst({
+      where: { id, tenantId: currentTenantId() },
+    });
     if (!report) throw new NotFoundException(`Report ${id} not found`);
     if (report.state === "ARCHIVED") {
       return {
@@ -942,7 +987,10 @@ export class ReportsService {
     const archivedAt = new Date();
     const task = this.makeArchiveTask(id, archivedAt.toISOString());
     await this.prisma.$transaction(async (tx) => {
-      await tx.report.update({ where: { id }, data: { state: "ARCHIVED" } });
+      await tx.report.update({
+        where: { id, tenantId: currentTenantId() },
+        data: { state: "ARCHIVED" },
+      });
       await tx.reportRevision.create({
         data: {
           reportId: id,
@@ -1089,9 +1137,7 @@ export class ReportsService {
   // ══════════════════════════════════════════════════════════════════════
 
   /** GET /reports/:id/revisions — 内容版本快照列表 (含变更字段) */
-  async listRevisionContents(
-    id: string,
-  ): Promise<{
+  async listRevisionContents(id: string): Promise<{
     reportId: string;
     total: number;
     data: ReturnType<ReportRevisionContentStore["list"]>;
@@ -1138,12 +1184,14 @@ export class ReportsService {
     id: string,
     body: {
       signerName?: string;
-      signedById?: string;
       algorithm?: string;
       content?: Partial<SignatureContentSnapshot>;
     },
+    actorId?: string,
   ) {
-    const report = await this.prisma.report.findUnique({ where: { id } });
+    const report = await this.prisma.report.findFirst({
+      where: { id, tenantId: currentTenantId() },
+    });
     if (!report) throw new NotFoundException(`Report ${id} not found`);
     if (!this.signing?.signReport) {
       throw new ServiceUnavailableException(
@@ -1154,7 +1202,8 @@ export class ReportsService {
       reportId: id,
       // 允许前端只传增量内容, 其余字段以报告当前内容补全
       content: { ...this.toSignatureContent(report), ...(body.content ?? {}) },
-      signedById: body.signedById ?? "system",
+      // [SEC] 签署人只认服务端推导的认证用户, 客户端不可指定
+      signedById: actorId?.trim() || "system",
     });
     return {
       reportId: id,
@@ -1247,11 +1296,15 @@ export class ReportsService {
   /** POST /reports/:id/recall — 报告召回: HL7 ORU(C) 通知 + 事件 + 回执待确认 */
   async recallReport(
     id: string,
-    body: { reason: string; actorId?: string },
+    body: { reason: string },
     actorId = "unknown",
   ) {
-    const report = await this.prisma.report.findUnique({ where: { id } });
+    const report = await this.prisma.report.findFirst({
+      where: { id, tenantId: currentTenantId() },
+    });
     if (!report) throw new NotFoundException(`Report ${id} not found`);
+    // [SEC] 召回人只认服务端推导的认证用户 (控制器从 JWT 取), 客户端无法伪造
+    const actor = actorId;
     if (!this.recallService) {
       return {
         reportId: id,
@@ -1260,7 +1313,6 @@ export class ReportsService {
         reason: body.reason,
       };
     }
-    const actor = body.actorId?.trim() || actorId;
     const record = this.recallService.recall(id, {
       reason: body.reason,
       actorId: actor,
@@ -1272,6 +1324,37 @@ export class ReportsService {
     });
     // 作废签名
     this.signing?.supersede(id);
+    // [SEC] 召回 = 撤回: RIS 侧报告状态同步置 WITHDRAWN, 与 HIS 召回口径一致
+    await this.prisma.$transaction(async (tx) => {
+      await tx.report.update({
+        where: { id, tenantId: currentTenantId() },
+        data: { state: "WITHDRAWN" },
+      });
+      await tx.reportRevision.create({
+        data: {
+          reportId: id,
+          actorId: actor,
+          fromState: (report as Report).state,
+          toState: "WITHDRAWN",
+          reason: body.reason,
+          tenantId: currentTenantId(),
+        },
+      });
+    });
+    this.revisions.append({
+      reportId: id,
+      findings: (report as Report).findings ?? "",
+      impression: (report as Report).impression ?? "",
+      conclusion: (report as Report).conclusion ?? "",
+      diagnosis: (report as Report).diagnosis ?? "",
+      recommendations: (report as Report).recommendations ?? "",
+      qualityScore: (report as Report).qualityScore ?? null,
+      actorId: actor,
+      fromState: (report as Report).state,
+      toState: "WITHDRAWN",
+      reason: body.reason,
+    });
+    this.gateway.emitWorklistRefresh();
     return record;
   }
 
@@ -1924,10 +2007,12 @@ export class ReportsService {
     templateId: string,
     mode: "append" | "overwrite" = "append",
   ) {
-    const report = await this.prisma.report.findUnique({ where: { id } });
+    const report = await this.prisma.report.findUnique({
+      where: { id, tenantId: currentTenantId() },
+    });
     if (!report) throw new NotFoundException(`Report ${id} not found`);
     const template = await this.prisma.reportTemplate.findUnique({
-      where: { id: templateId },
+      where: { id: templateId, tenantId: currentTenantId() },
     });
     if (!template)
       throw new NotFoundException(`ReportTemplate ${templateId} not found`);
@@ -1943,7 +2028,7 @@ export class ReportsService {
         .filter(Boolean)
         .join("\n");
     const r = await this.prisma.report.update({
-      where: { id, version: report.version },
+      where: { id, version: report.version, tenantId: currentTenantId() },
       data: {
         ...(mode === "overwrite"
           ? { findings: content, htmlContent: content }

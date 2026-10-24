@@ -1,193 +1,300 @@
-import { CriticalsService } from './criticals.service'
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { CriticalsService } from "./criticals.service";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
 const makeSystemConfig = () =>
-  ({ getNumber: jest.fn().mockResolvedValue(20), getString: jest.fn().mockResolvedValue(undefined) }) as never
+  ({
+    getNumber: jest.fn().mockResolvedValue(20),
+    getString: jest.fn().mockResolvedValue(undefined),
+  }) as never;
 
 const makePrisma = (overrides: Record<string, unknown> = {}) => {
   const prisma: Record<string, unknown> = {
     criticalValue: {
-      findUnique: jest.fn().mockRejectedValue(new Error('no db')),
-      findMany: jest.fn().mockRejectedValue(new Error('no db')),
-      count: jest.fn().mockRejectedValue(new Error('no db')),
-      groupBy: jest.fn().mockRejectedValue(new Error('no db')),
-      create: jest.fn().mockRejectedValue(new Error('no db')),
-      update: jest.fn().mockRejectedValue(new Error('no db')),
-      delete: jest.fn().mockRejectedValue(new Error('no db')),
+      findUnique: jest.fn().mockRejectedValue(new Error("no db")),
+      findFirst: jest.fn().mockRejectedValue(new Error("no db")),
+      findMany: jest.fn().mockRejectedValue(new Error("no db")),
+      count: jest.fn().mockRejectedValue(new Error("no db")),
+      groupBy: jest.fn().mockRejectedValue(new Error("no db")),
+      create: jest.fn().mockRejectedValue(new Error("no db")),
+      update: jest.fn().mockRejectedValue(new Error("no db")),
+      delete: jest.fn().mockRejectedValue(new Error("no db")),
     },
     criticalValueNotification: {
-      findMany: jest.fn().mockRejectedValue(new Error('no db')),
-      count: jest.fn().mockRejectedValue(new Error('no db')),
-      groupBy: jest.fn().mockRejectedValue(new Error('no db')),
-      createMany: jest.fn().mockRejectedValue(new Error('no db')),
+      findMany: jest.fn().mockRejectedValue(new Error("no db")),
+      count: jest.fn().mockRejectedValue(new Error("no db")),
+      groupBy: jest.fn().mockRejectedValue(new Error("no db")),
+      createMany: jest.fn().mockRejectedValue(new Error("no db")),
     },
-    exam: { findMany: jest.fn().mockRejectedValue(new Error('no db')), findUnique: jest.fn().mockRejectedValue(new Error('no db')) },
-    patient: { findMany: jest.fn().mockRejectedValue(new Error('no db')) },
-    systemConfig: { findUnique: jest.fn().mockRejectedValue(new Error('no db')) },
+    exam: {
+      findMany: jest.fn().mockRejectedValue(new Error("no db")),
+      findUnique: jest.fn().mockRejectedValue(new Error("no db")),
+    },
+    patient: { findMany: jest.fn().mockRejectedValue(new Error("no db")) },
+    systemConfig: {
+      findUnique: jest.fn().mockRejectedValue(new Error("no db")),
+    },
     ...overrides,
-  }
-  return prisma as never
-}
+  };
+  return prisma as never;
+};
 
-describe('CriticalsService', () => {
-  describe('create', () => {
-    it('writes patientId carried from linked exam', async () => {
-      const create = jest.fn().mockResolvedValue({ id: 'cv-new', patientId: 'P1' })
+describe("CriticalsService", () => {
+  describe("create", () => {
+    it("writes patientId carried from linked exam", async () => {
+      const create = jest
+        .fn()
+        .mockResolvedValue({ id: "cv-new", patientId: "P1" });
       const prisma = makePrisma({
-        exam: { findUnique: jest.fn().mockResolvedValue({ id: 'EX-1', patientId: 'P1' }) },
+        exam: {
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ id: "EX-1", patientId: "P1" }),
+        },
         criticalValue: { create },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      const res = await service.create({ examId: 'EX-1', description: '低钠血症', severity: 'HIGH', method: 'SYSTEM' })
-      expect(res.patientId).toBe('P1')
-      expect(create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ examId: 'EX-1', patientId: 'P1', state: 'FOUND' }),
-      }))
-    })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      const res = await service.create({
+        examId: "EX-1",
+        description: "低钠血症",
+        severity: "HIGH",
+        method: "SYSTEM",
+      });
+      expect(res.patientId).toBe("P1");
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            examId: "EX-1",
+            patientId: "P1",
+            state: "FOUND",
+          }),
+        }),
+      );
+    });
 
-    it('keeps patientId undefined when no examId provided', async () => {
-      const create = jest.fn().mockResolvedValue({ id: 'cv-new' })
-      const findUnique = jest.fn().mockRejectedValue(new Error('no db'))
+    it("keeps patientId undefined when no examId provided", async () => {
+      const create = jest.fn().mockResolvedValue({ id: "cv-new" });
+      const findUnique = jest.fn().mockRejectedValue(new Error("no db"));
       const prisma = makePrisma({
-        exam: { findMany: jest.fn().mockRejectedValue(new Error('no db')), findUnique },
+        exam: {
+          findMany: jest.fn().mockRejectedValue(new Error("no db")),
+          findUnique,
+        },
         criticalValue: { create },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      await service.create({ description: '孤立危急值', severity: 'LOW', method: 'SYSTEM' })
-      expect(create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ examId: undefined, patientId: undefined }),
-      }))
-      expect(findUnique).not.toHaveBeenCalled()
-    })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await service.create({
+        description: "孤立危急值",
+        severity: "LOW",
+        method: "SYSTEM",
+      });
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            examId: undefined,
+            patientId: undefined,
+          }),
+        }),
+      );
+      expect(findUnique).not.toHaveBeenCalled();
+    });
 
-    it('throws 400 when linked exam does not exist', async () => {
+    it("throws 400 when linked exam does not exist", async () => {
       const prisma = makePrisma({
         exam: { findUnique: jest.fn().mockResolvedValue(null) },
         criticalValue: { create: jest.fn() },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      await expect(service.create({ examId: 'nope', description: 'x', severity: 'HIGH', method: 'SYSTEM' }))
-        .rejects.toBeInstanceOf(BadRequestException)
-    })
-  })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await expect(
+        service.create({
+          examId: "nope",
+          description: "x",
+          severity: "HIGH",
+          method: "SYSTEM",
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+  });
 
-  describe('update / CLOSED_LOOP 终态', () => {
-    it('writes closedAt/closedBy when state becomes CLOSED_LOOP', async () => {
-      const update = jest.fn().mockResolvedValue({ id: 'cv-1', state: 'CLOSED_LOOP' })
+  describe("update / CLOSED_LOOP 终态", () => {
+    it("writes closedAt/closedBy when state becomes CLOSED_LOOP", async () => {
+      const update = jest
+        .fn()
+        .mockResolvedValue({ id: "cv-1", state: "CLOSED_LOOP" });
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'RESOLVED' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({
+              id: "cv-1",
+              description: "x",
+              severity: "HIGH",
+              state: "RESOLVED",
+            }),
           update,
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      const res = await service.update('cv-1', { state: 'CLOSED_LOOP', closedBy: '医务处' })
-      expect(res.state).toBe('CLOSED_LOOP')
-      const data = update.mock.calls[0][0].data
-      expect(data.state).toBe('CLOSED_LOOP')
-      expect(data.closedBy).toBe('医务处')
-      expect(data.closedAt).toBeInstanceOf(Date)
-      expect(data.resolvedAt).toBeInstanceOf(Date)
-      expect(data.resolvedBy).toBe('医务处')
-    })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      const res = await service.update("cv-1", {
+        state: "CLOSED_LOOP",
+        closedBy: "医务处",
+      });
+      expect(res.state).toBe("CLOSED_LOOP");
+      const data = update.mock.calls[0][0].data;
+      expect(data.state).toBe("CLOSED_LOOP");
+      expect(data.closedBy).toBe("医务处");
+      expect(data.closedAt).toBeInstanceOf(Date);
+      expect(data.resolvedAt).toBeInstanceOf(Date);
+      expect(data.resolvedBy).toBe("医务处");
+    });
 
-    it('does not write closedAt unless state is CLOSED_LOOP', async () => {
-      const update = jest.fn().mockResolvedValue({})
+    it("does not write closedAt unless state is CLOSED_LOOP", async () => {
+      const update = jest.fn().mockResolvedValue({});
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'RESOLVING' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({
+              id: "cv-1",
+              description: "x",
+              severity: "HIGH",
+              state: "RESOLVING",
+            }),
           update,
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      await service.update('cv-1', { state: 'RESOLVED', resolvedBy: '放射科' })
-      const data = update.mock.calls[0][0].data
-      expect(data.closedAt).toBeUndefined()
-      expect(data.closedBy).toBeUndefined()
-      expect(data.resolvedAt).toBeInstanceOf(Date)
-    })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await service.update("cv-1", { state: "RESOLVED", resolvedBy: "放射科" });
+      const data = update.mock.calls[0][0].data;
+      expect(data.closedAt).toBeUndefined();
+      expect(data.closedBy).toBeUndefined();
+      expect(data.resolvedAt).toBeInstanceOf(Date);
+    });
 
-    it('throws 404 when critical value does not exist', async () => {
+    it("throws 404 when critical value does not exist", async () => {
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue(null),
+          findFirst: jest.fn().mockResolvedValue(null),
           update: jest.fn(),
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      await expect(service.update('nope', { state: 'CLOSED_LOOP' })).rejects.toBeInstanceOf(NotFoundException)
-    })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await expect(
+        service.update("nope", { state: "CLOSED_LOOP" }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
 
     // [v3.0.6.11-104 Wave 1B] 状态机门禁: 非法流转 400 / 合法流转 200
-    it('合法流转: FOUND → NOTIFIED 通过', async () => {
-      const update = jest.fn().mockResolvedValue({ id: 'cv-1', state: 'NOTIFIED' })
+    it("合法流转: FOUND → NOTIFIED 通过", async () => {
+      const update = jest
+        .fn()
+        .mockResolvedValue({ id: "cv-1", state: "NOTIFIED" });
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'FOUND' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({
+              id: "cv-1",
+              description: "x",
+              severity: "HIGH",
+              state: "FOUND",
+            }),
           update,
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      const res = await service.update('cv-1', { state: 'NOTIFIED' })
-      expect(res.state).toBe('NOTIFIED')
-      expect(update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'NOTIFIED' }) }))
-    })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      const res = await service.update("cv-1", { state: "NOTIFIED" });
+      expect(res.state).toBe("NOTIFIED");
+      expect(update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ state: "NOTIFIED" }),
+        }),
+      );
+    });
 
-    it('非法跳转: FOUND → RESOLVED 抛 400 INVALID_TRANSITION', async () => {
+    it("非法跳转: FOUND → RESOLVED 抛 400 INVALID_TRANSITION", async () => {
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'FOUND' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({
+              id: "cv-1",
+              description: "x",
+              severity: "HIGH",
+              state: "FOUND",
+            }),
           update: jest.fn(),
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      await expect(service.update('cv-1', { state: 'RESOLVED' })).rejects.toBeInstanceOf(BadRequestException)
-      await expect(service.update('cv-1', { state: 'RESOLVED' })).rejects.toThrow('INVALID_TRANSITION')
-    })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await expect(
+        service.update("cv-1", { state: "RESOLVED" }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.update("cv-1", { state: "RESOLVED" }),
+      ).rejects.toThrow("INVALID_TRANSITION");
+    });
 
-    it('终态不可变: CLOSED_LOOP → RESOLVED 抛 400', async () => {
+    it("终态不可变: CLOSED_LOOP → RESOLVED 抛 400", async () => {
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'CLOSED_LOOP' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({
+              id: "cv-1",
+              description: "x",
+              severity: "HIGH",
+              state: "CLOSED_LOOP",
+            }),
           update: jest.fn(),
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      await expect(service.update('cv-1', { state: 'RESOLVED' })).rejects.toThrow('INVALID_TRANSITION')
-    })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await expect(
+        service.update("cv-1", { state: "RESOLVED" }),
+      ).rejects.toThrow("INVALID_TRANSITION");
+    });
 
-    it('同态幂等放行: FOUND → FOUND 不报错', async () => {
-      const update = jest.fn().mockResolvedValue({ id: 'cv-1', state: 'FOUND' })
+    it("同态幂等放行: FOUND → FOUND 不报错", async () => {
+      const update = jest
+        .fn()
+        .mockResolvedValue({ id: "cv-1", state: "FOUND" });
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH', state: 'FOUND' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({
+              id: "cv-1",
+              description: "x",
+              severity: "HIGH",
+              state: "FOUND",
+            }),
           update,
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      await service.update('cv-1', { state: 'FOUND' })
-      expect(update).toHaveBeenCalled()
-    })
-  })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await service.update("cv-1", { state: "FOUND" });
+      expect(update).toHaveBeenCalled();
+    });
+  });
 
-  describe('getStats', () => {
-    it('aggregates CriticalValue states into dashboard shape', async () => {
+  describe("getStats", () => {
+    it("aggregates CriticalValue states into dashboard shape", async () => {
       const prisma = makePrisma({
         criticalValue: {
           groupBy: jest.fn().mockResolvedValue([
-            { state: 'FOUND', _count: { _all: 3 } },
-            { state: 'NOTIFIED', _count: { _all: 2 } },
-            { state: 'ACKNOWLEDGED', _count: { _all: 1 } },
-            { state: 'RECEIPTED', _count: { _all: 1 } },
-            { state: 'RESOLVED', _count: { _all: 4 } },
-            { state: 'CLOSED_LOOP', _count: { _all: 2 } },
-            { state: 'ESCALATED', _count: { _all: 1 } },
+            { state: "FOUND", _count: { _all: 3 } },
+            { state: "NOTIFIED", _count: { _all: 2 } },
+            { state: "ACKNOWLEDGED", _count: { _all: 1 } },
+            { state: "RECEIPTED", _count: { _all: 1 } },
+            { state: "RESOLVED", _count: { _all: 4 } },
+            { state: "CLOSED_LOOP", _count: { _all: 2 } },
+            { state: "ESCALATED", _count: { _all: 1 } },
           ]),
           count: jest.fn().mockResolvedValueOnce(14).mockResolvedValueOnce(5),
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      const stats = await service.getStats()
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      const stats = await service.getStats();
       expect(stats).toEqual({
         pending: 3,
         notified: 2,
@@ -197,137 +304,170 @@ describe('CriticalsService', () => {
         escalated: 1,
         total: 14,
         todayCount: 5,
-      })
-    })
+      });
+    });
 
-    it('returns zeros when no records exist', async () => {
+    it("returns zeros when no records exist", async () => {
       const prisma = makePrisma({
         criticalValue: {
           groupBy: jest.fn().mockResolvedValue([]),
           count: jest.fn().mockResolvedValueOnce(0).mockResolvedValueOnce(0),
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      const stats = await service.getStats()
-      expect(stats.total).toBe(0)
-      expect(stats.pending).toBe(0)
-      expect(stats.resolved).toBe(0)
-    })
-  })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      const stats = await service.getStats();
+      expect(stats.total).toBe(0);
+      expect(stats.pending).toBe(0);
+      expect(stats.resolved).toBe(0);
+    });
+  });
 
-  describe('notify', () => {
-    it('persists delivery attempts deterministically and flips state to NOTIFIED', async () => {
-      const createMany = jest.fn().mockResolvedValue({ count: 2 })
-      const update = jest.fn().mockResolvedValue({})
+  describe("notify", () => {
+    it("persists delivery attempts deterministically and flips state to NOTIFIED", async () => {
+      const createMany = jest.fn().mockResolvedValue({ count: 2 });
+      const update = jest.fn().mockResolvedValue({});
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: '主动脉夹层', severity: 'CRITICAL' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({
+              id: "cv-1",
+              state: "FOUND",
+              description: "主动脉夹层",
+              severity: "CRITICAL",
+            }),
           update,
         },
         criticalValueNotification: { createMany },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      const res = await service.notify({ criticalId: 'cv-1', channels: ['PHONE', 'SMS'] })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      const res = await service.notify({
+        criticalId: "cv-1",
+        channels: ["PHONE", "SMS"],
+      });
 
-      expect(res.count).toBe(2)
-      expect(res.status).toBe('NOTIFIED')
-      expect(createMany).toHaveBeenCalled()
-      const data = createMany.mock.calls[0][0].data as any[]
-      expect(data).toHaveLength(2)
+      expect(res.count).toBe(2);
+      expect(res.status).toBe("NOTIFIED");
+      expect(createMany).toHaveBeenCalled();
+      const data = createMany.mock.calls[0][0].data as any[];
+      expect(data).toHaveLength(2);
       expect(data[0]).toMatchObject({
-        criticalId: 'cv-1',
-        finding: '主动脉夹层',
-        category: 'LIFE_THREATENING',
-        patientName: '未知患者',
-        channel: 'PHONE',
-        status: 'SUCCESS',
-      })
+        criticalId: "cv-1",
+        finding: "主动脉夹层",
+        category: "LIFE_THREATENING",
+        patientName: "未知患者",
+        channel: "PHONE",
+        status: "SUCCESS",
+      });
       // 确定性:同通道两次调用结果一致,无随机
-      expect(data[1].status).toBe('SUCCESS')
-      expect(update).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ state: 'NOTIFIED' }),
-      }))
-    })
+      expect(data[1].status).toBe("SUCCESS");
+      expect(update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ state: "NOTIFIED" }),
+        }),
+      );
+    });
 
-    it('uses frontend-supplied fields when provided', async () => {
-      const createMany = jest.fn().mockResolvedValue({ count: 1 })
+    it("uses frontend-supplied fields when provided", async () => {
+      const createMany = jest.fn().mockResolvedValue({ count: 1 });
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-2', description: 'x', severity: 'HIGH' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({
+              id: "cv-2",
+              state: "FOUND",
+              description: "x",
+              severity: "HIGH",
+            }),
           update: jest.fn().mockResolvedValue({}),
         },
         criticalValueNotification: { createMany },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
       await service.notify({
-        criticalId: 'cv-2',
-        patientName: '张明远',
-        patientId: 'P1',
-        category: 'URGENT',
-        finding: '颅内出血',
-        channels: ['WECHAT'],
-        recipientName: '王医生',
-        recipientDept: '神经外科',
-        recipientPhone: '13800000000',
-      })
-      const data = createMany.mock.calls[0][0].data as any[]
+        criticalId: "cv-2",
+        patientName: "张明远",
+        patientId: "P1",
+        category: "URGENT",
+        finding: "颅内出血",
+        channels: ["WECHAT"],
+        recipientName: "王医生",
+        recipientDept: "神经外科",
+        recipientPhone: "13800000000",
+      });
+      const data = createMany.mock.calls[0][0].data as any[];
       expect(data[0]).toMatchObject({
-        patientName: '张明远',
-        patientId: 'P1',
-        category: 'URGENT',
-        finding: '颅内出血',
-        recipientName: '王医生',
-        recipientDept: '神经外科',
-        recipientPhone: '13800000000',
-      })
-    })
+        patientName: "张明远",
+        patientId: "P1",
+        category: "URGENT",
+        finding: "颅内出血",
+        recipientName: "王医生",
+        recipientDept: "神经外科",
+        recipientPhone: "13800000000",
+      });
+    });
 
-    it('marks delivery FAILED when channel is explicitly disabled in config', async () => {
-      const createMany = jest.fn().mockResolvedValue({ count: 1 })
+    it("marks delivery FAILED when channel is explicitly disabled in config", async () => {
+      const createMany = jest.fn().mockResolvedValue({ count: 1 });
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue({ id: 'cv-3', description: 'x', severity: 'HIGH' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({
+              id: "cv-3",
+              state: "FOUND",
+              description: "x",
+              severity: "HIGH",
+            }),
           update: jest.fn().mockResolvedValue({}),
         },
         criticalValueNotification: { createMany },
         systemConfig: {
-          findUnique: jest.fn().mockResolvedValue({ key: 'critical_channel_PHONE', value: { enabled: false } }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({
+              key: "critical_channel_PHONE",
+              value: { enabled: false },
+            }),
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      await service.notify({ criticalId: 'cv-3', channels: ['PHONE'] })
-      const data = createMany.mock.calls[0][0].data as any[]
-      expect(data[0].status).toBe('FAILED')
-    })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await service.notify({ criticalId: "cv-3", channels: ["PHONE"] });
+      const data = createMany.mock.calls[0][0].data as any[];
+      expect(data[0].status).toBe("FAILED");
+    });
 
-    it('throws 404 when critical value does not exist', async () => {
+    it("throws 404 when critical value does not exist", async () => {
       const prisma = makePrisma({
         criticalValue: {
-          findUnique: jest.fn().mockResolvedValue(null),
+          findFirst: jest.fn().mockResolvedValue(null),
           update: jest.fn(),
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      await expect(service.notify({ criticalId: 'nope', channels: ['SMS'] })).rejects.toBeInstanceOf(NotFoundException)
-    })
-  })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await expect(
+        service.notify({ criticalId: "nope", channels: ["SMS"] }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
 
-  describe('getValue5StepList', () => {
-    it('aggregates 5-step records from critical values, notifications, exam and patient', async () => {
+  describe("getValue5StepList", () => {
+    it("aggregates 5-step records from critical values, notifications, exam and patient", async () => {
       const prisma = makePrisma({
         criticalValue: {
           findMany: jest.fn().mockResolvedValue([
             {
-              id: 'cv-1',
-              description: '颅内出血',
-              severity: 'CRITICAL',
-              state: 'ACKNOWLEDGED',
-              examId: 'EX-1',
-              createdAt: new Date('2026-08-01T08:00:00Z'),
-              voiceCalledAt: new Date('2026-08-01T08:05:00Z'),
-              voiceCalledBy: '值班医生',
-              ackedAt: new Date('2026-08-01T08:10:00Z'),
-              ackedBy: '王医生',
+              id: "cv-1",
+              description: "颅内出血",
+              severity: "CRITICAL",
+              state: "ACKNOWLEDGED",
+              examId: "EX-1",
+              createdAt: new Date("2026-08-01T08:00:00Z"),
+              voiceCalledAt: new Date("2026-08-01T08:05:00Z"),
+              voiceCalledBy: "值班医生",
+              ackedAt: new Date("2026-08-01T08:10:00Z"),
+              ackedBy: "王医生",
               confirmedAt: null,
               confirmedBy: null,
               confirmedComment: null,
@@ -335,123 +475,148 @@ describe('CriticalsService', () => {
               resolvedBy: null,
             },
             {
-              id: 'cv-2',
-              description: '急性心肌梗死',
-              severity: 'URGENT',
-              state: 'RESOLVED',
+              id: "cv-2",
+              description: "急性心肌梗死",
+              severity: "URGENT",
+              state: "RESOLVED",
               examId: null,
-              createdAt: new Date('2026-08-02T08:00:00Z'),
+              createdAt: new Date("2026-08-02T08:00:00Z"),
               voiceCalledAt: null,
               voiceCalledBy: null,
               ackedAt: null,
               ackedBy: null,
-              confirmedAt: new Date('2026-08-02T08:20:00Z'),
-              confirmedBy: '心内科陈医生',
-              confirmedComment: '已收治',
-              resolvedAt: new Date('2026-08-02T09:00:00Z'),
-              resolvedBy: '医务处',
+              confirmedAt: new Date("2026-08-02T08:20:00Z"),
+              confirmedBy: "心内科陈医生",
+              confirmedComment: "已收治",
+              resolvedAt: new Date("2026-08-02T09:00:00Z"),
+              resolvedBy: "医务处",
             },
           ]),
         },
         criticalValueNotification: {
-          findMany: jest.fn().mockResolvedValue([
-            { criticalId: 'cv-1', channel: 'PHONE', status: 'SUCCESS', triggeredAt: new Date('2026-08-01T08:05:00Z'), recipientPhone: '13800000001' },
-          ]),
+          findMany: jest
+            .fn()
+            .mockResolvedValue([
+              {
+                criticalId: "cv-1",
+                channel: "PHONE",
+                status: "SUCCESS",
+                triggeredAt: new Date("2026-08-01T08:05:00Z"),
+                recipientPhone: "13800000001",
+              },
+            ]),
         },
-        exam: { findMany: jest.fn().mockResolvedValue([{ id: 'EX-1', patientId: 'P1' }]) },
-        patient: { findMany: jest.fn().mockResolvedValue([{ id: 'P1', name: '张明远' }]) },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      const { items, total } = await service.getValue5StepList()
+        exam: {
+          findMany: jest
+            .fn()
+            .mockResolvedValue([{ id: "EX-1", patientId: "P1" }]),
+        },
+        patient: {
+          findMany: jest.fn().mockResolvedValue([{ id: "P1", name: "张明远" }]),
+        },
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      const { items, total } = await service.getValue5StepList();
 
-      expect(total).toBe(2)
+      expect(total).toBe(2);
       expect(items[0]).toMatchObject({
-        id: 'cv-1',
-        patientName: '张明远',
-        finding: '颅内出血',
-        severity: '危及生命',
+        id: "cv-1",
+        patientName: "张明远",
+        finding: "颅内出血",
+        severity: "危及生命",
         currentStep: 3,
-      })
-      expect(items[0].steps.discovered.done).toBe(true)
-      expect(items[0].steps.voiceCall.done).toBe(true)
-      expect(items[0].steps.voiceCall.phone).toBe('13800000001')
-      expect(items[0].steps.acknowledged.done).toBe(true)
-      expect(items[0].steps.receipted.done).toBe(false)
-      expect(items[1].currentStep).toBe(5)
-      expect(items[1].steps.closed.done).toBe(true)
-      expect(items[1].steps.closed.time).toBeDefined()
-    })
-  })
+      });
+      expect(items[0].steps.discovered.done).toBe(true);
+      expect(items[0].steps.voiceCall.done).toBe(true);
+      expect(items[0].steps.voiceCall.phone).toBe("13800000001");
+      expect(items[0].steps.acknowledged.done).toBe(true);
+      expect(items[0].steps.receipted.done).toBe(false);
+      expect(items[1].currentStep).toBe(5);
+      expect(items[1].steps.closed.done).toBe(true);
+      expect(items[1].steps.closed.time).toBeDefined();
+    });
+  });
 
-  describe('getMissedStats / getNotificationStats', () => {
-    it('getMissedStats returns frontend-aligned shape', async () => {
+  describe("getMissedStats / getNotificationStats", () => {
+    it("getMissedStats returns frontend-aligned shape", async () => {
       const prisma = makePrisma({
         criticalValue: {
           count: jest.fn().mockResolvedValueOnce(2).mockResolvedValueOnce(30),
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      const stats = await service.getMissedStats()
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      const stats = await service.getMissedStats();
       expect(stats).toEqual({
         missed: 2,
         total: 30,
         totalExams: 30,
         missedCount: 2,
-        missedRate: '6.7%',
+        missedRate: "6.7%",
         topMissedReasons: [],
-      })
-    })
+      });
+    });
 
-    it('getNotificationStats returns completion metrics', async () => {
+    it("getNotificationStats returns completion metrics", async () => {
       const prisma = makePrisma({
         criticalValueNotification: {
           groupBy: jest.fn().mockResolvedValue([
-            { status: 'SUCCESS', _count: { id: 9 } },
-            { status: 'FAILED', _count: { id: 1 } },
+            { status: "SUCCESS", _count: { id: 9 } },
+            { status: "FAILED", _count: { id: 1 } },
           ]),
-          count: jest.fn().mockResolvedValueOnce(10).mockResolvedValueOnce(3).mockResolvedValueOnce(2),
+          count: jest
+            .fn()
+            .mockResolvedValueOnce(10)
+            .mockResolvedValueOnce(3)
+            .mockResolvedValueOnce(2),
         },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
-      const stats = await service.getNotificationStats()
-      expect(stats.total).toBe(10)
-      expect(stats.totalCount).toBe(10)
-      expect(stats.completedWithin10Min).toBe(9)
-      expect(stats.completionRate).toBe(90)
-      expect(stats.todayCount).toBe(3)
-      expect(stats.todayCompleted).toBe(2)
-      expect(stats.todayRate).toBe('67%')
-    })
-  })
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      const stats = await service.getNotificationStats();
+      expect(stats.total).toBe(10);
+      expect(stats.totalCount).toBe(10);
+      expect(stats.completedWithin10Min).toBe(9);
+      expect(stats.completionRate).toBe(90);
+      expect(stats.todayCount).toBe(3);
+      expect(stats.todayCompleted).toBe(2);
+      expect(stats.todayRate).toBe("67%");
+    });
+  });
 
   // [v3.0.6.11-79] 消费者: default_page_size admin config 决定未传 take 时的分页大小
-  describe('list (default_page_size 消费者)', () => {
-    it('uses admin config default_page_size when take is not provided', async () => {
-      const findMany = jest.fn().mockResolvedValue([])
-      const count = jest.fn().mockResolvedValue(0)
+  describe("list (default_page_size 消费者)", () => {
+    it("uses admin config default_page_size when take is not provided", async () => {
+      const findMany = jest.fn().mockResolvedValue([]);
+      const count = jest.fn().mockResolvedValue(0);
       const prisma = makePrisma({
         criticalValue: { findMany, count },
-      })
+      });
       const cfg = () =>
-        ({ getNumber: jest.fn().mockResolvedValue(40), getString: jest.fn().mockResolvedValue(undefined) }) as never
-      const service = new CriticalsService(prisma, cfg())
+        ({
+          getNumber: jest.fn().mockResolvedValue(40),
+          getString: jest.fn().mockResolvedValue(undefined),
+        }) as never;
+      const service = new CriticalsService(prisma, cfg());
 
-      await service.list({})
+      await service.list({});
 
-      expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 40 }))
-    })
+      expect(findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 40 }),
+      );
+    });
 
-    it('honors explicit take param', async () => {
-      const findMany = jest.fn().mockResolvedValue([])
-      const count = jest.fn().mockResolvedValue(0)
+    it("honors explicit take param", async () => {
+      const findMany = jest.fn().mockResolvedValue([]);
+      const count = jest.fn().mockResolvedValue(0);
       const prisma = makePrisma({
         criticalValue: { findMany, count },
-      })
-      const service = new CriticalsService(prisma, makeSystemConfig())
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
 
-      await service.list({ take: 5 })
+      await service.list({ take: 5 });
 
-      expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 5 }))
-    })
-  })
-})
+      expect(findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 5 }),
+      );
+    });
+  });
+});

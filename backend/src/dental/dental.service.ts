@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { getCurrentTenantId } from "../common/interceptors/tenant-context.interceptor";
 import {
@@ -87,15 +87,25 @@ export class DentalService {
   }
 
   async updateStudy(id: string, body: UpdateDentalStudyDto) {
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.dentalStudy.findFirst({
+      where: { id, tenantId },
+    });
+    if (!existing) throw new NotFoundException(`DentalStudy ${id} not found`);
     const data = await this.prisma.dentalStudy.update({
-      where: { id },
+      where: { id, tenantId },
       data: body as any,
     });
     return { data: [data] };
   }
 
   async deleteStudy(id: string) {
-    await this.prisma.dentalStudy.delete({ where: { id } });
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.dentalStudy.findFirst({
+      where: { id, tenantId },
+    });
+    if (!existing) throw new NotFoundException(`DentalStudy ${id} not found`);
+    await this.prisma.dentalStudy.delete({ where: { id, tenantId } });
     return { data: [] };
   }
 
@@ -146,8 +156,13 @@ export class DentalService {
   }
 
   async updateImplant(id: string, body: UpdateImplantDto) {
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.dentalImplant.findFirst({
+      where: { id, tenantId },
+    });
+    if (!existing) throw new NotFoundException(`DentalImplant ${id} not found`);
     const data = await this.prisma.dentalImplant.update({
-      where: { id },
+      where: { id, tenantId },
       data: body as any,
     });
     return { data: [data] };
@@ -168,8 +183,14 @@ export class DentalService {
   }
 
   async updateAppointment(id: string, body: UpdateDentalAppointmentDto) {
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.dentalAppointment.findFirst({
+      where: { id, tenantId },
+    });
+    if (!existing)
+      throw new NotFoundException(`DentalAppointment ${id} not found`);
     const data = await this.prisma.dentalAppointment.update({
-      where: { id },
+      where: { id, tenantId },
       data: body as any,
     });
     return { data: [data] };
@@ -202,8 +223,14 @@ export class DentalService {
   }
 
   async updateInventoryItem(id: string, body: UpdateInventoryItemDto) {
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.dentalInventoryItem.findFirst({
+      where: { id, tenantId },
+    });
+    if (!existing)
+      throw new NotFoundException(`DentalInventoryItem ${id} not found`);
     const data = await this.prisma.dentalInventoryItem.update({
-      where: { id },
+      where: { id, tenantId },
       data: body as any,
     });
     return { data: [data] };
@@ -211,15 +238,16 @@ export class DentalService {
 
   /** [v3.0.6.16-6] 删除库存项 (前端 DentalInventoryPage 的「删除」此前为本地假成功) */
   async deleteInventoryItem(id: string) {
-    const existing = await this.prisma.dentalInventoryItem.findUnique({
-      where: { id },
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.dentalInventoryItem.findFirst({
+      where: { id, tenantId },
     });
     if (!existing)
       return {
         success: false,
         error: { code: "NOT_FOUND", message: `库存项 ${id} 不存在` },
       };
-    await this.prisma.dentalInventoryItem.delete({ where: { id } });
+    await this.prisma.dentalInventoryItem.delete({ where: { id, tenantId } });
     return { success: true, data: { id, deleted: true } };
   }
 
