@@ -1,3 +1,127 @@
+## v3.0.6.16-8 (2026-10-20) — 深入审查整改（多租户隔离 / 操作人归属 / 状态机守卫 / 前端真实性）
+
+> **背景**: 对全项目做第二轮深入审查：前端界面·表格·控件·流程展现，后端参数逻辑与业务流程。
+> 四路并行审计共产出 **155 项**发现（前端表格 35 / 前端控件流程 40 / 后端参数 40 / 后端业务流程 40），
+> 本轮修复其中 **22 个跨租户 P0 + 16 个业务流程 P0 + 9 个前端 P0**，并新增一套后端门禁。
+> **验证**: 前端 tsc 0 / vitest 47 文件 829 测试 / 后端 tsc 0 / jest 359 suites **3839** tests /
+> 守卫 9 套全过 / E2E 抽样 50+ 路由全绿。
+
+### 本轮 4 项指标（基线 `v3.0.6.16-7` / a85e9543）
+
+| 指标         | 数值                                                                            |
+| ------------ | ------------------------------------------------------------------------------- |
+| ① 增加行数   | **+38,067 / -20,282**（143 个文件；含 lint-staged 一次性格式重排）              |
+| ② 增加功能   | **10 项**（下表）                                                               |
+| ③ 增加文件数 | **+2 新增 / -0 删除**                                                           |
+| ④ 总代码行数 | **1,562,514 行**（src 1,415,772 + backend 135,902 + scripts 8,577 + e2e 2,263） |
+
+② 新增功能明细：
+
+| #   | 功能                   | 说明                                                                       |
+| --- | ---------------------- | -------------------------------------------------------------------------- |
+| 1   | 后端多租户写入隔离     | 22 处写路径补 `tenantId`（此前 A 租户可改/删 B 租户数据）                  |
+| 2   | 操作人归属修复         | `req.user.id` → `sub`（11 处）+ 消除 `body.actorId` 伪造签名               |
+| 3   | 硬编码操作人清零       | 44 处 `'当前用户'`/`'current-user'` → 真实登录用户（后台任务记 `system`）  |
+| 4   | 危急值闭环状态机       | 4 个专用写方法接入 `assertCriticalTransition`，已闭环不可被重开            |
+| 5   | 检查 Time-Out 门禁补齐 | `batch-start` 补 `ARRIVED` + `timeoutVerified` + `WorklistOp` 审计         |
+| 6   | 报告双签门禁强制化     | 关键报告 `REVIEWED/SIGNED` 前必须有 `CO_SIGN_REVIEW`（原为建议性）         |
+| 7   | 新增 `guard:backend`   | 锁定 `untenantWrites`/`reqUserId`/`forgedActor`/`hardcodedActors` 四项为 0 |
+| 8   | 前端 i18n 影子修复     | 修 `InsuranceAuditPage` 310 处 key 退化；补 25 个危急值闭环键              |
+| 9   | 前端假控件修复         | 挂片协议新建（无 `onOk`）、PDCA 校验不执行、回执签名死 div、5 步第 0 步    |
+| 10  | 表格语义修复           | 医生列显示工号、钻取抽屉显示原始键名/英文枚举                              |
+
+### 1. 后端：跨租户写入隔离（22 个 P0）
+
+这是本轮最严重的发现。JWT 载荷暴露的是 `sub`；租户由 `currentTenantId()` 解析。
+**多数读路径按 `tenantId` 过滤，但相当一部分写路径只按 `id` 定位** —— 于是 A 租户的用户可以
+修改或删除 B 租户的医疗记录。全部改为 `findFirst({ id, tenantId })` + `update/delete({ id, tenantId })`：
+
+| 模块                                                                 | 受影响写路径                                                                                                                                               |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`                                                              | `list` / `findById` / `update` / `delete` / `resetPassword` / `getActivity`（另：`create` 不再硬编码 `tenantId:'default'`，`take` 收敛到 `MAX_PAGE_SIZE`） |
+| `patient`                                                            | `update` / `delete` / `merge`                                                                                                                              |
+| `criticals`                                                          | `update` / `delete` / `voiceCall` / `clinicalReceipt` / `notify` / `escalate`                                                                              |
+| `reports`                                                            | `update` / `delete` / `transition` / `applyTemplate` / `recallReport`                                                                                      |
+| `exam` / `worklist`                                                  | `update` / `delete` / `saveNotes` / `getExam` / `batchTransition` / `checkIn` / `start` / `complete` / `cancel`                                            |
+| `devicemgmt` / `device`                                              | 设备状态与维保计划（`...body` 改为显式字段白名单）                                                                                                         |
+| `eye`                                                                | `updateStudy` / `deleteStudy` / EMR / AI 查询（去掉 `dto as any`）                                                                                         |
+| `fhir`                                                               | 8 处 search + 资源读写；硬编码 `tenantId:'default'` 改为 `getCurrentTenantId()`                                                                            |
+| `dental` / `finance` / `safety` / `workflow` / `qcext` / `templates` | 同类写入                                                                                                                                                   |
+| `notifications`                                                      | 目标 `userId` 不再信任 query/param —— 读只用自己的 id，写他人收件箱返回 403（此前任何登录用户可读/标记他人通知）                                           |
+
+### 2. 后端：操作人归属与签名不可伪造（11 + 44 处）
+
+- `req.user.id` 恒为 `undefined`（载荷字段是 `sub`），导致报表签署/审核/召回、会签、
+  修订的**域内审计全部记为 `"unknown"`**；更严重的是，因为该值为空，
+  **客户端传入的 `body.actorId` 反而生效 —— 签名人可被任意伪造**。
+- 新增 `backend/src/common/auth/current-user.ts`（`currentUserId(req)` → `sub ?? username ?? 'unknown'`），
+  11 处全部改用；并从请求 schema 移除 `actorId`，操作人一律由服务端决定。
+- 44 处硬编码 `'当前用户'` / `'current-user'` 全部替换为真实操作人（新增 42 个
+  `actorId?: string` 参数，由控制器传 `currentUserId(req)`）；后台定时任务如实记 `'system'`。
+  涉及：知情同意签署、重拍申请/审批、危急值闭环署名、模板审批、研究数据集、典型病例、
+  科室公告、设备工单/校准/报废、应急通道、QC 闭环、报告标注/质控任务等。
+
+### 3. 后端：状态机守卫（此前可绕过）
+
+| 状态机        | 缺陷                                                                                                                                | 修复                                                                       |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 危急值闭环    | `voiceCall`/`clinicalReceipt`/`notify`/`runEscalationChain` 直接写 state，**已闭环可被重开**；`escalate` 伪造患者姓名与「危重」等级 | 接入 `assertCriticalTransition`；`escalate` 读真实记录                     |
+| 危急值 5 步   | `acknowledge`/`resolve` 跳过 `assertFlowStep`；`create` 把终态重置为 `FOUND`                                                        | 补守卫；终态拒绝重开                                                       |
+| 移动端        | 确认危急值可重开闭环，操作人来自请求体                                                                                              | 补状态机 + 服务端取操作人                                                  |
+| 检查状态      | `PATCH /exams/:id` 接受任意 `state` 字符串（未开始即可「完成」）                                                                    | 复用 `EXAM_TRANSITIONS` + 枚举校验                                         |
+| 检查 Time-Out | `batch-start` 绕过「检查前核对」安全门禁，且不写 `WorklistOp`                                                                       | 批量路径补同一门禁与审计                                                   |
+| 预约          | `cancel` 绕过 `APPOINTMENT_TRANSITIONS`（已完成可被取消）；`markNoShow` 只写内存；审计 actor 恒为 `null`                            | 补状态机；两条路径统一落库；审计传真实操作人                               |
+| 报告          | `recall` 从不改 `Report.state`（RIS 与 HIS 不一致）；签名人可被客户端指定；**关键报告可跳过双签直接发布**                           | recall 落状态；签名人服务端权威；`REVIEWED/SIGNED` 前强制 `CO_SIGN_REVIEW` |
+| PDCA          | `completeCycle` 可从任意阶段直接完成；整改项可任意重开且不清 `completedAt`                                                          | 要求末阶段；状态白名单 + 清时间戳                                          |
+| 不良事件      | 无状态机，`CLOSED` 可重开；**硬删除**销毁医疗法律记录                                                                               | 新增 `ADVERSE_EVENT_TRANSITIONS`；删除写审计行                             |
+| 修订单        | 无状态机（已驳回可被通过）；作者被覆盖                                                                                              | 新增修订状态机；移除作者覆盖                                               |
+| 危急值扩展    | `close-loop` 跳过状态机；`auto-detect` body 透传（此前**必然 500**）                                                                | 补状态机；显式列赋值                                                       |
+
+### 4. 前端：9 处 P0 真实性
+
+| 缺陷                                           | 根因                                                                 | 修复                                                          |
+| ---------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------- |
+| 危急值通知/确认/回执**失败仍弹绿勾**           | store 吞掉错误后正常 resolve，页面不读 `store.error`                 | store 改为 reject；页面按结果提示；空列表不再渲染红色错误横幅 |
+| `InsuranceAuditPage` **310 处文案变原始键名**  | `useTranslation` 遮蔽 appI18n 的 `t`，而 key 只在 appI18n            | 改名 `tr` 别名，两套 key 均可用                               |
+| `CriticalAlertPage` 5 步闭环**显示原始标识符** | 25 个文案 key 在两种 i18n 源里都不存在                               | 补齐 zh/en（含 react-i18next 实际加载的聚合包）               |
+| 挂片协议「新建」**点确定无反应**               | `Modal.confirm` 无 `onOk`；`Form` 不在表单上下文                     | 改受控 `Modal` + `validateFields` + 真实创建                  |
+| PDCA 阶段条目**可存空白**                      | 用 `getFieldsValue()` 而非 `validateFields()`，`required` 从不执行   | 改为 `validateFields`                                         |
+| 临床回执**签名区是死元素**                     | 写着「点击签名」的 `div` 无 `onClick`，签名从未上报                  | 真实签名控件并随回执提交                                      |
+| 5 步列表 `currentStep=0` **标绿「已完成」**    | 只有 1..4 渲染按钮，0 落到 else -> 已完成                            | 第 0 步给「电话通知」，与 Stepper 一致                        |
+| 报告检索「医生」列**显示工号**                 | adapter 丢弃 `reportDoctorName`，页面把 `doctorId` 塞进 `doctorName` | adapter 透传姓名；页面显示姓名                                |
+| 钻取抽屉**显示原始字段名/英文枚举**            | 用对象 key 当标签、原样打印值                                        | 用列标题做字段名 + 复用 `statusMaps` 本地化                   |
+
+### 5. 顺带修复
+
+- **DICOM SR 详情 404**：`newPagesHandlers` 曾用**与 `SrDocument` 不符的裸数组**注册同路径
+  `GET /dicom-sr`，且注册顺序早于 `srHandlers` —— 列表返回 `SR-001`，而详情在
+  `srHandlers` 的空 store 里 404。已移除重复 handler，并由 `srHandlers` 用真实形状种子 2 份文档。
+
+### 6. 新增门禁 `guard:backend`（纳入 `guard:all`，共 9 套）
+
+解析 `schema.prisma` 得到 67 个带 `tenantId` 的模型，扫描 684 个后端文件（已剥离注释），
+把四类回归锁死为 0：
+
+| 检查项            | 含义                                                                  |
+| ----------------- | --------------------------------------------------------------------- |
+| `untenantWrites`  | 带 `tenantId` 的模型按 `id` 单独定位的 `update`/`delete`/`findUnique` |
+| `reqUserId`       | 读取 `req.user.id`（应为 `sub`）                                      |
+| `forgedActor`     | 客户端 `body.actorId` 被当作操作人                                    |
+| `hardcodedActors` | 硬编码操作人字面量（`'当前用户'` / `'current-user'`）                 |
+
+### 7. 审查中发现但本轮未修的（已记录，非 P0）
+
+- 前端 26 个 `Form.Item` 无 `label`、45 处 `FormField` 未传 `htmlFor`（可访问性）
+- 27 个可点击行的表缺键盘可达路径（`role`/`tabIndex`/`onKeyDown`）
+- `DataTable` 无 `error` 态、`EmptyState.type` 未使用、"清除筛选" 无处可挂
+- `applyAutoSort` 只探测首行，首行为空则该列静默不可排序
+- 211 个操作列缺 `fixed: 'right'`（横向滚动时滑出视口）
+- 15 个写路由 `@Body()` 无运行时校验；52 个路由用 `z.object({}).passthrough()`
+- 分页 `Number()` 缺 `isFinite`/上限（`patient`/`reports`/`criticals`）
+- 只有 11 处 `$transaction`，多个多写流程可半途生效
+- 报告发布后 HL7 ORU 失败仅 `logger.warn`（无 outbox/重试）
+- 队列 producer 不传 `jobId`（双击产生重复作业）
+
 ## v3.0.6.16-7 (2026-10-19) — 全项目审查整改（门禁自愈 / 假服务清零 / 表格控件补齐 / 保守去重）
 
 > **背景**: 对整个项目做完整审查，确认「前端是否真的匹配后端能力的展现」，并对所有控件、所有表格做严格审查；
