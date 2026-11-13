@@ -201,6 +201,9 @@ model Patient {
   allergyHistory  String?     @map("allergy_history")   // 过敏史 (自由文本, 空=无已知过敏)
   pregnancyStatus String?     @map("pregnancy_status")  // 妊娠状态: none/pregnant/unknown
   isolationFlag   Boolean     @default(false) @map("isolation_flag") // 隔离标记
+  // [v3.0.6.16-9] 对比剂安全: 注射前核查必须有真实的肾功能与植入物来源, 不能默认 70kg/eGFR 90
+  egfr            Float?      @map("egfr")            // eGFR (mL/min/1.73m²)
+  implantHistory  String?     @map("implant_history") // 植入物史 (MR 安全筛查)
   deletedAt     DateTime?     @map("deleted_at")
   reports       Report[]
   exams         Exam[]
@@ -223,6 +226,12 @@ model Exam {
   accessionNumber String    @unique @map("accession_number")
   modality        String
   bodyPart        String    @map("body_part")
+  // [v3.0.6.16-9] 检查工作流补齐: 侧别 (左右错误是最典型可预防不良事件)、
+  // 申请科室/临床指征 (报告书写必需)、机房 (排班/剂量归因/故障追溯)
+  laterality          String? @map("laterality")           // LEFT | RIGHT | BILATERAL | NA
+  referringDept       String? @map("referring_dept")
+  clinicalIndication  String? @map("clinical_indication")
+  roomId              String? @map("room_id")
   scheduledAt     DateTime? @map("scheduled_at")
   startedAt       DateTime? @map("started_at")
   completedAt     DateTime? @map("completed_at")
@@ -327,6 +336,9 @@ model Device {
   modality      String
   manufacturer  String?
   location      String?
+  // [v3.0.6.16-9] 设备台账: 型号/序列号 (评审与维保溯源必需; 此前 devicemgmt 接受这两个字段但表里没有 -> 写入 500)
+  model         String?
+  serialNumber  String?     @map("serial_number")
   state         DeviceState @default(IDLE)
   todayExams    Int         @default(0) @map("today_exams")
   todayUsageMin Int         @default(0) @map("today_usage_min")
@@ -1948,4 +1960,132 @@ model DentalPhoto {
   @@index([patientId])
   @@index([tenantId])
   @@map("dental_photos")
+}
+
+// ============================================================================
+// [v3.0.6.16-9] 对比剂安全记录 (此前全部存在后端内存 Map 里, 重启即丢, 无法追溯)
+// ============================================================================
+
+/// 对比剂注射记录 — 批号/途径是外渗与过敏召回的关键 (同批号患者需能反查)
+model ContrastInjection {
+  id             String   @id @default(cuid())
+  tenantId       String   @map("tenant_id")
+  examId         String?  @map("exam_id")
+  patientId      String   @map("patient_id")
+  patientName    String   @default("") @map("patient_name")
+  contrastType   String   @map("contrast_type")
+  batchNo        String?  @map("batch_no")
+  route          String?  @map("route")            // IV_BOLUS | IV_DRIP | ORAL | OTHER
+  totalVolumeMl  Float?   @map("total_volume_ml")
+  flowRateMls    Float?   @map("flow_rate_mls")
+  concentration  String?
+  weightKg       Float?   @map("weight_kg")
+  egfr           Float?
+  consentSigned  Boolean  @default(false) @map("consent_signed")
+  injectedBy     String?  @map("injected_by")
+  injectedAt     DateTime @default(now()) @map("injected_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  observations   ContrastObservation[]
+  extravasations ContrastExtravasation[]
+
+  @@index([tenantId, injectedAt])
+  @@index([examId])
+  @@index([patientId])
+  @@index([tenantId, batchNo])
+  @@map("contrast_injections")
+}
+
+/// 注射后留观 — 30 分钟观察是安全流程, 必须持久化并在交接班时可见
+model ContrastObservation {
+  id               String   @id @default(cuid())
+  tenantId         String   @map("tenant_id")
+  injectionId      String?  @map("injection_id")
+  patientId        String   @map("patient_id")
+  patientName      String   @default("") @map("patient_name")
+  startedAt        DateTime @default(now()) @map("started_at")
+  observationMins  Int      @default(30) @map("observation_mins")
+  status           String   @default("observing") // observing | discharged | reaction
+  symptoms         String   @default("")
+  actions          String   @default("")
+  recordedBy       String?  @map("recorded_by")
+  dischargedAt     DateTime? @map("discharged_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  injection ContrastInjection? @relation(fields: [injectionId], references: [id])
+
+  @@index([tenantId, status])
+  @@index([patientId])
+  @@map("contrast_observations")
+}
+
+/// 对比剂外渗事件 — 上报后必须有处置与转归 (闭环)
+model ContrastExtravasation {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  injectionId String?  @map("injection_id")
+  examId      String?  @map("exam_id")
+  patientId   String   @map("patient_id")
+  patientName String   @default("") @map("patient_name")
+  site        String   @default("")           // 穿刺部位
+  severity    String   @default("MILD")       // MILD | MODERATE | SEVERE
+  volumeMl    Float?   @map("volume_ml")
+  occurredAt  DateTime @default(now()) @map("occurred_at")
+  status      String   @default("open")       // open | resolved
+  measures    String   @default("")           // 处置措施
+  outcome     String   @default("")           // 转归
+  followUpDept String? @map("follow_up_dept")
+  handledBy   String?  @map("handled_by")
+  handledAt   DateTime? @map("handled_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  injection ContrastInjection? @relation(fields: [injectionId], references: [id])
+
+  @@index([tenantId, status])
+  @@index([patientId])
+  @@map("contrast_extravasations")
+}
+
+/// 报告关键图 — 附图是肿瘤/急诊报告的常规交付物, 必须可追溯到 SOP Instance UID
+model ReportKeyImage {
+  id         String   @id @default(cuid())
+  tenantId   String   @map("tenant_id")
+  reportId   String   @map("report_id")
+  examId     String?  @map("exam_id")
+  studyUid   String   @map("study_uid")
+  seriesUid  String   @map("series_uid")
+  sopUid     String   @map("sop_uid")
+  frame      Int      @default(0)
+  caption    String   @default("")
+  thumbnail  String   @default("")
+  createdById String? @map("created_by_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, reportId])
+  @@map("report_key_images")
+}
+
+/// 报告召回台账 — 更正报告必须可举证 (原报告/原因/HL7 控制号/临床回执)
+model ReportRecall {
+  id             String   @id @default(cuid())
+  tenantId       String   @map("tenant_id")
+  reportId       String   @map("report_id")
+  patientId      String?  @map("patient_id")
+  patientName    String   @default("") @map("patient_name")
+  reason         String   @default("")
+  recalledById   String?  @map("recalled_by_id")
+  recalledAt     DateTime @default(now()) @map("recalled_at")
+  hl7ControlId   String?  @map("hl7_control_id")
+  notifyStatus   String   @default("pending") // pending | sent | acked | failed
+  clinicalReceipt String? @map("clinical_receipt")
+  restatedReportId String? @map("restated_report_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId, recalledAt])
+  @@index([reportId])
+  @@map("report_recalls")
 }
