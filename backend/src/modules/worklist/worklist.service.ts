@@ -77,6 +77,9 @@ export const TIMEOUT_CHECKLIST_KEYS = [
   "pregnancy",
   "isolation",
   "consent",
+  "protocol",
+  "implant",
+  "egfr",
 ] as const;
 export type TimeoutChecklistKey = (typeof TIMEOUT_CHECKLIST_KEYS)[number];
 
@@ -103,6 +106,8 @@ export interface TimeoutChecklistResponse {
     allergyHistory: string | null;
     pregnancyStatus: string;
     isolationFlag: boolean;
+    egfr: number | null;
+    implantHistory: string | null;
   };
   exam: {
     id: string;
@@ -134,6 +139,8 @@ const PATIENT_TIMEOUT_SELECT = {
   allergyHistory: true,
   pregnancyStatus: true,
   isolationFlag: true,
+  egfr: true,
+  implantHistory: true,
 } as const;
 const PATIENT_BASE_SELECT = {
   id: true,
@@ -835,9 +842,7 @@ export class WorklistService {
    * 读取 Time-Out 上下文: 优先 DB (新患者列), 逐级回退 (患者新列/base 列 → 无 exam 新列 → seed),
    * 保证控制器无 DB 也可启动, 孤儿模式给出确定性清单。
    */
-  private async loadTimeoutContext(
-    id: string,
-  ): Promise<{
+  private async loadTimeoutContext(id: string): Promise<{
     exam: Record<string, unknown> | null;
     patient: Record<string, unknown> | null;
     fromDb: boolean;
@@ -913,7 +918,20 @@ export class WorklistService {
     return { exam: seed.exam, patient: seed.patient, fromDb: false };
   }
 
-  /** 组装核对清单 (患者身份双标识 / 部位 / 过敏 / 妊娠 / 隔离 / 同意) */
+  // [v3.0.6.16-9] 对比剂增强检查判定: modality/部位含增强或 exam 带对比剂标记
+  private isContrastExam(exam: Record<string, unknown> | null): boolean {
+    const modality = String(exam?.modality ?? "").toUpperCase();
+    const bodyPart = String(exam?.bodyPart ?? "");
+    const marker = `${modality} ${bodyPart}`;
+    return (
+      /增强|CONTRAST|CE\b/.test(marker) ||
+      Boolean(exam?.contrastUsed) ||
+      Boolean(exam?.contrast) ||
+      Boolean(exam?.contrastEnhanced)
+    );
+  }
+
+  /** 组装核对清单 (患者身份双标识 / 部位 / 过敏 / 妊娠 / 隔离 / 同意 / 协议 / 植入物 / 肾功能) */
   private buildTimeoutChecklist(
     exam: Record<string, unknown> | null,
     patient: Record<string, unknown> | null,
@@ -921,6 +939,11 @@ export class WorklistService {
   ): TimeoutChecklistResponse {
     const fertile = this.isFertileFemale(patient);
     const consentRequired = this.requiresConsent(exam);
+    const contrastExam = this.isContrastExam(exam);
+    const isMr = String(exam?.modality ?? "").toUpperCase() === "MR";
+    const patientEgfr =
+      typeof patient?.egfr === "number" ? (patient.egfr as number) : null;
+    const implantHistory = (patient?.implantHistory as string | null) ?? null;
     const allergen = (patient?.allergyHistory as string | null) ?? null;
     const idCard = patient?.idCard ? String(patient.idCard) : null;
     const identitySecondary =
@@ -975,6 +998,27 @@ export class WorklistService {
         passed: !consentRequired,
         detail: consentStatus,
       },
+      {
+        key: "protocol",
+        required: contrastExam,
+        passed: !contrastExam,
+        detail: contrastExam
+          ? ((exam?.bodyPart as string | null) ?? null)
+          : null,
+      },
+      {
+        key: "implant",
+        required: isMr,
+        passed: !isMr || !implantHistory?.trim(),
+        detail: isMr ? implantHistory : null,
+      },
+      {
+        key: "egfr",
+        required: contrastExam,
+        passed: !contrastExam || (patientEgfr !== null && patientEgfr >= 30),
+        detail:
+          patientEgfr === null ? null : `eGFR ${patientEgfr} mL/min/1.73m²`,
+      },
     ];
 
     return {
@@ -997,6 +1041,8 @@ export class WorklistService {
         allergyHistory: allergen,
         pregnancyStatus,
         isolationFlag,
+        egfr: patientEgfr,
+        implantHistory,
       },
       exam: {
         id: String(exam?.id ?? ""),
@@ -1878,6 +1924,87 @@ export class WorklistService {
       push("qc-note", "质控备注", exam.completedAt ?? exam.createdAt, {
         note: String(qcNote).slice(0, 200),
       });
+    }
+    try {
+      const report = await this.prisma.report.findFirst({
+        where: { examId: id, tenantId },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          state: true,
+          createdAt: true,
+          updatedAt: true,
+          reviewedAt: true,
+          signedAt: true,
+          publishedAt: true,
+        },
+      });
+      const imageReady =
+        report ||
+        ["IMAGE_READY", "QC_PASS", "PENDING_REPORT"].includes(exam.state);
+      if (imageReady) {
+        push("image-ready", "图像可用", exam.completedAt ?? report?.createdAt, {
+          note: "状态推导",
+        });
+      }
+      if (report) {
+        const reportDoneStates = [
+          "SUBMITTED",
+          "INITIAL_REVIEW",
+          "FINAL_REVIEW",
+          "CO_SIGN_REVIEW",
+          "REVIEWED",
+          "SIGNING",
+          "SIGNED",
+          "PUBLISHED",
+          "AMENDING",
+          "AMENDED",
+        ];
+        if (
+          reportDoneStates.includes(report.state) ||
+          report.reviewedAt ||
+          report.signedAt ||
+          report.publishedAt
+        ) {
+          push(
+            "report-complete",
+            "报告完成",
+            report.updatedAt ?? report.createdAt,
+            { note: `状态: ${report.state}` },
+          );
+        }
+        if (
+          report.reviewedAt ||
+          ["REVIEWED", "SIGNED", "PUBLISHED"].includes(report.state)
+        ) {
+          push(
+            "report-review",
+            "报告审核",
+            report.reviewedAt ??
+              report.signedAt ??
+              report.publishedAt ??
+              report.updatedAt,
+            { note: report.reviewedAt ? undefined : "状态推导" },
+          );
+        }
+        if (
+          report.publishedAt ||
+          report.signedAt ||
+          report.state === "PUBLISHED"
+        ) {
+          push(
+            "report-publish",
+            "报告签发",
+            report.publishedAt ?? report.signedAt ?? report.updatedAt,
+            {
+              note:
+                report.publishedAt || report.signedAt ? undefined : "状态推导",
+            },
+          );
+        }
+      }
+    } catch {
+      /* report 表不可用不阻断 */
     }
     const opLabels: Record<string, string> = {
       START: "开始检查",

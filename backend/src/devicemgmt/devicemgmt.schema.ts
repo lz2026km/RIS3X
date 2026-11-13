@@ -72,6 +72,8 @@ export const SendInjectionCommandSchema = z.object({
   protocolId: z.string().min(1),
   protocolName: z.string().optional(),
   contrastType: z.string().min(1).optional(),
+  batchNo: z.string().max(64).optional(),
+  route: z.enum(["IV", "IA", "PO"]).optional(),
   totalVolumeMl: z.number().positive().optional(),
   flowRateMls: z.number().positive().optional(),
   operator: z.string().min(1).optional(),

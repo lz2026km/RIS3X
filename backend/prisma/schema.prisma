@@ -205,6 +205,7 @@ model Patient {
   // [v3.0.6.16-9] 对比剂安全: 注射前核查必须有真实的肾功能与植入物来源, 不能默认 70kg/eGFR 90
   egfr            Float?      @map("egfr")            // eGFR (mL/min/1.73m²)
   implantHistory  String?     @map("implant_history") // 植入物史 (MR 安全筛查)
+  weight          Float?      @map("weight")          // 体重 (kg, 对比剂剂量计算)
   deletedAt     DateTime?     @map("deleted_at")
   reports       Report[]
   exams         Exam[]

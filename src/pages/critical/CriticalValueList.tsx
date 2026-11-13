@@ -14,8 +14,9 @@ import {
   Bell,
   ArrowUpRight,
   ShieldAlert,
+  Download,
 } from "lucide-react";
-import { DatePicker } from "antd";
+import { Button, DatePicker } from "antd";
 import type { CriticalValue } from "./types";
 import { STATUS_CONFIG, SEVERITY_CONFIG, CN_STATUS_TO_STORE } from "./types";
 import { CriticalStateActions } from "./CriticalStateActions";
@@ -96,6 +97,8 @@ interface FilterBarProps {
   onBatchProcess: () => void;
   selectedCount: number;
   onOpenSettings: () => void;
+  onExportRegister?: () => void;
+  exportingRegister?: boolean;
 }
 
 const filterBtnStyle = (isActive: boolean): React.CSSProperties => ({
@@ -127,6 +130,8 @@ export const FilterBar = ({
   onBatchProcess,
   selectedCount,
   onOpenSettings,
+  onExportRegister,
+  exportingRegister,
 }: FilterBarProps) => (
   <div
     style={{
@@ -212,6 +217,15 @@ export const FilterBar = ({
         <Settings size={14} />
         {t("cvList.rulesSettings")}
       </button>
+      <Button
+        size="small"
+        icon={<Download size={14} />}
+        loading={exportingRegister}
+        onClick={onExportRegister}
+        disabled={!onExportRegister}
+      >
+        {t("cvList.exportRegister")}
+      </Button>
     </div>
     <div
       style={{

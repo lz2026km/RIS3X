@@ -38,6 +38,10 @@ import { normalizeExamStatus } from "../../utils/statusMaps";
 import { examApi } from "../../services/api/examApi";
 import { worklistApi } from "../../services/api/worklistApi";
 import { RETAKE_REASON_OPTIONS } from "../../services/api/worklistApi";
+import { appointmentApi } from "../../services/api/appointmentApi";
+import { deviceApi } from "../../services/api/deviceApi";
+import { AppSelectField } from "../../components/common/AppSelectField";
+import { useAuth } from "../../hooks/useAuth";
 import { t } from "../../i18n/appI18n";
 import { Input, InputNumber, Modal, Radio, Select, Tag, message } from "antd";
 import type { ExamDto } from "../../types/dto";
@@ -60,6 +64,12 @@ export const toRadiologyExamFromDto = (
   dto: ExamDto & Record<string, unknown>,
 ): RadiologyExam => {
   const patient = (dto.patient ?? {}) as Record<string, unknown> | undefined;
+  const exam = (dto.exam ?? {}) as Record<string, unknown> | undefined;
+  const pick = (key: string): unknown =>
+    dto[key] ?? patient?.[key] ?? exam?.[key];
+  const clinicalIndication = pick("clinicalIndication");
+  const clinicalDiagnosis = pick("clinicalDiagnosis") ?? clinicalIndication;
+  const referringDept = pick("referringDept") ?? pick("referringDoctorDept");
   return {
     id: String(dto.id ?? dto.examId ?? ""),
     patientId: String(dto.patientId ?? ""),
@@ -94,8 +104,19 @@ export const toRadiologyExamFromDto = (
     bodyPart: String(dto.bodyPart ?? "") as RadiologyExam["bodyPart"],
     examDate: String(dto.scheduledAt ?? dto.examDate ?? "").slice(0, 10),
     priority: String(dto.priority ?? "普通") as RadiologyExam["priority"],
-    clinicalDiagnosis: dto.clinicalDiagnosis
-      ? String(dto.clinicalDiagnosis)
+    clinicalDiagnosis: clinicalDiagnosis
+      ? String(clinicalDiagnosis)
+      : undefined,
+    laterality: pick("laterality") ? String(pick("laterality")) : undefined,
+    referringDept: referringDept ? String(referringDept) : undefined,
+    clinicalIndication: clinicalIndication
+      ? String(clinicalIndication)
+      : undefined,
+    referringDoctorName: pick("referringDoctorName")
+      ? String(pick("referringDoctorName"))
+      : undefined,
+    referringDoctorDept: pick("referringDoctorDept")
+      ? String(pick("referringDoctorDept"))
       : undefined,
     deviceId: dto.deviceId ? String(dto.deviceId) : undefined,
     roomId: dto.roomId ? String(dto.roomId) : undefined,
@@ -290,6 +311,15 @@ export function ExamDetailView({
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const lastExamIdRef = useRef<string | null>(null);
+  const { user } = useAuth();
+  const canEditLaterality = ["ADMIN", "DIRECTOR"].includes(
+    String(user?.role ?? "").toUpperCase(),
+  );
+  const [laterality, setLaterality] = useState<string>(
+    String(exam?.laterality ?? ""),
+  );
+  const [lateralitySaving, setLateralitySaving] = useState(false);
+  const [roomName, setRoomName] = useState<string | null>(null);
 
   // [v3.0.6.11-103 Wave 1B] 检查时间线: GET /worklist/timeline/:id (登记→签到→开始→暂停→完成→质控 事件流)
   const [timelineEvents, setTimelineEvents] = useState<
@@ -346,6 +376,74 @@ export function ExamDetailView({
       cancelled = true;
     };
   }, [exam?.id]);
+
+  // [v3.0.6.16-9] 机房名优先取后端房间/设备接口, 失败再回退静态映射
+  useEffect(() => {
+    const roomId = exam?.roomId;
+    if (!roomId) {
+      setRoomName(null);
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await appointmentApi.getRooms();
+        if (cancelled) return;
+        const list = Array.isArray(res.data) ? res.data : [];
+        const hit = list.find((r) => String(r.id ?? "") === roomId);
+        if (hit?.name) {
+          setRoomName(hit.name);
+          return;
+        }
+      } catch {
+        /* 房间接口不可用: 继续尝试设备接口 */
+      }
+      try {
+        const res = await deviceApi.list();
+        if (cancelled) return;
+        const list = Array.isArray(res.data) ? res.data : [];
+        const hit = list.find((d) => String(d.roomId ?? "") === roomId);
+        if (hit) {
+          setRoomName(hit.room ?? hit.building ?? hit.name ?? null);
+          return;
+        }
+      } catch {
+        /* 设备接口不可用: 回退静态房间映射 */
+      }
+      if (!cancelled) setRoomName(null);
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [exam?.roomId]);
+
+  useEffect(() => {
+    setLaterality(String(exam?.laterality ?? ""));
+  }, [exam?.id, exam?.laterality]);
+
+  const handleLateralityChange = async (value: string) => {
+    if (!exam?.id) return;
+    const next = value as "LEFT" | "RIGHT" | "BILATERAL" | "NONE" | "NA";
+    setLaterality(value);
+    if (!canEditLaterality) return;
+    setLateralitySaving(true);
+    try {
+      const res = await examApi.update(exam.id, { laterality: next });
+      if (res.success) {
+        message.success(t("examDetail.lateralitySaved"));
+        onStatusChanged?.();
+      } else {
+        message.error(
+          res.error?.message ?? t("examDetail.lateralitySaveFailed"),
+        );
+      }
+    } catch {
+      message.error(t("examDetail.lateralitySaveFailed"));
+    } finally {
+      setLateralitySaving(false);
+    }
+  };
 
   // [G005 Wave1A W9] 状态流转: worklistApi checkin/start/complete/cancel (后端 POST /worklist/:id/*)
   // [v3.0.6.11-95 Wave 1A P1] + pause/resume (暂停/继续), retake (QC_REJECT → 重拍登记)
@@ -1143,6 +1241,57 @@ export function ExamDetailView({
                   gap: 6,
                 }}
               >
+                {t("examDetail.laterality")}
+              </div>
+              <AppSelectField
+                value={laterality || undefined}
+                onChange={(v) => void handleLateralityChange(String(v ?? ""))}
+                placeholder={t("examDetail.lateralityPlaceholder")}
+                disabled={!canEditLaterality || lateralitySaving}
+                options={[
+                  { value: "LEFT", label: t("examDetail.laterality.LEFT") },
+                  { value: "RIGHT", label: t("examDetail.laterality.RIGHT") },
+                  {
+                    value: "BILATERAL",
+                    label: t("examDetail.laterality.BILATERAL"),
+                  },
+                  { value: "NONE", label: t("examDetail.laterality.NONE") },
+                ]}
+                style={{
+                  width: "100%",
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid var(--border-default, #30363d)",
+                  background: "var(--bg-primary, #0d1117)",
+                  color: "var(--text-primary, #f0f6fc)",
+                  fontSize: 12,
+                }}
+              />
+              {!canEditLaterality && (
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "var(--text-muted, #8b949e)",
+                    marginTop: "var(--space-1, 4px)",
+                  }}
+                >
+                  {t("examDetail.lateralityReadonly")}
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginBottom: "var(--space-5, 20px)" }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "var(--color-primary-800)",
+                  marginBottom: "var(--space-3, 12px)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
                 <Stethoscope size={14} />
                 {t("examDetail.examInfo")}
               </div>
@@ -1156,7 +1305,7 @@ export function ExamDetailView({
                 {[
                   [t("examDetail.examItem"), exam.examItemName],
                   [t("examDetail.examDevice"), device?.name || "-"],
-                  [t("examDetail.examRoom"), room?.name || "-"],
+                  [t("examDetail.examRoom"), roomName ?? room?.name ?? "--"],
                   [t("examDetail.examDate"), exam.examDate],
                   [t("examDetail.examTime"), exam.examTime || "-"],
                   [t("examDetail.deviceType"), exam.modality],

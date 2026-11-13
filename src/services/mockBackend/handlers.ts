@@ -145,6 +145,7 @@ import { findingLibraryHandlers } from "./findingLibraryHandlers";
 import { reportAnnotationHandlers } from "./reportAnnotationHandlers";
 // [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] 报告关联影像标注 (GET/POST /reports/:id/image-annotations)
 import { imageAnnotationHandlers } from "./imageAnnotationHandlers";
+import { reportKeyImageHandlers } from "./reportKeyImageHandlers";
 import { rqi105Handlers } from "./rqi105Handlers";
 import { miscMissingHandlers } from "./miscMissingHandlers";
 // [v3.0.6.11-106] W3 缺失端点 (临床反馈流转/对比剂留观注射/叫号扩展/通知趋势) — 前置注册
@@ -9446,6 +9447,8 @@ export const handlers = [
   ...reportAnnotationHandlers,
   // [v3.0.6.11-100 Wave 2B (报告-影像标注双向同步)] 报告关联影像标注
   ...imageAnnotationHandlers,
+  // [G005 v3.0.6.17] 报告关键图 (report_key_images)
+  ...reportKeyImageHandlers,
   // [v3.0.6.11-106] 国标质控指标(rqi-2024)/国家上报中心/外渗/13类危急值/RWS/40条指标库/临床反馈/设备甘特
   ...rqi105Handlers,
 ];

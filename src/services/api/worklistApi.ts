@@ -281,6 +281,8 @@ export interface TimeoutChecklistDto {
     allergyHistory: string | null;
     pregnancyStatus: string;
     isolationFlag: boolean;
+    egfr?: number | null;
+    implantHistory?: string | null;
   };
   exam: {
     id: string;

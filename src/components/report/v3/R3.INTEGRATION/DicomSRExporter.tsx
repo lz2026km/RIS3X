@@ -48,10 +48,14 @@ import React, { useState, useCallback, useMemo } from "react";
 import { Inbox } from "lucide-react";
 import { t } from "../../../../i18n/appI18n";
 import { DataTable } from "../../../common/DataTable";
+import { UidCopyField } from "../../../common/UidCopyField";
 
 interface Props {
   reportId?: string;
   patientId?: string;
+  patientName?: string;
+  gender?: string;
+  age?: string | number;
   onExport?: (sr: DicomSrDocument) => void;
 }
 
@@ -94,6 +98,7 @@ const VR_COLORS: Record<string, string> = {
 export const DicomSRExporter: React.FC<Props> = ({
   reportId,
   patientId,
+  patientName,
   onExport,
 }) => {
   const [documents, setDocuments] = useState<DicomSrDocument[]>(
@@ -174,8 +179,8 @@ export const DicomSRExporter: React.FC<Props> = ({
     try {
       const sr = await generateDicomSr({
         reportId,
-        patientId: patientId ?? "p-038",
-        patientName: "张三",
+        patientId: patientId ?? "",
+        patientName: patientName ?? "",
         findings: genForm.findings,
         impression: genForm.impression,
         recommendation: genForm.recommendation,
@@ -193,7 +198,7 @@ export const DicomSRExporter: React.FC<Props> = ({
     } finally {
       setGenerating(false);
     }
-  }, [reportId, patientId, genForm, onExport]);
+  }, [reportId, patientId, patientName, genForm, onExport]);
 
   const handleSend = useCallback(async () => {
     if (!selected) return;
@@ -395,30 +400,22 @@ export const DicomSRExporter: React.FC<Props> = ({
                   children: (
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="p-2 bg-slate-50 rounded">
-                          <div className="text-slate-500">SOP Instance UID</div>
-                          <div className="font-mono text-cyan-600 break-all">
-                            {selected.sopInstanceUID}
-                          </div>
-                        </div>
-                        <div className="p-2 bg-slate-50 rounded">
-                          <div className="text-slate-500">SOP Class UID</div>
-                          <div className="font-mono text-cyan-600 break-all">
-                            {selected.sopClassUID}
-                          </div>
-                        </div>
-                        <div className="p-2 bg-slate-50 rounded">
-                          <div className="text-slate-500">Study UID</div>
-                          <div className="font-mono text-xs">
-                            {selected.studyInstanceUID}
-                          </div>
-                        </div>
-                        <div className="p-2 bg-slate-50 rounded">
-                          <div className="text-slate-500">Series UID</div>
-                          <div className="font-mono text-xs">
-                            {selected.seriesInstanceUID}
-                          </div>
-                        </div>
+                        <UidCopyField
+                          label="SOP Instance UID"
+                          value={selected.sopInstanceUID}
+                        />
+                        <UidCopyField
+                          label="SOP Class UID"
+                          value={selected.sopClassUID}
+                        />
+                        <UidCopyField
+                          label="Study UID"
+                          value={selected.studyInstanceUID}
+                        />
+                        <UidCopyField
+                          label="Series UID"
+                          value={selected.seriesInstanceUID}
+                        />
                         <div className="p-2 bg-slate-50 rounded">
                           <div className="text-slate-500">
                             {t("reportIntegration.dicomSr.template")}

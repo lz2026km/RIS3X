@@ -156,6 +156,8 @@ export class ContrastSafetyService {
         ? input.threshold
         : DEFAULT_EGFR_THRESHOLD;
     const egfr = input.egfr;
+    const egfrValue =
+      typeof egfr === "number" && Number.isFinite(egfr) ? egfr : null;
     const allergyResult = this.latestAllergyResult(
       input.patientId,
       input.allergyResult,
@@ -184,15 +186,16 @@ export class ContrastSafetyService {
             : "过敏试验阴性",
     });
 
-    const egfrPassed = egfr === undefined || egfr >= threshold;
-    if (!egfrPassed) blockers.push("EGFR_BELOW_THRESHOLD");
+    const egfrPassed = egfrValue !== null && egfrValue >= threshold;
+    if (egfrValue === null) blockers.push("EGFR_MISSING");
+    else if (!egfrPassed) blockers.push("EGFR_BELOW_THRESHOLD");
     checks.push({
       key: "egfr",
       passed: egfrPassed,
       detail:
-        egfr === undefined
-          ? "未提供 eGFR, 无法评估肾功能"
-          : `eGFR ${egfr} mL/min/1.73m² (阈值 ${threshold})`,
+        egfrValue === null
+          ? "未提供 eGFR, 无法评估肾功能, 需人工录入"
+          : `eGFR ${egfrValue} mL/min/1.73m² (阈值 ${threshold})`,
     });
 
     const pregnancyPassed = input.pregnant !== true;
@@ -242,14 +245,48 @@ export class ContrastSafetyService {
     }
 
     this.injectionSeq += 1;
-    const detail = { ...input, preCheck: check };
+    let persistedId: string | null = null;
+    try {
+      if (this.prisma?.contrastInjection?.create) {
+        const row = await this.prisma.contrastInjection.create({
+          data: {
+            tenantId: currentTenantId(),
+            examId: (input["examId"] as string | undefined) ?? null,
+            patientId,
+            patientName: (input["patientName"] as string | undefined) ?? "",
+            contrastType:
+              (input["contrastType"] as string | undefined) ?? "未指定对比剂",
+            batchNo: (input["batchNo"] as string | undefined) ?? null,
+            route: (input["route"] as string | undefined) ?? null,
+            totalVolumeMl:
+              (input["totalVolumeMl"] as number | undefined) ?? null,
+            flowRateMls: (input["flowRateMls"] as number | undefined) ?? null,
+            concentration:
+              (input["concentration"] as string | undefined) ?? null,
+            weightKg: (input["weightKg"] as number | undefined) ?? null,
+            egfr:
+              (input["egfr"] as number | undefined) ??
+              (input["eGFR"] as number | undefined) ??
+              null,
+            consentSigned: input["consentSigned"] === true,
+            injectedBy: (input["operator"] as string | undefined) ?? null,
+          },
+        });
+        persistedId = row.id;
+      }
+    } catch (err) {
+      this.logger.debug(
+        `[ContrastSafety] injection persistence skipped: ${(err as Error).message}`,
+      );
+    }
+    const detail = { ...input, preCheck: check, injectionId: persistedId };
     const audit = await this.recordAudit(
       "injection-command",
-      `inj-${this.injectionSeq}`,
+      persistedId ?? `inj-${this.injectionSeq}`,
       detail,
     );
     return {
-      id: audit?.id ?? `inj-${this.injectionSeq}`,
+      id: persistedId ?? audit?.id ?? `inj-${this.injectionSeq}`,
       action: "SEND",
       resource: "injection-command",
       passed: true,

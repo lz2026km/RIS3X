@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { CSSProperties } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Syringe,
   Play,
@@ -38,16 +39,21 @@ import ExtravasationHandleModal from "../../components/contrast/ExtravasationHan
 import { AppSelectField } from "../../components/common/AppSelectField";
 // [v3.0.6.11-104 Wave 3D] 临床资料接入: eGFR 30-59 警告 + 注射前安全核查 + 介入操作核查 (独立子组件, 避开 Wave 3B 区块)
 import ContrastDataSections from "./ContrastDataSections";
+import { patientApi } from "../../services/api/patientApi";
+import { examApi } from "../../services/api/examApi";
 
 const svc = getInjectionWorkstationService();
 
-const PATIENT_ID = "P-DEMO";
+const DEFAULT_PATIENT_ID = "P-DEMO";
 const DEFAULT_EGFR_THRESHOLD = 30;
-const BLOCKER_CODES = [
+const BLOCKER_CODES: string[] = [
   "NO_CONSENT",
   "ALLERGY_POSITIVE",
   "EGFR_BELOW_THRESHOLD",
+  "EGFR_MISSING",
+  "WEIGHT_MISSING",
   "PREGNANCY",
+  "IMPLANT_RISK",
 ];
 
 const panelStyle: CSSProperties = {
@@ -69,13 +75,28 @@ const inputStyle: CSSProperties = {
 };
 
 export default function ContrastInjectionWorkstationPage() {
+  const [searchParams] = useSearchParams();
   const [protocols, setProtocols] = useState<InjectionProtocol[]>([]);
   const [records, setRecords] = useState<InjectionRecord[]>([]);
   const [device, setDevice] = useState<InjectorDeviceStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedProtocol, setSelectedProtocol] = useState<string>("");
-  const [weight, setWeight] = useState(70);
-  const [egfr, setEgfr] = useState(90);
+  const [patientId, setPatientId] = useState(DEFAULT_PATIENT_ID);
+  const [patientName, setPatientName] = useState("");
+  const [examId, setExamId] = useState<string | null>(null);
+  const [examModality, setExamModality] = useState<string | null>(null);
+  const [patientLoading, setPatientLoading] = useState(true);
+  const [weight, setWeight] = useState<number | null>(null);
+  const [egfr, setEgfr] = useState<number | null>(null);
+  const [implantHistory, setImplantHistory] = useState<string | null>(null);
+  const [weightSource, setWeightSource] = useState<
+    "patient" | "manual" | "missing"
+  >("missing");
+  const [egfrSource, setEgfrSource] = useState<
+    "patient" | "manual" | "missing"
+  >("missing");
+  const [batchNo, setBatchNo] = useState("");
+  const [route, setRoute] = useState<"IV" | "IA" | "PO">("IV");
   const [calculatedParams, setCalculatedParams] = useState<{
     volumeMl: number;
     flowRateMls: number;
@@ -130,6 +151,12 @@ export default function ContrastInjectionWorkstationPage() {
   const allergyResult: ContrastAllergyResult =
     allergyHistory[0]?.result ?? "unknown";
   const canInject = preCheck?.passed === true;
+  const isMrExam =
+    String(examModality ?? "").toUpperCase() === "MR" ||
+    (selectedProto?.defaultForModality ?? []).includes("MR");
+  const hasImplantRisk = isMrExam && Boolean(implantHistory?.trim());
+  const weightMissing = weight === null || weight <= 0;
+  const egfrMissing = egfr === null;
 
   const blockerLabel = (code: string): string =>
     BLOCKER_CODES.includes(code) ? t(`contrastSafety.blocker.${code}`) : code;
@@ -138,8 +165,12 @@ export default function ContrastInjectionWorkstationPage() {
     const blockers: string[] = [];
     if (!consentSigned) blockers.push("NO_CONSENT");
     if (allergyResult === "positive") blockers.push("ALLERGY_POSITIVE");
-    if (egfr < DEFAULT_EGFR_THRESHOLD) blockers.push("EGFR_BELOW_THRESHOLD");
+    if (weightMissing) blockers.push("WEIGHT_MISSING");
+    if (egfrMissing) blockers.push("EGFR_MISSING");
+    else if ((egfr as number) < DEFAULT_EGFR_THRESHOLD)
+      blockers.push("EGFR_BELOW_THRESHOLD");
     if (pregnant) blockers.push("PREGNANCY");
+    if (hasImplantRisk) blockers.push("IMPLANT_RISK");
     return {
       passed: blockers.length === 0,
       blockers,
@@ -157,19 +188,56 @@ export default function ContrastInjectionWorkstationPage() {
           detail: t(`contrastSafety.result.${allergyResult}`),
         },
         {
+          key: "weight",
+          passed: !weightMissing,
+          detail: weightMissing
+            ? t("contrastWs.weightMissing")
+            : `${weight} kg${weightSource === "manual" ? ` · ${t("contrastWs.manualEntry")}` : ""}`,
+        },
+        {
           key: "egfr",
-          passed: egfr >= DEFAULT_EGFR_THRESHOLD,
-          detail: `eGFR ${egfr} mL/min/1.73m² (≥${DEFAULT_EGFR_THRESHOLD})`,
+          passed: !egfrMissing && (egfr as number) >= DEFAULT_EGFR_THRESHOLD,
+          detail: egfrMissing
+            ? t("contrastWs.egfrMissing")
+            : `eGFR ${egfr} mL/min/1.73m² (≥${DEFAULT_EGFR_THRESHOLD})`,
         },
         {
           key: "pregnancy",
           passed: !pregnant,
           detail: pregnant ? t("contrastSafety.pregnant") : "—",
         },
+        {
+          key: "implant",
+          passed: !hasImplantRisk,
+          detail: !isMrExam
+            ? "—"
+            : hasImplantRisk
+              ? `${t("contrastWs.implantWarning")}: ${implantHistory}`
+              : t("w6Workflow.timeout.implantNone"),
+        },
       ],
       threshold: DEFAULT_EGFR_THRESHOLD,
       allergyResult,
       evaluatedAt: new Date().toISOString(),
+    };
+  };
+
+  const mergeWithLocalCheck = (
+    result: PreInjectionCheckResult | null,
+  ): PreInjectionCheckResult => {
+    const local = buildLocalCheck();
+    if (!result) return local;
+    const blockers = Array.from(
+      new Set([...(result.blockers ?? []), ...local.blockers]),
+    );
+    const checks = local.checks.map(
+      (item) => result.checks?.find((c) => c.key === item.key) ?? item,
+    );
+    return {
+      ...result,
+      passed: result.passed && local.passed,
+      blockers,
+      checks,
     };
   };
 
@@ -210,8 +278,105 @@ export default function ContrastInjectionWorkstationPage() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    const resolvePatient = async () => {
+      setPatientLoading(true);
+      const pidParam =
+        searchParams.get("patientId") ?? searchParams.get("pid") ?? "";
+      const eidParam =
+        searchParams.get("examId") ?? searchParams.get("exam") ?? "";
+      const nextExamId = eidParam || null;
+      let resolvedPatientId = pidParam;
+      let canFetchPatient = Boolean(pidParam);
+      let modality: string | null = null;
+      if (eidParam) {
+        try {
+          const examRes = await examApi.getById(eidParam);
+          if (examRes.success && examRes.data) {
+            resolvedPatientId = String(
+              examRes.data.patientId ?? resolvedPatientId,
+            );
+            canFetchPatient = Boolean(resolvedPatientId);
+            modality = examRes.data.modality
+              ? String(examRes.data.modality)
+              : null;
+          }
+        } catch {
+          /* 检查接口不可用: 使用 URL 患者或演示患者 */
+        }
+      }
+      if (!resolvedPatientId) {
+        try {
+          const listRes = await patientApi.list({ pageSize: 1 });
+          const first = listRes.success ? listRes.data?.items?.[0] : null;
+          if (first?.id) {
+            resolvedPatientId = String(first.id);
+            canFetchPatient = true;
+          }
+        } catch {
+          /* 患者列表不可用: 不发起无效的单患者查询 */
+        }
+      }
+      if (!resolvedPatientId) resolvedPatientId = DEFAULT_PATIENT_ID;
+      if (cancelled) return;
+      setExamId(nextExamId);
+      setExamModality(modality);
+      setPatientId(resolvedPatientId);
+      if (!canFetchPatient) {
+        setWeight(null);
+        setWeightSource("missing");
+        setEgfr(null);
+        setEgfrSource("missing");
+        setImplantHistory(null);
+        setPatientLoading(false);
+        return;
+      }
+      try {
+        const res = await patientApi.getById(resolvedPatientId);
+        if (cancelled) return;
+        const p = res.success ? res.data : null;
+        if (p) {
+          setPatientName(String(p.name ?? ""));
+          const nextWeight =
+            typeof p.weight === "number" && Number.isFinite(p.weight)
+              ? p.weight
+              : null;
+          const nextEgfr =
+            typeof p.egfr === "number" && Number.isFinite(p.egfr)
+              ? p.egfr
+              : null;
+          setWeight(nextWeight);
+          setWeightSource(nextWeight === null ? "missing" : "patient");
+          setEgfr(nextEgfr);
+          setEgfrSource(nextEgfr === null ? "missing" : "patient");
+          setImplantHistory(p.implantHistory ? String(p.implantHistory) : null);
+        } else {
+          setWeight(null);
+          setWeightSource("missing");
+          setEgfr(null);
+          setEgfrSource("missing");
+          setImplantHistory(null);
+        }
+      } catch {
+        if (cancelled) return;
+        setWeight(null);
+        setWeightSource("missing");
+        setEgfr(null);
+        setEgfrSource("missing");
+        setImplantHistory(null);
+      } finally {
+        if (!cancelled) setPatientLoading(false);
+      }
+    };
+    void resolvePatient();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams]);
+
+  useEffect(() => {
     contrastSafetyApi
-      .listAllergyTests(PATIENT_ID)
+      .listAllergyTests(patientId)
       .then((res) => {
         if (res.success && Array.isArray(res.data?.items))
           setAllergyHistory(res.data.items);
@@ -219,7 +384,7 @@ export default function ContrastInjectionWorkstationPage() {
       .catch(() => {
         /* 后端不可用: 保留空历史 */
       });
-  }, []);
+  }, [patientId]);
 
   useEffect(() => {
     if (!observation || observation.status === "discharged") return;
@@ -244,13 +409,15 @@ export default function ContrastInjectionWorkstationPage() {
     setChecking(true);
     try {
       const res = await contrastSafetyApi.preInjectionCheck({
-        patientId: PATIENT_ID,
+        patientId,
         contrastType: selectedProto?.contrastName,
         consentSigned,
-        egfr,
+        egfr: egfr ?? undefined,
         pregnant,
       });
-      setPreCheck(res.success && res.data ? res.data : buildLocalCheck());
+      setPreCheck(
+        mergeWithLocalCheck(res.success && res.data ? res.data : null),
+      );
     } catch {
       setPreCheck(buildLocalCheck());
     } finally {
@@ -264,7 +431,7 @@ export default function ContrastInjectionWorkstationPage() {
       selectedProto?.contrastName ||
       t("contrastWs.defaultContrast");
     const payload = {
-      patientId: PATIENT_ID,
+      patientId,
       contrastType,
       result: allergyForm.result,
       testedBy: allergyForm.testedBy || "current-user",
@@ -300,7 +467,14 @@ export default function ContrastInjectionWorkstationPage() {
   const handleStartInjection = async () => {
     const proto = selectedProto;
     if (!proto) return;
-    const check = preCheck ?? buildLocalCheck();
+    if (weight === null || egfr === null) {
+      setPreCheck(buildLocalCheck());
+      message.error(
+        `${t("contrastSafety.injectionBlocked")}: ${weight === null ? t("contrastWs.weightMissing") : t("contrastWs.egfrMissing")}`,
+      );
+      return;
+    }
+    const check = mergeWithLocalCheck(preCheck);
     if (!check.passed) {
       setPreCheck(check);
       message.error(
@@ -308,20 +482,28 @@ export default function ContrastInjectionWorkstationPage() {
       );
       return;
     }
+    if (!batchNo.trim()) {
+      message.warning(t("contrastWs.batchNoMissing"));
+    }
     setInjecting(true);
     try {
       const res = await contrastSafetyApi.inject({
-        examId: uniqueId("E"),
-        patientId: PATIENT_ID,
-        patientName: t("contrastWs.demoPatient"),
+        examId: examId ?? uniqueId("E"),
+        patientId,
+        patientName: patientName || t("contrastWs.demoPatient"),
         protocolId: proto.id,
         protocolName: proto.name,
         contrastType: proto.contrastName,
+        batchNo: batchNo.trim() || t("contrastWs.notFilled"),
+        route,
         totalVolumeMl: proto.totalVolumeMl,
         flowRateMls: proto.phases[0]?.flowRateMls ?? 3,
         operator: "current-user",
         weightKg: weight,
+        weightSource: weightSource === "patient" ? "patient" : "manual",
         eGFR: egfr,
+        egfrSource: egfrSource === "patient" ? "patient" : "manual",
+        implantHistory: implantHistory ?? undefined,
         consentSigned,
         pregnant,
         adjustedVolumeMl: calculatedParams?.volumeMl ?? proto.totalVolumeMl,
@@ -336,7 +518,7 @@ export default function ContrastInjectionWorkstationPage() {
     } catch (e) {
       // 后端不可达: 基于本地核查回退演示 (本地核查已通过)
       try {
-        await svc.startInjection(uniqueId("E"), proto.id, {
+        await svc.startInjection(examId ?? uniqueId("E"), proto.id, {
           weightKg: weight,
           eGFR: egfr,
           adjustedVolumeMl: calculatedParams?.volumeMl ?? proto.totalVolumeMl,
@@ -357,6 +539,14 @@ export default function ContrastInjectionWorkstationPage() {
   const handleCalculate = async () => {
     const proto = selectedProto;
     if (!proto) return;
+    if (weight === null || egfr === null) {
+      message.warning(
+        weight === null
+          ? t("contrastWs.weightMissing")
+          : t("contrastWs.egfrMissing"),
+      );
+      return;
+    }
     const params = await svc.calculateParameters(
       proto.contrastName,
       weight,
@@ -368,8 +558,8 @@ export default function ContrastInjectionWorkstationPage() {
   const handleStartObservation = async () => {
     setStartingObs(true);
     const payload = {
-      patientId: PATIENT_ID,
-      examId: uniqueId("E"),
+      patientId,
+      examId: examId ?? uniqueId("E"),
       contrastType: selectedProto?.contrastName,
       operator: "current-user",
     };
@@ -639,50 +829,191 @@ export default function ContrastInjectionWorkstationPage() {
               />
 
               {selectedProtocol && (
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: 10,
-                    marginTop: "var(--space-2, 8px)",
-                  }}
-                >
-                  <div>
-                    <label
+                <>
+                  {patientLoading ? (
+                    <div
                       style={{
                         fontSize: 12,
                         color: "var(--text-muted, #8b949e)",
+                        marginTop: "var(--space-2, 8px)",
                       }}
                     >
-                      {t("contrastWs.weight")}
-                    </label>
-                    <input
-                      type="number"
-                      value={weight}
-                      onChange={(e) => setWeight(Number(e.target.value))}
-                      style={inputStyle}
-                    />
-                  </div>
-                  <div>
-                    <label
+                      {t("contrastWs.patientDataLoading")}
+                    </div>
+                  ) : (
+                    <div
                       style={{
                         fontSize: 12,
                         color: "var(--text-muted, #8b949e)",
+                        marginTop: "var(--space-2, 8px)",
                       }}
                     >
-                      eGFR (mL/min)
-                    </label>
-                    <input
-                      type="number"
-                      value={egfr}
-                      onChange={(e) => {
-                        setEgfr(Number(e.target.value));
-                        setPreCheck(null);
-                      }}
-                      style={inputStyle}
-                    />
+                      {patientName || patientId} ·{" "}
+                      {weight === null ? "—" : `${weight} kg`} · eGFR{" "}
+                      {egfr === null ? "—" : egfr}
+                    </div>
+                  )}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 10,
+                      marginTop: "var(--space-2, 8px)",
+                    }}
+                  >
+                    <div>
+                      <label
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-muted, #8b949e)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--space-2, 8px)",
+                        }}
+                      >
+                        {t("contrastWs.weight")}
+                        {weightSource === "manual" && (
+                          <Tag color="orange">
+                            {t("contrastWs.manualEntry")}
+                          </Tag>
+                        )}
+                      </label>
+                      <input
+                        type="number"
+                        value={weight ?? ""}
+                        placeholder={t("contrastWs.needsManualEntry")}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          const next = raw === "" ? null : Number(raw);
+                          setWeight(
+                            next !== null && Number.isFinite(next)
+                              ? next
+                              : null,
+                          );
+                          setWeightSource(raw === "" ? "missing" : "manual");
+                          setPreCheck(null);
+                        }}
+                        style={inputStyle}
+                      />
+                      {weight === null && !patientLoading && (
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: "var(--color-warning-500)",
+                            marginTop: "var(--space-1, 4px)",
+                          }}
+                        >
+                          {t("contrastWs.weightMissing")}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-muted, #8b949e)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--space-2, 8px)",
+                        }}
+                      >
+                        eGFR (mL/min)
+                        {egfrSource === "manual" && (
+                          <Tag color="orange">
+                            {t("contrastWs.manualEntry")}
+                          </Tag>
+                        )}
+                      </label>
+                      <input
+                        type="number"
+                        value={egfr ?? ""}
+                        placeholder={t("contrastWs.needsManualEntry")}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          const next = raw === "" ? null : Number(raw);
+                          setEgfr(
+                            next !== null && Number.isFinite(next)
+                              ? next
+                              : null,
+                          );
+                          setEgfrSource(raw === "" ? "missing" : "manual");
+                          setPreCheck(null);
+                        }}
+                        style={inputStyle}
+                      />
+                      {egfr === null && !patientLoading && (
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: "var(--color-warning-500)",
+                            marginTop: "var(--space-1, 4px)",
+                          }}
+                        >
+                          {t("contrastWs.egfrMissing")}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 10,
+                      marginTop: "var(--space-2, 8px)",
+                    }}
+                  >
+                    <div>
+                      <label
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-muted, #8b949e)",
+                        }}
+                      >
+                        {t("contrastWs.batchNo")}
+                      </label>
+                      <input
+                        value={batchNo}
+                        onChange={(e) => setBatchNo(e.target.value)}
+                        placeholder={t("contrastWs.batchNoPlaceholder")}
+                        style={inputStyle}
+                      />
+                    </div>
+                    <div>
+                      <label
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-muted, #8b949e)",
+                        }}
+                      >
+                        {t("contrastWs.route")}
+                      </label>
+                      <AppSelectField
+                        value={route}
+                        onChange={(v) =>
+                          setRoute(String(v ?? "IV") as "IV" | "IA" | "PO")
+                        }
+                        style={inputStyle}
+                        options={[
+                          { value: "IV", label: t("contrastWs.route.IV") },
+                          { value: "IA", label: t("contrastWs.route.IA") },
+                          { value: "PO", label: t("contrastWs.route.PO") },
+                        ]}
+                      />
+                    </div>
+                  </div>
+                  {implantHistory && (
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: isMrExam
+                          ? "var(--color-error-500)"
+                          : "var(--text-muted, #8b949e)",
+                      }}
+                    >
+                      {t("contrastWs.implantWarning")}: {implantHistory}
+                    </div>
+                  )}
+                </>
               )}
 
               <button
@@ -886,8 +1217,20 @@ export default function ContrastInjectionWorkstationPage() {
 
             <div
               style={{
+                fontSize: 12,
+                color: "var(--text-muted, #8b949e)",
+                marginBottom: "var(--space-2, 8px)",
+              }}
+            >
+              {patientLoading
+                ? t("contrastWs.patientDataLoading")
+                : `${patientName || patientId} · ${weight === null ? "—" : `${weight} kg`} · eGFR ${egfr === null ? "—" : egfr}`}
+            </div>
+
+            <div
+              style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
+                gridTemplateColumns: "repeat(3, 1fr)",
                 gap: "var(--space-2, 8px)",
               }}
             >
@@ -895,8 +1238,10 @@ export default function ContrastInjectionWorkstationPage() {
                 [
                   { key: "consent", label: t("contrastSafety.consent") },
                   { key: "allergy", label: t("contrastSafety.allergy") },
+                  { key: "weight", label: t("contrastSafety.weight") },
                   { key: "egfr", label: t("contrastSafety.egfr") },
                   { key: "pregnancy", label: t("contrastSafety.pregnancy") },
+                  { key: "implant", label: t("contrastSafety.implant") },
                 ] as const
               ).map((item) => {
                 const check = preCheck?.checks?.find((c) => c.key === item.key);
@@ -905,9 +1250,14 @@ export default function ContrastInjectionWorkstationPage() {
                     ? consentSigned
                     : item.key === "allergy"
                       ? allergyResult !== "positive"
-                      : item.key === "egfr"
-                        ? egfr >= DEFAULT_EGFR_THRESHOLD
-                        : !pregnant;
+                      : item.key === "weight"
+                        ? !weightMissing
+                        : item.key === "egfr"
+                          ? !egfrMissing &&
+                            (egfr as number) >= DEFAULT_EGFR_THRESHOLD
+                          : item.key === "implant"
+                            ? !hasImplantRisk
+                            : !pregnant;
                 const passed = check ? check.passed : localPassed;
                 return (
                   <div
@@ -1746,7 +2096,11 @@ export default function ContrastInjectionWorkstationPage() {
           />
 
           {/* [v3.0.6.11-104 Wave 3D] 临床资料接入区块: eGFR 警告 + 安全核查清单 + 介入核查清单 */}
-          <ContrastDataSections egfr={egfr} />
+          <ContrastDataSections
+            egfr={egfr ?? undefined}
+            batchNo={batchNo}
+            route={route}
+          />
         </div>
 
         {showHistory && (

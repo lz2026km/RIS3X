@@ -56,6 +56,8 @@ export function buildDicomSrDataset(input: {
   patientName?: string;
   patientId?: string;
   patientBirthDate?: string;
+  patientSex?: string;
+  referringPhysicianName?: string;
   modality?: string;
 }): DicomDataElement[] {
   const elements: DicomDataElement[] = [
@@ -95,27 +97,27 @@ export function buildDicomSrDataset(input: {
       nameEn: "Modality",
     },
     {
-      ...encodeElement("00080090", "PN", "王医师^"),
+      ...encodeElement("00080090", "PN", input.referringPhysicianName ?? ""),
       name: "ReferringPhysicianName",
       nameEn: "Referring Physician",
     },
     {
-      ...encodeElement("00100010", "PN", input.patientName ?? "张三^"),
+      ...encodeElement("00100010", "PN", input.patientName ?? ""),
       name: "PatientName",
       nameEn: "Patient Name",
     },
     {
-      ...encodeElement("00100020", "LO", input.patientId ?? "p-038"),
+      ...encodeElement("00100020", "LO", input.patientId ?? ""),
       name: "PatientID",
       nameEn: "Patient ID",
     },
     {
-      ...encodeElement("00100030", "DA", input.patientBirthDate ?? "19680101"),
+      ...encodeElement("00100030", "DA", input.patientBirthDate ?? ""),
       name: "PatientBirthDate",
       nameEn: "Patient Birth Date",
     },
     {
-      ...encodeElement("00100040", "CS", "M"),
+      ...encodeElement("00100040", "CS", input.patientSex ?? ""),
       name: "PatientSex",
       nameEn: "Patient Sex",
     },

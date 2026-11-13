@@ -18,7 +18,7 @@ import { RqiIndicatorLink } from "../../components/qc/RqiIndicatorLink";
 import { useCriticalStore } from "../../store";
 import { realtime, type RealtimePayload } from "../../services/realtime";
 import { LoadingBanner, ErrorBanner } from "../../components/feedback";
-import { toStoreStatus } from "./types";
+import { toStoreStatus, STATUS_CONFIG } from "./types";
 import type { CriticalValue, FollowUpRecord } from "./types";
 import type { NotificationMethod } from "../../services/api/criticalApi";
 import { criticalApi } from "../../services/api/criticalApi";
@@ -34,6 +34,7 @@ import {
   SHORTCUTS,
 } from "../../hooks/useKeyboardShortcuts";
 import { canApprove } from "../../services/auth/rbacService";
+import { exportRowsToCsv } from "../../utils/exportRowsToCsv";
 import { ClosedLoopTracker5Nodes } from "./CriticalValueTimeline";
 import { DetailPanel } from "./CriticalValueDetail";
 import { criticalExtApi } from "../../services/api";
@@ -177,6 +178,7 @@ export default function CriticalValuePage() {
     { time: string; event: string; user: string; detail?: string }[]
   >([]);
   const [cvActionBusy, setCvActionBusy] = useState(false);
+  const [exportingRegister, setExportingRegister] = useState(false);
 
   // [W2-1] 支持从工作列表跳转携带筛选: ?search=<患者姓名/检查号>&patientId=&examId=
   useEffect(() => {
@@ -276,7 +278,7 @@ export default function CriticalValuePage() {
     return Number.isNaN(ts) ? Number.NaN : ts;
   };
 
-  const filtered = criticalValues.filter((cv) => {
+  const matchesFilters = (cv: CriticalValue): boolean => {
     if (search) {
       const s = search.toLowerCase();
       if (
@@ -327,7 +329,107 @@ export default function CriticalValuePage() {
         return false;
     }
     return true;
-  });
+  };
+  const filtered = criticalValues.filter(matchesFilters);
+
+  // [G005 v3.0.6.17] 危急值登记本导出: 按当前后端筛选条件重取全量 (take 1000) 再套用同一前端过滤
+  const handleExportRegister = async () => {
+    setExportingRegister(true);
+    try {
+      const res = await criticalApi.list({ ...criticalQuery, take: 1000 });
+      if (!res.success) {
+        message.error(
+          res.error?.message ?? t("criticalValuePage.exportRegisterFailed"),
+        );
+        return;
+      }
+      const all = (res.data?.items ?? []) as unknown as CriticalValue[];
+      const rows = all.filter(matchesFilters);
+      if (rows.length === 0) {
+        message.warning(t("criticalValuePage.exportRegisterEmpty"));
+        return;
+      }
+      const severityLabel = (raw?: string): string => {
+        const key = String(raw ?? "").toUpperCase();
+        const map: Record<string, string> = {
+          CRITICAL: "危及生命",
+          URGENT: "危急",
+          HIGH: "高危",
+          LOW: "警告",
+        };
+        return map[key] ?? String(raw ?? "");
+      };
+      const minutesBetween = (from?: string, to?: string): number | null => {
+        if (!from || !to) return null;
+        const start = Date.parse(from);
+        const end = Date.parse(to);
+        if (Number.isNaN(start) || Number.isNaN(end)) return null;
+        return Math.round((end - start) / 60000);
+      };
+      const line = {
+        登记时间: (cv: CriticalValue) =>
+          cv.createdAt || cv.reportedTime || cv.examTime || "",
+        患者: (cv: CriticalValue) => cv.patientName || cv.patientId || "",
+        "住院号/门诊号": (cv: CriticalValue) =>
+          cv.inpatientNo ||
+          cv.outpatientNo ||
+          cv.patientNo ||
+          cv.patientId ||
+          "",
+        检查项目: (cv: CriticalValue) =>
+          cv.examItemName || cv.modality || cv.examId || "",
+        危急值内容: (cv: CriticalValue) =>
+          cv.criticalFinding || cv.findingDetails || "",
+        严重级别: (cv: CriticalValue) => severityLabel(String(cv.severity)),
+        发现时间: (cv: CriticalValue) =>
+          cv.createdAt || cv.reportedTime || cv.examTime || "",
+        通知时间: (cv: CriticalValue) => cv.notifiedAt || "",
+        通知人: (cv: CriticalValue) =>
+          cv.notifiedBy || cv.voiceCalledBy || cv.reportedByName || "",
+        接收人: (cv: CriticalValue) =>
+          cv.ackedBy || cv.confirmedBy || cv.receivingDoctorName || "",
+        接收时间: (cv: CriticalValue) =>
+          cv.acknowledgedAt || cv.ackedAt || cv.confirmedAt || "",
+        当前状态: (cv: CriticalValue) =>
+          STATUS_CONFIG[toStoreStatus(String(cv.status))]?.label ?? cv.status,
+        闭环时间: (cv: CriticalValue) => cv.closedAt || cv.resolvedAt || "",
+        "是否 10 分钟内": (cv: CriticalValue) => {
+          const mins = minutesBetween(
+            cv.createdAt || cv.reportedTime,
+            cv.notifiedAt,
+          );
+          return mins === null ? "否" : mins <= 10 ? "是" : "否";
+        },
+      };
+      const exported = rows.map((cv) => {
+        const record: Record<string, string> = {};
+        for (const [key, pick] of Object.entries(line)) {
+          record[key] = String(pick(cv) ?? "");
+        }
+        return record;
+      });
+      const summary = [
+        statusFilter === "全部" ? "全部状态" : statusFilter,
+        severityFilter === "全部" ? "全部级别" : severityFilter,
+        dateRange || "全部日期",
+      ].join("_");
+      exportRowsToCsv(exported, `危急值登记本_${summary}`);
+      log("export_register", "critical-value", { count: exported.length });
+      message.success(
+        t("criticalValuePage.exportRegisterSuccess", {
+          count: exported.length,
+        }),
+      );
+    } catch (err) {
+      message.error(
+        err instanceof Error
+          ? err.message
+          : t("criticalValuePage.exportRegisterFailed"),
+      );
+    } finally {
+      setExportingRegister(false);
+    }
+  };
 
   // [G005 v3.0.6.12] 页面危急值 → V2 统计模型适配 (供 CriticalStatsDashboard 使用)
   const statsValues: CriticalValueV2[] = useMemo(
@@ -1112,6 +1214,8 @@ export default function CriticalValuePage() {
               onBatchProcess={handleBatchProcess}
               selectedCount={selectedIds.size}
               onOpenSettings={() => setShowSettings(true)}
+              onExportRegister={() => void handleExportRegister()}
+              exportingRegister={exportingRegister}
               filtered={filtered}
               selectedIds={selectedIds}
               onToggleSelect={toggleSelect}

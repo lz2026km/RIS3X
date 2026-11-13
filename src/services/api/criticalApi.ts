@@ -36,6 +36,15 @@ export interface CriticalValueDto {
   notificationMethod?: NotificationMethod;
   createdAt?: string;
   updatedAt?: string;
+  examItemName?: string;
+  modality?: string;
+  patientNo?: string;
+  inpatientNo?: string;
+  outpatientNo?: string;
+  notifiedBy?: string;
+  ackedAt?: string;
+  closedAt?: string;
+  closedBy?: string;
 }
 
 export interface CriticalStatsDto {

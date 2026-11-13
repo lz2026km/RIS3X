@@ -35,6 +35,7 @@ import {
   type ReviewStatus,
 } from "../data/reviewRevisionCollabMock";
 import { reportApi, type ReportDto } from "../services/api/reportApi";
+import { examApi } from "../services/api/examApi";
 import { listItems } from "../services/api/client";
 import { useAuth } from "../hooks/useAuth";
 // [v3.0.6.11-103 Wave 12] 审核增强: diff 高亮 / 危急值自动检测 / 随访建议
@@ -86,6 +87,7 @@ function reportToReviewTask(r: ReportDto): ReviewTask | null {
   return {
     id: `rv-${r.reportId || r.id}`,
     reportId: r.reportId || r.id,
+    examId: r.examId || undefined,
     patientName: r.patientName || t("w9c.reportReview.unknownPatient"),
     modality: r.modality || "CT",
     bodyPart: r.bodyPart || t("w9c.reportReview.defaultBodyPart"),
@@ -105,6 +107,25 @@ function reportToReviewTask(r: ReportDto): ReviewTask | null {
     recommendationsText: r.recommendations || undefined,
     statusRaw: r.status || r.state || "",
   } as ReviewTask;
+}
+
+// [v3.0.6.16-9] 报告结论侧别识别 (仅用于审核提示, 不阻断)
+function detectReportLaterality(text: string): string | null {
+  const hasLeft = /左/.test(text);
+  const hasRight = /右/.test(text);
+  const hasBilateral = /双侧|两侧/.test(text);
+  if (hasBilateral || (hasLeft && hasRight)) return "BILATERAL";
+  if (hasLeft) return "LEFT";
+  if (hasRight) return "RIGHT";
+  return null;
+}
+
+function normalizeLaterality(value?: string | null): string {
+  if (!value) return "UNKNOWN";
+  const norm = value === "NA" ? "NONE" : value;
+  return ["LEFT", "RIGHT", "BILATERAL", "NONE"].includes(norm)
+    ? norm
+    : "UNKNOWN";
 }
 
 // ============================================================
@@ -1132,6 +1153,32 @@ const ReviewTaskDetail: React.FC<{
     task.hoursToDeadline,
   );
 
+  // [v3.0.6.16-9] 终末审核: 申请侧别 vs 报告结论侧别一致性比对
+  const [requestedLaterality, setRequestedLaterality] = useState<string | null>(
+    task.requestedLaterality ?? null,
+  );
+  useEffect(() => {
+    let cancelled = false;
+    if (!task.examId) {
+      setRequestedLaterality(task.requestedLaterality ?? null);
+      return;
+    }
+    examApi
+      .getById(task.examId)
+      .then((res) => {
+        if (cancelled) return;
+        setRequestedLaterality(
+          res.success && res.data ? (res.data.laterality ?? null) : null,
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setRequestedLaterality(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [task.examId, task.requestedLaterality]);
+
   // [v3.0.6.11-70] 报告正文: 优先展示真实所见/诊断
   const findingsText =
     (task as any).findingsText ||
@@ -1203,6 +1250,15 @@ const ReviewTaskDetail: React.FC<{
     "大出血",
   ];
   const fullText = `${findingsText}\n${impressionText}\n${(task as any).recommendationsText ?? ""}`;
+  const reportLaterality = detectReportLaterality(fullText);
+  const orderedLaterality = normalizeLaterality(requestedLaterality);
+  const lateralityConflict =
+    orderedLaterality !== "UNKNOWN" &&
+    orderedLaterality !== "NONE" &&
+    reportLaterality !== null &&
+    orderedLaterality !== normalizeLaterality(reportLaterality);
+  const lateralityText = (value: string): string =>
+    t(`reportReviewPage.side.${normalizeLaterality(value)}`);
   const criticalHits = useMemo(
     () => criticalKeywords.filter((k) => fullText.includes(k)),
     [fullText],
@@ -1653,6 +1709,53 @@ const ReviewTaskDetail: React.FC<{
             label={t("reportReviewPage.infoQualityScore")}
             value={`${task.qualityScore}/100`}
           />
+        </div>
+
+        {/* [v3.0.6.16-9] 侧别一致性比对 (黄色警示, 不阻断) */}
+        <div
+          style={{
+            marginTop: "var(--space-3, 12px)",
+            padding: "10px 12px",
+            borderRadius: 6,
+            fontSize: 12,
+            background: lateralityConflict
+              ? "var(--color-warning-bg, #f59e0b15)"
+              : "var(--content-bg)",
+            border: `1px solid ${lateralityConflict ? "var(--color-warning-500)" : "var(--border-color)"}`,
+          }}
+        >
+          <div style={{ fontWeight: 600 }}>
+            {t("reportReviewPage.lateralityTitle")}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "var(--space-4, 16px)",
+              marginTop: "var(--space-1, 4px)",
+              color: "var(--text-secondary)",
+            }}
+          >
+            <span>
+              {t("reportReviewPage.orderLaterality")}:
+              {lateralityText(orderedLaterality)}
+            </span>
+            <span>
+              {t("reportReviewPage.reportLaterality")}:
+              {lateralityText(reportLaterality ?? "UNKNOWN")}
+            </span>
+          </div>
+          {lateralityConflict && (
+            <div
+              style={{
+                marginTop: "var(--space-1, 4px)",
+                color: "var(--color-warning-500)",
+                fontWeight: 600,
+              }}
+            >
+              {t("reportReviewPage.lateralityMismatch")}
+            </div>
+          )}
         </div>
 
         {/* 阶段进度 */}

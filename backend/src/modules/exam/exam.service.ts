@@ -28,6 +28,7 @@ export interface UpdateExamDto {
   startedAt?: string;
   completedAt?: string;
   deviceId?: string;
+  laterality?: "LEFT" | "RIGHT" | "BILATERAL" | "NONE" | "NA";
 }
 
 // [G005 Wave4B] G-18 检查合并/拆分
@@ -654,9 +655,7 @@ export class ExamService {
   }
 
   // [W4-A] 批量导入: 患者不存在则报错列出 (含行号), accessionNumber 重复则跳过
-  async importMany(
-    rows: CreateExamDto[],
-  ): Promise<{
+  async importMany(rows: CreateExamDto[]): Promise<{
     imported: number;
     skipped: number;
     errors: { index: number; message: string }[];

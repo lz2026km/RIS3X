@@ -19,6 +19,7 @@ import {
   Archive,
   Target,
   Link2,
+  Images,
 } from "lucide-react";
 import type { RadiologyReport } from "../../types";
 import { StatusBadge, StatusTimeline } from "../../components/report";
@@ -41,6 +42,9 @@ import {
 import type { AuditTrailEvent } from "../../components/report/StatusTimeline";
 import { getCurrentUser } from "../../utils/auth";
 import ReportAnnotationPanel from "../../components/report/ReportAnnotationPanel";
+// [G005 v3.0.6.17] 报告关键图 + UID 查看/复制
+import ReportKeyImagePanel from "../../components/report/ReportKeyImagePanel";
+import { UidCopyField } from "../../components/common/UidCopyField";
 // [v3.0.6.11-99 Wave7B] 离线报告包: 检测本地离线副本
 import { offlineStorage } from "../../services/pwa/offlineStorage";
 import { useNavigate } from "react-router-dom";
@@ -174,6 +178,7 @@ export default function ReportDetailDrawer({
     | "critical"
     | "lesions"
     | "related"
+    | "keyImages"
   >("content");
   const [showHistory, setShowHistory] = useState(false);
   const [showMfa, setShowMfa] = useState(false);
@@ -474,6 +479,33 @@ export default function ReportDetailDrawer({
     (report?.status as string) || t("reportDetail.statusUnassigned");
   if (!report) return null;
 
+  const reportUidSource = report as RadiologyReport & {
+    studyInstanceUID?: string;
+    studyInstanceUid?: string;
+    studyUid?: string;
+    seriesInstanceUID?: string;
+    seriesInstanceUid?: string;
+    seriesUid?: string;
+    sopInstanceUID?: string;
+    sopInstanceUid?: string;
+    sopUid?: string;
+  };
+  const reportStudyUid =
+    reportUidSource.studyInstanceUID ??
+    reportUidSource.studyInstanceUid ??
+    reportUidSource.studyUid ??
+    "";
+  const reportSeriesUid =
+    reportUidSource.seriesInstanceUID ??
+    reportUidSource.seriesInstanceUid ??
+    reportUidSource.seriesUid ??
+    "";
+  const reportSopUid =
+    reportUidSource.sopInstanceUID ??
+    reportUidSource.sopInstanceUid ??
+    reportUidSource.sopUid ??
+    "";
+
   const historyVersions = [
     {
       version: "V2.1",
@@ -702,6 +734,11 @@ export default function ReportDetailDrawer({
               key: "related",
               label: t("reportDetail.tabRelated"),
               icon: <Link2 size={13} />,
+            },
+            {
+              key: "keyImages",
+              label: t("reportDetail.tabKeyImages"),
+              icon: <Images size={13} />,
             },
           ].map((tb) => (
             <button
@@ -933,6 +970,27 @@ export default function ReportDetailDrawer({
                   </div>
                 </div>
               )}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                  gap: "var(--space-2, 8px)",
+                  marginBottom: "var(--space-4, 16px)",
+                }}
+              >
+                <UidCopyField
+                  label={t("reportDetail.studyUid")}
+                  value={reportStudyUid}
+                />
+                <UidCopyField
+                  label={t("reportDetail.seriesUid")}
+                  value={reportSeriesUid}
+                />
+                <UidCopyField
+                  label={t("reportDetail.sopUid")}
+                  value={reportSopUid}
+                />
+              </div>
               <div
                 style={{
                   display: "grid",
@@ -2139,6 +2197,15 @@ export default function ReportDetailDrawer({
                 </div>
               )}
             </div>
+          )}
+
+          {tab === "keyImages" && (
+            <ReportKeyImagePanel
+              reportId={report.id}
+              studyUid={reportStudyUid}
+              seriesUid={reportSeriesUid}
+              examId={report.examId}
+            />
           )}
 
           {tab === "print" && (

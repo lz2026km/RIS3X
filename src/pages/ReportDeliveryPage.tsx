@@ -5,7 +5,16 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Tabs, Badge, message, Popconfirm, Modal, Tag, Typography } from "antd";
+import {
+  Tabs,
+  Badge,
+  message,
+  Popconfirm,
+  Modal,
+  Tag,
+  Typography,
+  Button,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { Layers, FileText, Receipt, Smartphone } from "lucide-react";
 import {
@@ -35,6 +44,7 @@ import {
   type DeliveryChannel,
 } from "../data/deliveryExportSignatureMock";
 import { reportApi } from "../services/api/reportApi";
+import type { ReportRecallLedgerDto } from "../services/api/reportApi";
 import { distApi } from "../services/api/distApi";
 import type { ReportDto } from "../types/dto";
 import { LoadingBanner } from "../components/feedback";
@@ -257,6 +267,34 @@ export default function ReportDeliveryPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    setRecallLedgerLoading(true);
+    void (async () => {
+      try {
+        const res = await reportApi.listRecalls();
+        if (!cancelled && res.success && res.data) {
+          setRecallLedger(res.data.items ?? []);
+        }
+      } catch {
+        if (!cancelled) setRecallLedger([]);
+      } finally {
+        if (!cancelled) setRecallLedgerLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const refreshRecallLedger = async () => {
+    try {
+      const res = await reportApi.listRecalls();
+      if (res.success && res.data) setRecallLedger(res.data.items ?? []);
+    } catch {
+      /* 台账刷新失败保留当前列表 */
+    }
+  };
   const [filterChannel, setFilterChannel] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [selectedRecords, setSelectedRecords] = useState<Set<string>>(
@@ -268,6 +306,8 @@ export default function ReportDeliveryPage() {
 
   // [G005 Wave6A] 撤回/重发: 本地状态流转 (后端无 delivery 撤回端点 → 标注"状态本地记录")
   const [recalls, setRecalls] = useState<Record<string, RecallEntry>>({});
+  const [recallLedger, setRecallLedger] = useState<ReportRecallLedgerDto[]>([]);
+  const [recallLedgerLoading, setRecallLedgerLoading] = useState(false);
   const [recallTarget, setRecallTarget] = useState<DeliveryRecord | null>(null);
   const [recallReason, setRecallReason] = useState("");
   const [resendingId, setResendingId] = useState<string | null>(null);
@@ -291,81 +331,55 @@ export default function ReportDeliveryPage() {
   const confirmRecall = async () => {
     if (!recallTarget) return;
     const reason = recallReason.trim() || t("reportDelivery.noReason");
-    const localAt = new Date().toLocaleString("zh-CN", { hour12: false });
-    let entry: RecallEntry = { at: localAt, reason, source: "local" };
     try {
       const res = await reportApi.recall(
         recallTarget.reportId || recallTarget.id,
         reason,
       );
-      if (res.success && res.data) {
-        const d = res.data;
-        entry = {
-          at: (d.recalledAt ?? new Date().toISOString())
-            .replace("T", " ")
-            .slice(0, 19),
-          reason: d.reason ?? reason,
-          source: "api",
-          hl7ControlId: d.hl7?.controlId,
-          acknowledged: Boolean(d.acknowledgement),
-        };
-        message.success(
-          t("w8Report.recall.success", { name: recallTarget.patientName }),
-        );
-      } else {
-        message.success(
-          `已撤回推送记录 ${recallTarget.patientName} · 状态本地记录`,
-        );
+      if (!res.success || !res.data) {
+        message.error(res.error?.message ?? t("w8Report.recall.failed"));
+        return;
       }
-    } catch {
-      message.warning(t("w8Report.recall.fallback"));
+      const d = res.data;
+      const entry: RecallEntry = {
+        at: (d.recalledAt ?? new Date().toISOString())
+          .replace("T", " ")
+          .slice(0, 19),
+        reason: d.reason ?? reason,
+        source: "api",
+        hl7ControlId: d.hl7?.controlId,
+        acknowledged: Boolean(d.acknowledgement),
+      };
+      message.success(
+        t("w8Report.recall.success", { name: recallTarget.patientName }),
+      );
+      setRecalls((prev) => ({ ...prev, [recallTarget.id]: entry }));
+      setRecallTarget(null);
+      setRecallReason("");
+      void refreshRecallLedger();
+    } catch (err) {
+      message.error((err as Error)?.message ?? t("w8Report.recall.failed"));
     }
-    setRecalls((prev) => ({ ...prev, [recallTarget.id]: entry }));
-    setRecallTarget(null);
-    setRecallReason("");
   };
 
   // [G005 W8-Report] 临床回执确认
-  const handleAckRecall = async (r: DeliveryRecord) => {
-    const reportId = r.reportId || r.id;
+  const handleAckRecallLedger = async (row: ReportRecallLedgerDto) => {
     try {
       const res = await reportApi.acknowledgeRecall(
-        reportId,
+        row.reportId,
         "临床-值班",
         t("w8Report.recall.ackNote"),
       );
-      if (res.success) {
-        message.success(t("w8Report.recall.ackSuccess"));
-        setRecalls((prev) => {
-          const cur = prev[r.id];
-          if (!cur) return prev;
-          return {
-            ...prev,
-            [r.id]: {
-              ...cur,
-              acknowledged: true,
-              ackBy: res.data?.acknowledgement?.ackBy ?? "临床-值班",
-              ackAt: new Date().toISOString(),
-            },
-          };
-        });
+      if (!res.success) {
+        message.error(res.error?.message ?? t("w8Report.recall.ackFallback"));
+        return;
       }
-    } catch {
-      // 后端不可用: 仍标记本地已确认
-      setRecalls((prev) => {
-        const cur = prev[r.id];
-        if (!cur) return prev;
-        return {
-          ...prev,
-          [r.id]: {
-            ...cur,
-            acknowledged: true,
-            ackBy: "临床-值班",
-            ackAt: new Date().toISOString(),
-          },
-        };
-      });
-      message.warning(t("w8Report.recall.ackFallback"));
+      message.success(t("w8Report.recall.ackSuccess"));
+      void refreshRecallLedger();
+    } catch (err) {
+      message.error(
+        (err as Error)?.message ?? t("w8Report.recall.ackFallback"),
+      );
     }
   };
 
@@ -417,6 +431,59 @@ export default function ReportDeliveryPage() {
     }
     return total;
   }, [records]);
+
+  const recallLedgerRows = useMemo(() => {
+    const nameByReport = new Map(
+      records.map((r) => [r.reportId || r.id, r.patientName]),
+    );
+    return recallLedger.map((row) => ({
+      ...row,
+      patientName:
+        row.patientName && row.patientName !== "--"
+          ? row.patientName
+          : (nameByReport.get(row.reportId) ?? "--"),
+      recalledByName: row.recalledByName || row.recalledById || "--",
+      recalledAtText: row.recalledAt
+        ? row.recalledAt.replace("T", " ").slice(0, 19)
+        : "--",
+    }));
+  }, [recallLedger, records]);
+
+  useEffect(() => {
+    if (recallLedger.length === 0) return;
+    const ledgerByReport = new Map(
+      recallLedger.map((row) => [row.reportId, row]),
+    );
+    setRecalls((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const record of records) {
+        const reportId = record.reportId || record.id;
+        const row = ledgerByReport.get(reportId);
+        if (!row) continue;
+        const existing = next[record.id];
+        if (
+          existing &&
+          existing.acknowledged === row.acknowledged &&
+          existing.reason === row.reason
+        ) {
+          continue;
+        }
+        next[record.id] = {
+          at: row.recalledAt
+            ? row.recalledAt.replace("T", " ").slice(0, 19)
+            : "--",
+          reason: row.reason,
+          source: "api",
+          acknowledged: row.acknowledged,
+          ackBy: row.acknowledged ? row.recalledByName : undefined,
+          ackAt: row.recalledAt,
+        };
+        changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [recallLedger, records]);
 
   // 批量推送
   const handleBatchSend = async () => {
@@ -840,8 +907,8 @@ export default function ReportDeliveryPage() {
         />
       </div>
 
-      {/* [G005 W8-Report] 召回通知列表 (HL7 ORU C + 临床回执) */}
-      {Object.keys(recalls).length > 0 && (
+      {/* [G005 W8-Report] 召回台账 (report_recalls 表, GET /reports/recalls) */}
+      {(recallLedger.length > 0 || recallLedgerLoading) && (
         <div
           style={{
             marginBottom: "var(--space-4, 16px)",
@@ -863,68 +930,94 @@ export default function ReportDeliveryPage() {
             }}
           >
             <Undo2 size={13} /> {t("w8Report.recall.listTitle")} (
-            {Object.keys(recalls).length})
+            {recallLedgerRows.length})
           </div>
-          <div style={{ display: "grid", gap: 6 }}>
-            {records
-              .filter((r) => recalls[r.id])
-              .map((r) => {
-                const rec = recalls[r.id]!;
-                return (
-                  <div
-                    key={r.id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      flexWrap: "wrap",
-                      fontSize: 12,
-                      padding: "6px 8px",
-                      border: "1px solid var(--border-color)",
-                      borderRadius: 6,
-                    }}
-                  >
-                    <span style={{ fontWeight: 600 }}>{r.patientName}</span>
-                    <span style={{ color: "var(--text-secondary)" }}>
-                      {r.reportId}
-                    </span>
-                    <span>{rec.reason}</span>
-                    <span style={{ color: "var(--text-secondary)" }}>
-                      {rec.at}
-                    </span>
-                    {rec.hl7ControlId && (
-                      <Tag color="purple" style={{ fontSize: 11 }}>
-                        HL7 ORU C
-                      </Tag>
-                    )}
-                    {rec.acknowledged ? (
-                      <Tag color="green" style={{ fontSize: 11 }}>
-                        {t("w8Report.recall.acknowledged")} · {rec.ackBy}
-                      </Tag>
-                    ) : (
-                      <button
-                        onClick={() => void handleAckRecall(r)}
-                        style={{
-                          padding: "3px 8px",
-                          border: "1px solid var(--color-success-600)",
-                          borderRadius: 4,
-                          background: "var(--bg-card)",
-                          color: "var(--color-success-600)",
-                          fontSize: 11,
-                          cursor: "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 3,
-                        }}
+          <DataTable
+            rowKey="id"
+            loading={recallLedgerLoading}
+            dataSource={recallLedgerRows}
+            pagination={false}
+            columns={[
+              {
+                title: t("w8Report.recall.col.reportId"),
+                dataIndex: "reportId",
+                key: "reportId",
+                width: 160,
+              },
+              {
+                title: t("w8Report.recall.col.patient"),
+                dataIndex: "patientName",
+                key: "patientName",
+                width: 120,
+              },
+              {
+                title: t("w8Report.recall.col.reason"),
+                dataIndex: "reason",
+                key: "reason",
+                ellipsis: true,
+              },
+              {
+                title: t("w8Report.recall.col.actor"),
+                dataIndex: "recalledByName",
+                key: "recalledByName",
+                width: 120,
+              },
+              {
+                title: t("w8Report.recall.col.time"),
+                dataIndex: "recalledAtText",
+                key: "recalledAtText",
+                width: 170,
+              },
+              {
+                title: t("w8Report.recall.col.status"),
+                key: "status",
+                width: 150,
+                render: (_: unknown, row) => {
+                  const acked =
+                    row.acknowledged || row.notifyStatus === "acked";
+                  const failed = row.notifyStatus === "failed";
+                  const pending = row.notifyStatus === "pending";
+                  return (
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        gap: 6,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Tag
+                        color={
+                          acked
+                            ? "green"
+                            : failed
+                              ? "red"
+                              : pending
+                                ? "orange"
+                                : "blue"
+                        }
                       >
-                        <CheckCircle2 size={10} />{" "}
-                        {t("w8Report.recall.ackAction")}
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-          </div>
+                        {acked
+                          ? t("w8Report.recall.status.acked")
+                          : failed
+                            ? t("w8Report.recall.status.failed")
+                            : pending
+                              ? t("w8Report.recall.status.pending")
+                              : t("w8Report.recall.status.sent")}
+                      </Tag>
+                      {!acked && (
+                        <Button
+                          size="small"
+                          onClick={() => void handleAckRecallLedger(row)}
+                        >
+                          {t("w8Report.recall.ackAction")}
+                        </Button>
+                      )}
+                    </span>
+                  );
+                },
+              },
+            ]}
+          />
         </div>
       )}
 

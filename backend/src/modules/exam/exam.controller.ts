@@ -40,6 +40,7 @@ const UpdateExamSchema = z.object({
   startedAt: z.string().datetime().optional(),
   completedAt: z.string().datetime().optional(),
   deviceId: z.string().optional(),
+  laterality: z.enum(["LEFT", "RIGHT", "BILATERAL", "NONE", "NA"]).optional(),
 });
 
 // [W4-A] 批量导入: 兼容裸数组与 { items: [] } 两种 body 形状

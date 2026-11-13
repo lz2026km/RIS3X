@@ -25,6 +25,10 @@ export interface ContrastDataSectionsProps {
   egfr?: number;
   /** 过滤介入核查清单的模态 (如 DSA/CT/US)，缺省显示全部 */
   modality?: string;
+  /** 当前对比剂批号 (追溯摘要) */
+  batchNo?: string;
+  /** 当前给药途径 IV / IA / PO (追溯摘要) */
+  route?: string;
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -358,10 +362,31 @@ export function SurgeryChecklistPanel({ modality }: { modality?: string }) {
 export default function ContrastDataSections({
   egfr,
   modality,
+  batchNo,
+  route,
 }: ContrastDataSectionsProps) {
   return (
     <>
       <EgfrWarning egfr={egfr} />
+      {(batchNo !== undefined || route !== undefined) && (
+        <div style={panel}>
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              marginBottom: "var(--space-2, 8px)",
+            }}
+          >
+            {t("contrastWs.injectionRecord")}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #8b949e)" }}>
+            {t("contrastWs.batchNo")}: {batchNo || t("contrastWs.notFilled")}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #8b949e)" }}>
+            {t("contrastWs.route")}: {route || "—"}
+          </div>
+        </div>
+      )}
       <ContrastScreeningChecklist />
       <SurgeryChecklistPanel modality={modality} />
     </>

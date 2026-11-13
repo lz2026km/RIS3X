@@ -1,23 +1,34 @@
 /**
  * G005 RIS v3.0.5.1 - R3.REVIEW 审核流类型定义
  */
-export type ReviewStage = 'initial' | 'final' | 'cosign' | 'sign';
-export type ReviewDecision = 'approve' | 'reject' | 'escalate' | 'withdraw' | 'request-info';
-export type ReviewerRole = 'resident' | 'attending' | 'associateChief' | 'chief' | 'director';
-export type ReviewerStatus = 'online' | 'away' | 'busy' | 'offline';
+export type ReviewStage = "initial" | "final" | "cosign" | "sign";
+export type ReviewDecision =
+  "approve" | "reject" | "escalate" | "withdraw" | "request-info";
+export type ReviewerRole =
+  "resident" | "attending" | "associateChief" | "chief" | "director";
+export type ReviewerStatus = "online" | "away" | "busy" | "offline";
 
 export interface ReviewTask {
   id: string;
   reportId: string;
+  examId?: string;
+  requestedLaterality?: string | null;
   patientId: string;
   patientName: string;
-  gender: '男' | '女' | '其他';
+  gender: "男" | "女" | "其他";
   age: number;
   modality: string;
   bodyPart: string;
-  priority: 'routine' | 'urgent' | 'stat' | 'critical';
+  priority: "routine" | "urgent" | "stat" | "critical";
   stage: ReviewStage;
-  status: 'pending' | 'in-progress' | 'completed' | 'rejected' | 'overdue' | 'escalated' | 'cosign-required';
+  status:
+    | "pending"
+    | "in-progress"
+    | "completed"
+    | "rejected"
+    | "overdue"
+    | "escalated"
+    | "cosign-required";
   authorId: string;
   authorName: string;
   authorTitle: string;
@@ -55,14 +66,14 @@ export interface ReviewTask {
 }
 
 export type RejectCategory =
-  | 'unclear-description'
-  | 'terminology-error'
-  | 'left-right-confusion'
-  | 'missing-key-finding'
-  | 'inconsistent-with-image'
-  | 'missing-recommendation'
-  | 'critical-not-marked'
-  | 'other';
+  | "unclear-description"
+  | "terminology-error"
+  | "left-right-confusion"
+  | "missing-key-finding"
+  | "inconsistent-with-image"
+  | "missing-recommendation"
+  | "critical-not-marked"
+  | "other";
 
 export interface RejectTemplate {
   id: string;
@@ -80,15 +91,36 @@ export interface ReviewHistoryEntry {
   id: string;
   taskId: string;
   reportId: string;
-  action: 'submit' | 'assign' | 'start-initial' | 'approve-initial' | 'reject' | 'start-final' | 'approve-final' | 'start-cosign' | 'complete-cosign' | 'escalate' | 'withdraw' | 'reopen' | 'rectify' | 'request-info';
+  action:
+    | "submit"
+    | "assign"
+    | "start-initial"
+    | "approve-initial"
+    | "reject"
+    | "start-final"
+    | "approve-final"
+    | "start-cosign"
+    | "complete-cosign"
+    | "escalate"
+    | "withdraw"
+    | "reopen"
+    | "rectify"
+    | "request-info";
   actorId: string;
   actorName: string;
   actorRole: ReviewerRole;
   comment?: string;
   score?: number;
   reason?: string;
-  fromStage: ReviewStage | 'submitted' | 'rejected' | 'rectifying' | 'withdrawn';
-  toStage: ReviewStage | 'reviewed' | 'rejected' | 'rectifying' | 'withdrawn' | 'cosignReview';
+  fromStage:
+    ReviewStage | "submitted" | "rejected" | "rectifying" | "withdrawn";
+  toStage:
+    | ReviewStage
+    | "reviewed"
+    | "rejected"
+    | "rectifying"
+    | "withdrawn"
+    | "cosignReview";
   timestamp: string;
   ipAddress?: string;
   hash?: string;
@@ -138,7 +170,7 @@ export interface Reviewer {
 export interface CosignSchedule {
   id: string;
   date: string;
-  shiftType: 'morning' | 'afternoon' | 'evening' | 'night';
+  shiftType: "morning" | "afternoon" | "evening" | "night";
   reviewerId: string;
   reviewerName: string;
   reviewerTitle: ReviewerRole;
@@ -146,7 +178,7 @@ export interface CosignSchedule {
   reserved: number;
   startTime: string;
   endTime: string;
-  status: 'scheduled' | 'on-duty' | 'off-duty' | 'leave';
+  status: "scheduled" | "on-duty" | "off-duty" | "leave";
   note?: string;
 }
 
@@ -170,7 +202,7 @@ export interface WorkloadStat {
   reviewerId: string;
   reviewerName: string;
   reviewerTitle: ReviewerRole;
-  period: 'day' | 'week' | 'month';
+  period: "day" | "week" | "month";
   totalAssigned: number;
   totalCompleted: number;
   totalRejected: number;
@@ -189,9 +221,15 @@ export interface AIPreReviewResult {
   reportId: string;
   suggestedScore: number;
   confidence: number;
-  defects: { code: string; name: string; severity: 'minor' | 'major' | 'critical'; position?: string; suggestion?: string }[];
+  defects: {
+    code: string;
+    name: string;
+    severity: "minor" | "major" | "critical";
+    position?: string;
+    suggestion?: string;
+  }[];
   suggestions: string[];
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  riskLevel: "low" | "medium" | "high" | "critical";
   consistencyScore: number;
   completenessScore: number;
   terminologyScore: number;
@@ -204,7 +242,7 @@ export interface ReviewAttachment {
   id: string;
   taskId: string;
   fileName: string;
-  fileType: 'image' | 'pdf' | 'doc' | 'other';
+  fileType: "image" | "pdf" | "doc" | "other";
   size: number;
   uploadedBy: string;
   uploadedAt: string;
@@ -218,13 +256,21 @@ export interface ReviewerAssignment {
   reviewerName: string;
   assignedBy: string;
   assignedAt: string;
-  strategy: 'manual' | 'auto-workload' | 'auto-shift' | 'round-robin';
+  strategy: "manual" | "auto-workload" | "auto-shift" | "round-robin";
   note?: string;
 }
 
 export interface AuditChainStep {
   id: string;
-  step: 'submit' | 'initial' | 'final' | 'cosign' | 'sign' | 'publish' | 'amend' | 'archive';
+  step:
+    | "submit"
+    | "initial"
+    | "final"
+    | "cosign"
+    | "sign"
+    | "publish"
+    | "amend"
+    | "archive";
   actorId: string;
   actorName: string;
   action: string;
@@ -236,7 +282,7 @@ export interface AuditChainStep {
 }
 
 export interface ReviewFilter {
-  stage?: ReviewStage | 'all';
+  stage?: ReviewStage | "all";
   status?: string;
   priority?: string;
   modality?: string;

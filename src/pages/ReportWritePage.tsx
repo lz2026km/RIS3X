@@ -1266,6 +1266,9 @@ function buildPrintLayoutHtml(opts: {
   bodyPart: string;
   patientId: string;
   clinicalDiagnosis: string;
+  referringDept?: string;
+  referringDoctorName?: string;
+  clinicalIndication?: string;
   bodyHtml: string;
 }): string {
   const { layout } = opts;
@@ -1293,6 +1296,9 @@ function buildPrintLayoutHtml(opts: {
     [t("reportWrite.exam"), `${opts.modality} · ${opts.bodyPart}`],
     [t("reportWrite.accessionNo"), opts.patientId],
     [t("reportWrite.clinicalDiagnosis"), opts.clinicalDiagnosis],
+    [t("reportWrite.referringDept"), opts.referringDept || "--"],
+    [t("reportWrite.referringDoctor"), opts.referringDoctorName || "--"],
+    [t("reportWrite.clinicalIndication"), opts.clinicalIndication || "--"],
   ];
   return `<div class="lp-root">
 <style>
@@ -1372,7 +1378,18 @@ export default function ReportWritePage() {
   // [v3.0.6.11-70] P0 真实化: reportId 从路由参数 / 报告列表选择获取, 不再写死 'rpt-038'
   const [reportId, setReportId] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [context, setContext] = useState<any>(REPORT_WRITING_CONTEXT_MOCK);
+  const [context, setContext] = useState<any>(() => ({
+    ...REPORT_WRITING_CONTEXT_MOCK,
+    patientId: "",
+    patientName: "",
+    gender: "",
+    age: "",
+    clinicalDiagnosis: "",
+    clinicalIndication: "",
+    referringDept: "",
+    referringDoctorName: "",
+    laterality: "",
+  }));
   // [v3.0.6.11-96 Wave2A P0] 预评分真实化: reportQualityApi.evaluate (POST /reports/quality/evaluate)
   //   提交前 + 内容变更防抖触发; 失败回退 PRE_SUBMIT_SCORE_MOCK 并标注演示回退
   const [qualityEval, setQualityEval] = useState<QualityEvaluation | null>(
@@ -2179,15 +2196,7 @@ export default function ReportWritePage() {
         }
       }
       if (!target) {
-        const user = getCurrentUser();
-        const createRes = await reportApi.create({
-          patientId: REPORT_WRITING_CONTEXT_MOCK.patientId,
-          radiologistId: user?.id,
-          findings: REPORT_WRITING_CONTEXT_MOCK.document.plainText,
-          conclusion: REPORT_WRITING_CONTEXT_MOCK.document.plainText,
-        });
-        if (createRes.success && createRes.data)
-          target = createRes.data.reportId || createRes.data.id;
+        return;
       }
       if (cancelled || !target) return;
       setReportId(target);
@@ -2273,8 +2282,16 @@ export default function ReportWritePage() {
           if (examRes.success && examRes.data) {
             setContext((c: any) => ({
               ...c,
+              patientName: c.patientName || examRes.data!.patientName || "",
               gender: examRes.data!.gender,
               age: examRes.data!.age,
+              laterality: examRes.data!.laterality ?? "",
+              referringDept:
+                examRes.data!.referringDept ??
+                examRes.data!.referringDoctorDept ??
+                "",
+              referringDoctorName: examRes.data!.referringDoctorName ?? "",
+              clinicalIndication: examRes.data!.clinicalIndication ?? "",
             }));
           }
         }
@@ -2822,6 +2839,11 @@ export default function ReportWritePage() {
         bodyPart: String(context.bodyPart ?? ""),
         patientId: String(context.patientId ?? ""),
         clinicalDiagnosis: String(context.clinicalDiagnosis ?? ""),
+        referringDept: String(
+          context.referringDept ?? context.referringDoctorDept ?? "",
+        ),
+        referringDoctorName: String(context.referringDoctorName ?? ""),
+        clinicalIndication: String(context.clinicalIndication ?? ""),
         bodyHtml,
       });
       document.body.appendChild(container);
@@ -2841,6 +2863,10 @@ export default function ReportWritePage() {
       context.bodyPart,
       context.patientId,
       context.clinicalDiagnosis,
+      context.referringDept,
+      context.referringDoctorDept,
+      context.referringDoctorName,
+      context.clinicalIndication,
       context.document.html,
       context.document.plainText,
     ],
@@ -4098,12 +4124,7 @@ export default function ReportWritePage() {
                   {t("reportWrite.patient")}
                 </div>
                 <div className="font-semibold">
-                  {context.patientName || "张三"}
-                  {!context.patientName && (
-                    <span className="text-[10px] text-orange-500 ml-1">
-                      {t("reportWrite.exampleSuffix")}
-                    </span>
-                  )}
+                  {context.patientName || "--"}
                 </div>
               </div>
               <div className="v3-clinical-item">
@@ -4111,57 +4132,63 @@ export default function ReportWritePage() {
                   {t("reportWrite.genderAge2")}
                 </div>
                 <div>
-                  {context.gender || t("reportWrite.male")} /{" "}
-                  {context.age || 58} {t("reportWrite.yearsOld")}
-                  {!context.gender && (
-                    <span className="text-[10px] text-orange-500 ml-1">
-                      {t("reportWrite.exampleSuffix")}
-                    </span>
-                  )}
+                  {context.gender || context.age
+                    ? `${context.gender || "--"} / ${context.age || "--"} ${t("reportWrite.yearsOld")}`
+                    : "--"}
                 </div>
               </div>
               <div className="v3-clinical-item">
                 <div className="v3-clinical-label">
                   {t("reportWrite.accessionNo")}
                 </div>
-                <div className="v3-clinical-code">{context.patientId}</div>
+                <div className="v3-clinical-code">
+                  {context.patientId || "--"}
+                </div>
               </div>
-              {/* [v3.0.6.11-99 Wave8A P1] 临床信息 fallback 行级来源标注 */}
+              <div className="v3-clinical-item">
+                <div className="v3-clinical-label">
+                  {t("reportWrite.referringDept")}
+                </div>
+                <div>
+                  {context.referringDept || context.referringDoctorDept || "--"}
+                </div>
+              </div>
+              <div className="v3-clinical-item">
+                <div className="v3-clinical-label">
+                  {t("reportWrite.referringDoctor")}
+                </div>
+                <div>{context.referringDoctorName || "--"}</div>
+              </div>
+              <div className="v3-clinical-item">
+                <div className="v3-clinical-label">
+                  {t("reportWrite.laterality")}
+                </div>
+                <div>{context.laterality || "--"}</div>
+              </div>
               <div className="v3-clinical-item">
                 <div className="v3-clinical-label">
                   {t("reportWrite.clinicalDiagnosis")}
                 </div>
-                <div>
-                  {context.clinicalDiagnosis ||
-                    t("reportWrite.demoClinicalDiagnosis")}
-                  {!context.clinicalDiagnosis && (
-                    <span className="text-[10px] text-orange-500 ml-1">
-                      {t("reportWrite.exampleSuffix")}
-                    </span>
-                  )}
-                </div>
+                <div>{context.clinicalDiagnosis || "--"}</div>
               </div>
               <div className="v3-clinical-full">
+                <div className="v3-clinical-item">
+                  <div className="v3-clinical-label">
+                    {t("reportWrite.clinicalIndication")}
+                  </div>
+                  <div>{context.clinicalIndication || "--"}</div>
+                </div>
                 <b>{t("reportWrite.reportStatusLabel")}</b>{" "}
                 {statusRaw ? displayStatus(statusRaw) : t("reportWrite.draft")}
                 <br />
                 <b>{t("reportWrite.complaintLabel")}</b>
-                {t("reportWrite.demoComplaintShort2")}{" "}
-                <span className="text-[10px] text-orange-500">
-                  {t("reportWrite.exampleSuffix")}
-                </span>
+                {context.clinicalIndication || "--"}
                 <br />
                 <b>{t("reportWrite.presentIllness")}</b>
-                {t("reportWrite.demoPresentIllness")}{" "}
-                <span className="text-[10px] text-orange-500">
-                  {t("reportWrite.exampleSuffix")}
-                </span>
+                {context.clinicalHistory || "--"}
                 <br />
                 <b>{t("reportWrite.pastHistory")}</b>
-                {t("reportWrite.demoPastHistory")}{" "}
-                <span className="text-[10px] text-orange-500">
-                  {t("reportWrite.exampleSuffix")}
-                </span>
+                {context.pastHistory || "--"}
               </div>
             </div>
           </Card>

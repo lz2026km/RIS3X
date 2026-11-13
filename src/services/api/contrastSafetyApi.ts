@@ -54,7 +54,7 @@ export interface PreInjectionCheckDto {
 }
 
 export interface PreInjectionCheckItem {
-  key: "consent" | "allergy" | "egfr" | "pregnancy";
+  key: "consent" | "allergy" | "egfr" | "pregnancy" | "weight" | "implant";
   passed: boolean;
   detail: string;
 }
@@ -75,12 +75,17 @@ export interface ContrastInjectionDto {
   protocolId?: string;
   protocolName?: string;
   contrastType?: string;
+  batchNo?: string;
+  route?: "IV" | "IA" | "PO";
   totalVolumeMl?: number;
   flowRateMls?: number;
   operator?: string;
   weightKg?: number;
+  weightSource?: "patient" | "manual";
   egfr?: number;
   eGFR?: number;
+  egfrSource?: "patient" | "manual";
+  implantHistory?: string;
   adjustedVolumeMl?: number;
   consentSigned?: boolean;
   allergyResult?: ContrastAllergyResult;

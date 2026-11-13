@@ -1355,7 +1355,75 @@ export class ReportsService {
       reason: body.reason,
     });
     this.gateway.emitWorklistRefresh();
+    try {
+      const patient = await this.prisma.patient.findUnique({
+        where: { id: report.patientId },
+        select: { name: true },
+      });
+      await this.prisma.reportRecall.create({
+        data: {
+          tenantId: currentTenantId(),
+          reportId: id,
+          patientId: report.patientId,
+          patientName: patient?.name ?? "",
+          reason: body.reason,
+          recalledById: actor,
+          recalledAt: new Date(record.recalledAt),
+          hl7ControlId: record.hl7.controlId,
+          notifyStatus: record.notify.delivered ? "sent" : "pending",
+        },
+      });
+    } catch (err) {
+      this.logger.warn(
+        `[ReportRecall] persist recall failed: ${(err as Error).message}`,
+      );
+    }
     return record;
+  }
+
+  /** GET /reports/recalls — 报告召回台账 (report_recalls 表; 表不可用时回退内存) */
+  async listRecalls(reportId?: string) {
+    try {
+      const rows = await this.prisma.reportRecall.findMany({
+        where: {
+          tenantId: currentTenantId(),
+          ...(reportId ? { reportId } : {}),
+        },
+        orderBy: { recalledAt: "desc" },
+        take: 200,
+      });
+      const items = rows.map((r) => ({
+        id: r.id,
+        reportId: r.reportId,
+        patientId: r.patientId ?? "",
+        patientName: r.patientName || "--",
+        reason: r.reason,
+        recalledById: r.recalledById ?? "",
+        recalledAt: r.recalledAt.toISOString(),
+        notifyStatus: r.notifyStatus,
+        clinicalReceipt: r.clinicalReceipt ?? "",
+        acknowledged: r.notifyStatus === "acked" || Boolean(r.clinicalReceipt),
+      }));
+      return { source: "db", items, total: items.length };
+    } catch (err) {
+      this.logger.warn(
+        `[ReportRecall] list from table failed, fallback memory: ${(err as Error).message}`,
+      );
+      const memory = this.recallService?.list(reportId);
+      const items = (memory?.data ?? []).map((r) => ({
+        id: r.id,
+        reportId: r.reportId,
+        patientId: "",
+        patientName: "--",
+        reason: r.reason,
+        recalledById: r.actorId,
+        recalledAt: r.recalledAt,
+        notifyStatus: r.acknowledgement ? "acked" : "sent",
+        clinicalReceipt: r.acknowledgement?.note ?? "",
+        acknowledged: Boolean(r.acknowledgement),
+      }));
+      return { source: "memory", items, total: items.length };
+    }
   }
 
   /** GET /reports/:id/recall-ack — 召回回执状态 */
@@ -2198,5 +2266,86 @@ export class ReportsService {
       };
     }
     return { ...record };
+  }
+
+  /**
+   * GET /reports/:id/key-images — 报告关键图列表 (report_key_images)。
+   */
+  async listKeyImages(id: string) {
+    const report = await this.prisma.report.findFirst({
+      where: { id, tenantId: currentTenantId() },
+    });
+    if (!report) throw new NotFoundException(`Report ${id} not found`);
+    const items = await this.prisma.reportKeyImage.findMany({
+      where: { reportId: id, tenantId: currentTenantId() },
+      orderBy: { createdAt: "desc" },
+    });
+    return {
+      reportId: id,
+      items: items.map((item) => ({ ...item, imageKey: item.sopUid })),
+      total: items.length,
+    };
+  }
+
+  /**
+   * POST /reports/:id/key-images — 新增关键图 (imageKey/label 为 sopUid/caption 别名)。
+   */
+  async addKeyImage(
+    id: string,
+    dto: {
+      imageKey?: string;
+      description?: string;
+      label?: string;
+      studyUid?: string;
+      seriesUid?: string;
+      sopUid?: string;
+      frame?: number;
+      caption?: string;
+      thumbnail?: string;
+      examId?: string;
+    },
+    actorId = "unknown",
+  ) {
+    const report = await this.prisma.report.findFirst({
+      where: { id, tenantId: currentTenantId() },
+    });
+    if (!report) throw new NotFoundException(`Report ${id} not found`);
+    const sopUid = String(dto.sopUid ?? dto.imageKey ?? "").trim();
+    if (!sopUid)
+      throw new BadRequestException("imageKey 或 sopUid 至少需要一个");
+    const created = await this.prisma.reportKeyImage.create({
+      data: {
+        tenantId: currentTenantId(),
+        reportId: id,
+        examId: dto.examId ?? report.examId ?? null,
+        studyUid: String(dto.studyUid ?? "").trim(),
+        seriesUid: String(dto.seriesUid ?? "").trim(),
+        sopUid,
+        frame: dto.frame ?? 0,
+        caption: String(
+          dto.caption ?? dto.label ?? dto.description ?? "",
+        ).slice(0, 512),
+        thumbnail: String(dto.thumbnail ?? "").slice(0, 500_000),
+        createdById: actorId,
+      },
+    });
+    return { ...created, imageKey: created.sopUid };
+  }
+
+  /**
+   * DELETE /reports/:id/key-images/:imageId — 删除报告关键图。
+   */
+  async deleteKeyImage(id: string, imageId: string) {
+    const report = await this.prisma.report.findFirst({
+      where: { id, tenantId: currentTenantId() },
+    });
+    if (!report) throw new NotFoundException(`Report ${id} not found`);
+    const existing = await this.prisma.reportKeyImage.findFirst({
+      where: { id: imageId, reportId: id, tenantId: currentTenantId() },
+    });
+    if (!existing)
+      throw new NotFoundException(`Key image ${imageId} not found`);
+    await this.prisma.reportKeyImage.delete({ where: { id: imageId } });
+    return { deleted: true, id: imageId };
   }
 }

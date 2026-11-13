@@ -88,8 +88,16 @@ const DEMO_HISTORY: AISuggestion[] = [
 ];
 
 export const AiReportWriterPage: React.FC = () => {
-  const [patientName, setPatientName] = useState("张三");
-  const [patientId, setPatientId] = useState("P000001");
+  const initialParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : new URLSearchParams();
+  const [patientName, setPatientName] = useState(
+    initialParams.get("patientName") ?? "",
+  );
+  const [patientId, setPatientId] = useState(
+    initialParams.get("patientId") ?? "",
+  );
   const [condition, setCondition] = useState<string>("dr");
   const [modality, setModality] = useState<string>("fundus");
   const [findings, setFindings] = useState(

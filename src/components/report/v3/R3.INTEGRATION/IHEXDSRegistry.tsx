@@ -53,6 +53,9 @@ import { DataTable } from "../../../common/DataTable";
 interface Props {
   reportId?: string;
   patientId?: string;
+  patientName?: string;
+  gender?: string;
+  age?: string | number;
   onRegister?: (registry: XdsRegistry) => void;
 }
 
@@ -70,6 +73,7 @@ const STATUS_COLORS: Record<string, string> = {
 export const IHEXDSRegistry: React.FC<Props> = ({
   reportId,
   patientId,
+  patientName,
   onRegister,
 }) => {
   const [registries, setRegistries] =
@@ -88,7 +92,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({
     modality: "CT",
     bodyPart: "胸部",
   });
-  const [queryPatientId, setQueryPatientId] = useState("p-038");
+  const [queryPatientId, setQueryPatientId] = useState(patientId ?? "");
   const [queryResults, setQueryResults] = useState<XdsDocumentEntry[]>([]);
 
   const selected = useMemo(
@@ -112,8 +116,8 @@ export const IHEXDSRegistry: React.FC<Props> = ({
     try {
       const reg = await registerToXds({
         reportId,
-        patientId: patientId ?? "p-038",
-        patientName: "张三",
+        patientId: patientId ?? "",
+        patientName: patientName ?? "",
         modality: genForm.modality,
         bodyPart: genForm.bodyPart,
         sourceId: genForm.sourceId,
@@ -142,7 +146,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({
     } finally {
       setRegistering(false);
     }
-  }, [reportId, patientId, genForm, onRegister]);
+  }, [reportId, patientId, patientName, genForm, onRegister]);
 
   const handleQuery = useCallback(async () => {
     const results = await queryXdsRegistry(queryPatientId);

@@ -443,6 +443,9 @@ export interface RadiologyExam {
   referringDoctorId?: string;
   referringDoctorName?: string;
   referringDoctorDept?: string;
+  laterality?: string;
+  referringDept?: string;
+  clinicalIndication?: string;
   thumbnailUrl?: string;
   status: ExamStatus;
   findings?: string;

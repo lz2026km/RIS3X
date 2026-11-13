@@ -128,6 +128,42 @@ export interface ReportImageAnnotationsDto {
   createdBy?: string;
 }
 
+// [G005 v3.0.6.17] 报告关键图 (report_key_images)
+export interface ReportKeyImageDto {
+  id: string;
+  tenantId?: string;
+  reportId: string;
+  examId?: string | null;
+  studyUid: string;
+  seriesUid: string;
+  sopUid: string;
+  imageKey?: string;
+  frame: number;
+  caption: string;
+  thumbnail: string;
+  createdById?: string | null;
+  createdAt: string;
+}
+
+export interface ReportKeyImagesResult {
+  reportId: string;
+  items: ReportKeyImageDto[];
+  total: number;
+}
+
+export interface SaveReportKeyImagePayload {
+  imageKey?: string;
+  description?: string;
+  label?: string;
+  studyUid?: string;
+  seriesUid?: string;
+  sopUid?: string;
+  frame?: number;
+  caption?: string;
+  thumbnail?: string;
+  examId?: string;
+}
+
 // [v3.0.6.11-100 Wave 6B (D-5)] 同患者既往报告摘要 (历史报告→本次报告字段复用)
 export interface ReportPriorSummaryDto {
   reportId: string;
@@ -472,6 +508,27 @@ export const reportApi = {
   getImageAnnotations: (id: string) =>
     api.get<ReportImageAnnotationsDto>(`/reports/${id}/image-annotations`),
 
+  // [G005 v3.0.6.17] 报告关键图: GET/POST/DELETE /reports/:id/key-images
+  getKeyImages: (id: string) =>
+    api.get<ReportKeyImagesResult>(`/reports/${id}/key-images`),
+
+  addKeyImage: async (id: string, payload: SaveReportKeyImagePayload) => {
+    const res = await api.post<ReportKeyImageDto>(
+      `/reports/${id}/key-images`,
+      payload,
+    );
+    await invalidateApiCache(`/reports/${id}/key-images`);
+    return res;
+  },
+
+  deleteKeyImage: async (id: string, imageId: string) => {
+    const res = await api.delete(
+      `/reports/${id}/key-images/${encodeURIComponent(imageId)}`,
+    );
+    await invalidateApiCache(`/reports/${id}/key-images`);
+    return res;
+  },
+
   // [v3.0.6.11-100 Wave 6B (D-5)] 同患者既往报告摘要: GET /reports/:id/prior-summary
   getPriorSummary: (id: string) =>
     api.get<ReportPriorSummaryDto>(`/reports/${id}/prior-summary`),
@@ -712,6 +769,12 @@ export const reportApi = {
   getRecallAck: (id: string) =>
     api.get<ReportRecallAckDto>(`/reports/${id}/recall-ack`),
 
+  // 报告召回台账: GET /reports/recalls (report_recalls 表)
+  listRecalls: (reportId?: string) =>
+    api.getList<ReportRecallLedgerDto>(
+      `/reports/recalls${reportId ? `?reportId=${encodeURIComponent(reportId)}` : ""}`,
+    ),
+
   // 临床回执确认
   acknowledgeRecall: async (
     id: string,
@@ -909,4 +972,18 @@ export interface ReportRecallAckDto {
     source: "HIS" | "CLINICIAN";
   } | null;
   controlId: string | null;
+}
+
+export interface ReportRecallLedgerDto {
+  id: string;
+  reportId: string;
+  patientId: string;
+  patientName: string;
+  reason: string;
+  recalledById: string;
+  recalledByName?: string;
+  recalledAt: string;
+  notifyStatus: string;
+  clinicalReceipt?: string;
+  acknowledged: boolean;
 }

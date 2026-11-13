@@ -643,6 +643,33 @@ export class DeviceMgmtService {
 
   /** [W1-B] 注射指令下发: 落 auditLog (resource: injection-command) 供追溯 */
   async sendInjectionCommand(body: Record<string, unknown>) {
+    try {
+      if (this.prisma?.contrastInjection?.create) {
+        await this.prisma.contrastInjection.create({
+          data: {
+            tenantId: getCurrentTenantId(),
+            examId: (body["examId"] as string | undefined) ?? null,
+            patientId: (body["patientId"] as string | undefined) ?? "UNKNOWN",
+            patientName: (body["patientName"] as string | undefined) ?? "",
+            contrastType:
+              (body["contrastType"] as string | undefined) ?? "未指定对比剂",
+            batchNo: (body["batchNo"] as string | undefined) ?? null,
+            route: (body["route"] as string | undefined) ?? null,
+            totalVolumeMl:
+              (body["totalVolumeMl"] as number | undefined) ?? null,
+            flowRateMls: (body["flowRateMls"] as number | undefined) ?? null,
+            weightKg: (body["weightKg"] as number | undefined) ?? null,
+            egfr: (body["eGFR"] as number | undefined) ?? null,
+            consentSigned: false,
+            injectedBy: (body["operator"] as string | undefined) ?? null,
+          },
+        });
+      }
+    } catch (err) {
+      this.logger.warn(
+        `[DeviceMgmt] contrast injection persistence skipped: ${(err as Error)?.message}`,
+      );
+    }
     return this.prisma.auditLog.create({
       data: {
         action: "SEND",

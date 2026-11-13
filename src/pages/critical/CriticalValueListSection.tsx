@@ -654,6 +654,8 @@ export interface CriticalValueListSectionProps {
   onBatchProcess: () => void;
   selectedCount: number;
   onOpenSettings: () => void;
+  onExportRegister?: () => void;
+  exportingRegister?: boolean;
   filtered: CriticalValue[];
   selectedIds: Set<string>;
   onToggleSelect: (id: string) => void;

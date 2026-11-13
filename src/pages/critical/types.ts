@@ -85,6 +85,17 @@ export interface CriticalValue {
   examTime?: string;
   deviceName?: string;
   accessionNumber?: string;
+  patientNo?: string;
+  inpatientNo?: string;
+  outpatientNo?: string;
+  notifiedBy?: string;
+  notifiedAt?: string;
+  ackedBy?: string;
+  acknowledgedAt?: string;
+  ackedAt?: string;
+  resolvedAt?: string;
+  closedAt?: string;
+  closedBy?: string;
   timeline: TimelineEvent[];
   documents?: DocumentItem[];
   transferredToFollowUp?: boolean;

@@ -119,7 +119,7 @@ export const deviceMgmtHandlers = [
   http.put(`${API}/equipment-lifecycle/:id`, async ({ params, request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    const existing = { id: params.id, ...FALLBACK_LIFECYCLE[0] };
+    const existing = { id: String(params.id ?? ""), ...FALLBACK_LIFECYCLE[0] };
     const updated = { ...existing, ...body, id: params.id };
     try {
       update("equipmentLifecycle" as any, params.id as string, updated);
@@ -133,7 +133,10 @@ export const deviceMgmtHandlers = [
     async ({ params, request }) => {
       await delay(delayMs());
       const body = (await request.json().catch(() => ({}))) as any;
-      const existing = { id: params.id, ...FALLBACK_LIFECYCLE[0] };
+      const existing = {
+        id: String(params.id ?? ""),
+        ...FALLBACK_LIFECYCLE[0],
+      };
       const updated = {
         ...existing,
         retirementStatus: "PENDING",
@@ -151,7 +154,10 @@ export const deviceMgmtHandlers = [
     async ({ params, request }) => {
       await delay(delayMs());
       const body = (await request.json().catch(() => ({}))) as any;
-      const existing = { id: params.id, ...FALLBACK_LIFECYCLE[0] };
+      const existing = {
+        id: String(params.id ?? ""),
+        ...FALLBACK_LIFECYCLE[0],
+      };
       const approved = body?.approved === true;
       const updated = {
         ...existing,

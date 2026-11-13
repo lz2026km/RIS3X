@@ -440,7 +440,26 @@ const worklistHandlers = [
   http.get(`${API_BASE}/worklist/timeline/:id`, ({ params }) => {
     const id = String(params.id);
     const w = worklistStore.find((x) => x.id === id) ?? worklistStore[0];
-    const events = [
+    const reportStates = [
+      "SUBMITTED",
+      "INITIAL_REVIEW",
+      "FINAL_REVIEW",
+      "CO_SIGN_REVIEW",
+      "REVIEWED",
+      "SIGNING",
+      "SIGNED",
+      "PUBLISHED",
+      "AMENDING",
+      "AMENDED",
+    ];
+    const derivationTs = w.completedAt ?? w.scheduledAt ?? nowIso();
+    const events: Array<{
+      type: string;
+      label: string;
+      timestamp: string;
+      actor?: string;
+      note?: string;
+    }> = [
       {
         type: "registered",
         label: "登记",
@@ -466,6 +485,43 @@ const worklistHandlers = [
         actor: w.deviceName,
       },
     ];
+    if (
+      w.completedAt ||
+      ["IMAGE_READY", "QC_PASS", "PENDING_REPORT", ...reportStates].includes(
+        w.state,
+      )
+    ) {
+      events.push({
+        type: "image-ready",
+        label: "图像可用",
+        timestamp: derivationTs,
+        note: "状态推导",
+      });
+    }
+    if (reportStates.includes(w.state)) {
+      events.push({
+        type: "report-complete",
+        label: "报告完成",
+        timestamp: derivationTs,
+        note: `状态: ${w.state}`,
+      });
+    }
+    if (["REVIEWED", "SIGNED", "PUBLISHED"].includes(w.state)) {
+      events.push({
+        type: "report-review",
+        label: "报告审核",
+        timestamp: derivationTs,
+        note: "状态推导",
+      });
+    }
+    if (["SIGNED", "PUBLISHED"].includes(w.state)) {
+      events.push({
+        type: "report-publish",
+        label: "报告签发",
+        timestamp: derivationTs,
+        note: "状态推导",
+      });
+    }
     return HttpResponse.json({
       examId: id,
       accessionNumber: w.accessionNumber,
@@ -881,23 +937,19 @@ const patientHandlers = [
         invoices: 2,
       },
       totalCharges: 1860.5,
-      recentExams: examStore
-        .slice(0, 3)
-        .map((e) => ({
-          id: e.id,
-          modality: e.modality,
-          bodyPart: e.bodyPart,
-          state: e.state,
-          createdAt: e.createdAt,
-        })),
-      recentReports: reportStore
-        .slice(0, 2)
-        .map((r) => ({
-          id: r.id,
-          state: r.state,
-          conclusion: r.conclusion,
-          createdAt: r.createdAt,
-        })),
+      recentExams: examStore.slice(0, 3).map((e) => ({
+        id: e.id,
+        modality: e.modality,
+        bodyPart: e.bodyPart,
+        state: e.state,
+        createdAt: e.createdAt,
+      })),
+      recentReports: reportStore.slice(0, 2).map((r) => ({
+        id: r.id,
+        state: r.state,
+        conclusion: r.conclusion,
+        createdAt: r.createdAt,
+      })),
       followUps: [
         {
           id: "FU-001",

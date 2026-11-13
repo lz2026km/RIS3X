@@ -147,6 +147,9 @@ const TimeoutVerifyBodySchema = z.object({
       pregnancy: z.boolean().optional(),
       isolation: z.boolean().optional(),
       consent: z.boolean().optional(),
+      protocol: z.boolean().optional(),
+      implant: z.boolean().optional(),
+      egfr: z.boolean().optional(),
     })
     .optional(),
 });

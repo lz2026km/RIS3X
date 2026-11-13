@@ -86,6 +86,24 @@ export const SaveImageAnnotationsSchema = z.object({
   imageBase64: z.string().max(8_000_000).optional(),
 });
 
+// [G005 v3.0.6.17] 报告关键图新增请求体 (ReportKeyImage 实际字段 + imageKey/label 兼容别名)
+export const SaveKeyImageSchema = z
+  .object({
+    imageKey: z.string().max(512).optional(),
+    description: z.string().max(2000).optional(),
+    label: z.string().max(255).optional(),
+    studyUid: z.string().max(512).optional(),
+    seriesUid: z.string().max(512).optional(),
+    sopUid: z.string().max(512).optional(),
+    frame: z.number().int().min(0).optional(),
+    caption: z.string().max(512).optional(),
+    thumbnail: z.string().max(500_000).optional(),
+    examId: z.string().max(64).optional(),
+  })
+  .refine((v) => Boolean(v.imageKey || v.sopUid), {
+    message: "imageKey 或 sopUid 至少需要一个",
+  });
+
 // [G005 W8-Report] 签名内容 / 分级审核 / 召回 请求体
 const SignatureContentSchema = z.object({
   findings: z.string().max(50000).optional(),
@@ -309,6 +327,12 @@ export class ReportsController {
     return this.reports.getFieldSpecs();
   }
 
+  // 报告召回台账 (静态子路由先于 :id)
+  @Get("recalls")
+  recalls(@Query("reportId") reportId?: string) {
+    return this.reports.listRecalls(reportId?.trim() || undefined);
+  }
+
   // [G005 Wave 8] 报告冷归档: POST /reports/:id/archive
   @Post(":id/archive")
   archive(@Param("id") id: string, @Req() req: Request) {
@@ -530,6 +554,27 @@ export class ReportsController {
   ) {
     const actorId = currentUserId(req);
     return this.reports.saveImageAnnotations(id, body as any, actorId);
+  }
+
+  // [G005 v3.0.6.17] 报告关键图 (report_key_images): 列表 / 新增 / 删除
+  @Get(":id/key-images")
+  keyImages(@Param("id") id: string) {
+    return this.reports.listKeyImages(id);
+  }
+
+  @Post(":id/key-images")
+  addKeyImage(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(SaveKeyImageSchema))
+    body: z.infer<typeof SaveKeyImageSchema>,
+    @Req() req: Request,
+  ) {
+    return this.reports.addKeyImage(id, body, currentUserId(req));
+  }
+
+  @Delete(":id/key-images/:imageId")
+  deleteKeyImage(@Param("id") id: string, @Param("imageId") imageId: string) {
+    return this.reports.deleteKeyImage(id, imageId);
   }
 
   // [v3.0.6.11-99 Wave 10D] 报告关联: 检查/患者/既往报告/随访/危急值
