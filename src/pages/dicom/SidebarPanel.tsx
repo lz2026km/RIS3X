@@ -28,8 +28,10 @@ import {
   AlertTriangle,
   ScrollText,
   ArrowLeftRight,
+  Tags,
 } from "lucide-react";
 import MeasurementPanel from "./MeasurementPanel";
+import DicomTagPanel from "./DicomTagPanel";
 import { Card } from "antd";
 import type {
   Series,
@@ -529,6 +531,9 @@ interface Props {
   activeMprIdx: number;
   setActiveMprIdx: (v: number) => void;
   EXTERNAL_INSTITUTIONS: any[];
+  studyUid?: string;
+  seriesUid?: string;
+  sopUid?: string;
 }
 
 export default function SidebarPanel(props: Props) {
@@ -600,6 +605,9 @@ export default function SidebarPanel(props: Props) {
     activeMprIdx,
     setActiveMprIdx,
     EXTERNAL_INSTITUTIONS,
+    studyUid,
+    seriesUid,
+    sopUid,
   } = props;
 
   const navigate = useNavigate();
@@ -742,6 +750,7 @@ export default function SidebarPanel(props: Props) {
             "measure",
             "report",
             "history",
+            "tags",
             "external",
           ] as const
         ).map((tab) => (
@@ -781,6 +790,12 @@ export default function SidebarPanel(props: Props) {
               <>
                 <History size={14} />
                 {t("dcm.historyTab")}
+              </>
+            )}
+            {tab === "tags" && (
+              <>
+                <Tags size={14} />
+                {t("dcm.tagsTab")}
               </>
             )}
             {tab === "external" && (
@@ -1073,6 +1088,14 @@ export default function SidebarPanel(props: Props) {
               </button>
             </div>
           </>
+        )}
+
+        {rightTab === "tags" && (
+          <DicomTagPanel
+            studyUid={studyUid}
+            seriesUid={seriesUid}
+            sopUid={sopUid}
+          />
         )}
 
         {rightTab === "image" && (

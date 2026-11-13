@@ -110,6 +110,16 @@ const s = {
   } as React.CSSProperties,
 };
 
+function readUid(source: unknown, keys: string[]): string {
+  if (!source || typeof source !== "object") return "";
+  const record = source as Record<string, unknown>;
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim().length > 0) return value;
+  }
+  return "";
+}
+
 export default function DicomViewerPage() {
   const [selectedExamIdx, setSelectedExamIdx] = useState(0);
   const [exams, setExams] = useState(initialRadiologyExams);
@@ -943,6 +953,18 @@ export default function DicomViewerPage() {
     "2x1": { cols: 2, rows: 1 },
   }[layout];
   const currentImage = (images[imageIndex] || images[0])!;
+  const studyUid =
+    readUid(exam, ["studyInstanceUID", "studyInstanceUid", "studyUid"]) ||
+    readUid(exam, ["id", "accessionNumber"]);
+  const seriesUid =
+    readUid(activeSeries, [
+      "seriesInstanceUID",
+      "seriesInstanceUid",
+      "seriesUid",
+    ]) || (studyUid ? `${studyUid}.${activeSeries.seriesNumber}` : "");
+  const sopUid =
+    readUid(currentImage, ["sopInstanceUID", "sopInstanceUid", "sopUid"]) ||
+    (seriesUid ? `${seriesUid}.${currentImage.imageNumber}` : "");
 
   const handleToolClick = (tool: Tool) => {
     if (tool === "measure") {
@@ -1323,6 +1345,9 @@ export default function DicomViewerPage() {
             setRightTab={setRightTab}
             activeSeries={activeSeries}
             currentImage={currentImage}
+            studyUid={studyUid}
+            seriesUid={seriesUid}
+            sopUid={sopUid}
             ww={ww}
             wl={wl}
             zoom={zoom}

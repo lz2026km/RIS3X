@@ -45,7 +45,12 @@ import {
   type PatientListItem,
   type PatientStudyDto,
 } from "../../services/api/imagingCompareApi";
-import { listItems } from "../../services/api/client";
+import {
+  dicomWebApi,
+  type DicomWebInstance,
+} from "../../services/api/dicomApi";
+import { API_BASE, listItems } from "../../services/api/client";
+import { getToken } from "../../utils/auth";
 import { PageContainer } from "../../components/common";
 
 const BLUE = "var(--color-primary-500)";
@@ -62,10 +67,16 @@ interface WWL {
   ww: number;
   wl: number;
 }
+type PacsStatus = "idle" | "loading" | "pacs" | "synthetic";
+
 interface CellState {
   seriesInstanceUid: string | null;
   label: string;
   frame: number;
+  frameCount: number;
+  frameUids: string[];
+  pacsStatus: PacsStatus;
+  seriesNumber: number | null;
   wwl: WWL;
   view: ViewState;
 }
@@ -164,16 +175,146 @@ function makeEmptyCell(): CellState {
     seriesInstanceUid: null,
     label: "未选择",
     frame: 0,
+    frameCount: 1,
+    frameUids: [],
+    pacsStatus: "idle",
+    seriesNumber: null,
     wwl: { ...DEFAULT_WWL },
     view: defaultView(),
   };
 }
 
-/** 视口画布: 确定性像素 + WWL + 平移缩放, 支持点击选中激活 */
+function tagValue(value: unknown): unknown {
+  if (value && typeof value === "object" && "Value" in value) {
+    const raw = (value as { Value?: unknown }).Value;
+    return Array.isArray(raw) ? raw[0] : undefined;
+  }
+  return value;
+}
+
+function normalizeInstances(
+  data: DicomWebInstance[] | null | undefined,
+): string[] {
+  if (!Array.isArray(data)) return [];
+  const rows = data
+    .map((item) => {
+      const rec = item as unknown as Record<string, unknown>;
+      const sop = String(
+        tagValue(rec["sopInstanceUID"]) ??
+          tagValue(rec["sopInstanceUid"]) ??
+          tagValue(rec["SOPInstanceUID"]) ??
+          tagValue(rec["00080018"]) ??
+          "",
+      );
+      const num = Number(
+        tagValue(rec["instanceNumber"]) ??
+          tagValue(rec["instance_number"]) ??
+          tagValue(rec["InstanceNumber"]) ??
+          tagValue(rec["00200013"]) ??
+          0,
+      );
+      return { sop, num: Number.isFinite(num) ? num : 0 };
+    })
+    .filter(
+      (row) =>
+        row.sop &&
+        row.sop !== "undefined" &&
+        row.sop !== "null" &&
+        row.sop !== "[object Object]",
+    );
+  rows.sort((a, b) => a.num - b.num);
+  return rows.map((row) => row.sop);
+}
+
+function findSeriesNumber(
+  data: unknown[] | null | undefined,
+  seriesInstanceUid: string,
+): number | null {
+  if (!Array.isArray(data)) return null;
+  for (const item of data) {
+    const rec = item as Record<string, unknown>;
+    const uid = String(
+      tagValue(rec["seriesInstanceUID"]) ??
+        tagValue(rec["seriesInstanceUid"]) ??
+        tagValue(rec["0020000E"]) ??
+        "",
+    );
+    if (uid !== seriesInstanceUid) continue;
+    const num = Number(
+      tagValue(rec["seriesNumber"]) ??
+        tagValue(rec["series_number"]) ??
+        tagValue(rec["00200011"]) ??
+        0,
+    );
+    if (Number.isFinite(num) && num > 0) return num;
+  }
+  return null;
+}
+
+function parseSeriesNumber(seriesInstanceUid: string): number | null {
+  const parts = seriesInstanceUid.split(".");
+  const last = parts[parts.length - 1] ?? "";
+  const num = Number(last);
+  return Number.isFinite(num) && num > 0 ? num : null;
+}
+
+type WadoFrame =
+  | { kind: "image"; bitmap: ImageBitmap }
+  | { kind: "undecoded" }
+  | { kind: "error" };
+
+const wadoFrameCache = new Map<string, WadoFrame>();
+const wadoFrameInflight = new Map<string, Promise<WadoFrame>>();
+
+function loadWadoFrame(url: string): Promise<WadoFrame> {
+  const cached = wadoFrameCache.get(url);
+  if (cached) return Promise.resolve(cached);
+  const inflight = wadoFrameInflight.get(url);
+  if (inflight) return inflight;
+  const task = (async (): Promise<WadoFrame> => {
+    try {
+      const headers: Record<string, string> = {
+        Accept:
+          "image/jpeg, image/png, application/octet-stream, application/dicom",
+      };
+      const token = getToken();
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const res = await fetch(`${url}?accept=image/jpeg`, {
+        headers,
+        credentials: "include",
+      });
+      if (!res.ok) return { kind: "error" };
+      const contentType = (res.headers.get("content-type") ?? "").toLowerCase();
+      if (!contentType.startsWith("image/")) return { kind: "undecoded" };
+      const blob = await res.blob();
+      if (typeof createImageBitmap !== "function") return { kind: "undecoded" };
+      try {
+        return { kind: "image", bitmap: await createImageBitmap(blob) };
+      } catch {
+        return { kind: "undecoded" };
+      }
+    } catch {
+      return { kind: "error" };
+    }
+  })();
+  wadoFrameInflight.set(url, task);
+  void task.then((result) => {
+    wadoFrameInflight.delete(url);
+    if (result.kind !== "error") wadoFrameCache.set(url, result);
+  });
+  return task;
+}
+
+/** 视口画布: PACS 真实帧优先, 失败降级确定性像素; WWL + 平移缩放 + 点击激活 */
 const CompareCell: React.FC<{
   cell: CellState;
   active: boolean;
   modality: string;
+  studyUid: string | null;
+  onWadoStatus?: (
+    seriesInstanceUid: string,
+    state: "decoded" | "undecoded" | "error",
+  ) => void;
   onActivate: () => void;
   onWheel: (e: React.WheelEvent) => void;
   onMouseDown: (e: React.MouseEvent) => void;
@@ -184,6 +325,8 @@ const CompareCell: React.FC<{
   cell,
   active,
   modality,
+  studyUid,
+  onWadoStatus,
   onActivate,
   onWheel,
   onMouseDown,
@@ -192,6 +335,41 @@ const CompareCell: React.FC<{
   dragging,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [wado, setWado] = useState<WadoFrame | null>(null);
+
+  const wadoUrl = useMemo(() => {
+    if (!cell.seriesInstanceUid || cell.pacsStatus !== "pacs" || !studyUid)
+      return null;
+    if (cell.frameUids.length === 0) return null;
+    const index = Math.max(0, Math.min(cell.frame, cell.frameUids.length - 1));
+    const sop = cell.frameUids[index];
+    if (!sop) return null;
+    return `${API_BASE}${dicomWebApi.retrieveInstanceUrl(studyUid, cell.seriesInstanceUid, sop)}`;
+  }, [
+    cell.seriesInstanceUid,
+    cell.pacsStatus,
+    cell.frame,
+    cell.frameUids,
+    studyUid,
+  ]);
+
+  useEffect(() => {
+    if (!wadoUrl || !cell.seriesInstanceUid) {
+      setWado(null);
+      return undefined;
+    }
+    const uid = cell.seriesInstanceUid;
+    let cancelled = false;
+    setWado(null);
+    void loadWadoFrame(wadoUrl).then((result) => {
+      if (cancelled) return;
+      setWado(result);
+      onWadoStatus?.(uid, result.kind === "image" ? "decoded" : result.kind);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [wadoUrl, cell.seriesInstanceUid, onWadoStatus]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -202,6 +380,32 @@ const CompareCell: React.FC<{
     const w = rect.width;
     const h = rect.height;
     ctx.clearRect(0, 0, w, h);
+
+    const drawMessage = (text: string) => {
+      ctx.fillStyle = "#0a1120";
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "13px ui-monospace, monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(text, w / 2, h / 2);
+      ctx.textAlign = "left";
+    };
+
+    const drawSynthetic = () => {
+      const pixels = generatePixelMatrix(
+        `${cell.seriesInstanceUid}:s${cell.frame}`,
+        256,
+        modality,
+      );
+      const imgData = applyWWL(pixels, cell.wwl.ww, cell.wwl.wl);
+      ctx.save();
+      ctx.translate(w / 2 + cell.view.panX, h / 2 + cell.view.panY);
+      ctx.scale(cell.view.zoom, cell.view.zoom);
+      ctx.translate(-imgData.width / 2, -imgData.height / 2);
+      ctx.putImageData(imgData, 0, 0);
+      ctx.restore();
+    };
+
     if (!cell.seriesInstanceUid) {
       ctx.fillStyle = "#0a1120";
       ctx.fillRect(0, 0, w, h);
@@ -212,18 +416,30 @@ const CompareCell: React.FC<{
       ctx.textAlign = "left";
       return;
     }
-    const pixels = generatePixelMatrix(
-      `${cell.seriesInstanceUid}:s${cell.frame}`,
-      256,
-      modality,
-    );
-    const imgData = applyWWL(pixels, cell.wwl.ww, cell.wwl.wl);
-    ctx.save();
-    ctx.translate(w / 2 + cell.view.panX, h / 2 + cell.view.panY);
-    ctx.scale(cell.view.zoom, cell.view.zoom);
-    ctx.translate(-imgData.width / 2, -imgData.height / 2);
-    ctx.putImageData(imgData, 0, 0);
-    ctx.restore();
+
+    const degraded =
+      cell.pacsStatus === "synthetic" ||
+      (cell.pacsStatus === "pacs" && wado?.kind === "error");
+
+    if (degraded) {
+      drawSynthetic();
+    } else if (cell.pacsStatus === "pacs") {
+      if (!wado) {
+        drawMessage(t("imagingCompare.pacsLoading"));
+      } else if (wado.kind === "image") {
+        ctx.save();
+        ctx.translate(w / 2 + cell.view.panX, h / 2 + cell.view.panY);
+        ctx.scale(cell.view.zoom, cell.view.zoom);
+        ctx.translate(-wado.bitmap.width / 2, -wado.bitmap.height / 2);
+        ctx.drawImage(wado.bitmap, 0, 0);
+        ctx.restore();
+      } else {
+        drawMessage(t("imagingCompare.pacsNoDecode"));
+      }
+    } else {
+      drawMessage(t("imagingCompare.pacsLoading"));
+    }
+
     ctx.fillStyle = "rgba(2,6,23,0.75)";
     ctx.fillRect(4, 4, 210, 46);
     ctx.fillStyle = "#e2e8f0";
@@ -231,7 +447,7 @@ const CompareCell: React.FC<{
     ctx.fillText(cell.label, 10, 20);
     ctx.fillStyle = "#94a3b8";
     ctx.fillText(
-      `${modality}  S:${cell.frame}  WW:${cell.wwl.ww}  WL:${cell.wwl.wl}`,
+      `${modality}  ${Math.min(cell.frame + 1, cell.frameCount)}/${cell.frameCount}  WW:${cell.wwl.ww}  WL:${cell.wwl.wl}`,
       10,
       38,
     );
@@ -251,7 +467,7 @@ const CompareCell: React.FC<{
       ctx.stroke();
       ctx.setLineDash([]);
     }
-  }, [cell, modality, active, dragging]);
+  }, [cell, modality, active, dragging, wado]);
 
   return (
     <canvas
@@ -301,6 +517,9 @@ export default function ImagingComparePage() {
     [0, 1, 2, 3].map(makeEmptyCell),
   );
   const [dragging, setDragging] = useState(false);
+  const [pacsFrameStatus, setPacsFrameStatus] = useState<
+    Record<string, "decoded" | "undecoded" | "error">
+  >({});
   const [dragStart, setDragStart] = useState({
     x: 0,
     y: 0,
@@ -348,6 +567,86 @@ export default function ImagingComparePage() {
     return list;
   }, [studies]);
 
+  const seriesMetaMap = useMemo(() => {
+    const map = new Map<string, { studyUid: string; instanceCount: number }>();
+    for (const study of studies) {
+      for (const s of study.series) {
+        map.set(s.seriesInstanceUid, {
+          studyUid: study.studyInstanceUid,
+          instanceCount: s.instanceCount,
+        });
+      }
+    }
+    return map;
+  }, [studies]);
+
+  const requestedSeriesRef = useRef<Set<string>>(new Set());
+  const seriesSelectionKey = cells
+    .map((c) => c.seriesInstanceUid ?? "")
+    .join("|");
+
+  useEffect(() => {
+    const uids = Array.from(
+      new Set(seriesSelectionKey.split("|").filter(Boolean)),
+    );
+    for (const uid of uids) {
+      if (requestedSeriesRef.current.has(uid)) continue;
+      const meta = seriesMetaMap.get(uid);
+      if (!meta) continue;
+      requestedSeriesRef.current.add(uid);
+      setCells((prev) =>
+        prev.map((c) =>
+          c.seriesInstanceUid === uid && c.pacsStatus === "idle"
+            ? { ...c, pacsStatus: "loading" }
+            : c,
+        ),
+      );
+      void (async () => {
+        const [instRes, seriesRes] = await Promise.all([
+          dicomWebApi.searchInstances(meta.studyUid, uid),
+          dicomWebApi.searchSeries(meta.studyUid),
+        ]);
+        const instances = normalizeInstances(
+          instRes.success ? instRes.data : null,
+        );
+        const seriesNumber =
+          findSeriesNumber(seriesRes.success ? seriesRes.data : null, uid) ??
+          parseSeriesNumber(uid);
+        if (instRes.success && instances.length > 0) {
+          setCells((prev) =>
+            prev.map((c) =>
+              c.seriesInstanceUid === uid
+                ? {
+                    ...c,
+                    pacsStatus: "pacs",
+                    frameUids: instances,
+                    frameCount: instances.length,
+                    seriesNumber,
+                    frame: Math.min(c.frame, instances.length - 1),
+                  }
+                : c,
+            ),
+          );
+        } else {
+          requestedSeriesRef.current.delete(uid);
+          setCells((prev) =>
+            prev.map((c) =>
+              c.seriesInstanceUid === uid
+                ? {
+                    ...c,
+                    pacsStatus: "synthetic",
+                    frameUids: [],
+                    frameCount: Math.max(1, meta.instanceCount),
+                    seriesNumber,
+                  }
+                : c,
+            ),
+          );
+        }
+      })();
+    }
+  }, [seriesSelectionKey, seriesMetaMap]);
+
   // ── 数据加载 ──
   const loadPatients = useCallback(async (keyword?: string) => {
     const res = await imagingCompareApi.listPatients(keyword);
@@ -374,6 +673,7 @@ export default function ImagingComparePage() {
     setSession(null);
     setDiffMetrics(null);
     setCells([0, 1, 2, 3].map(makeEmptyCell));
+    setPacsFrameStatus({});
     const res = await imagingCompareApi.getPatientStudies(patient.patientId);
     if (res.success && res.data) {
       setStudies(res.data.studies);
@@ -388,6 +688,10 @@ export default function ImagingComparePage() {
               seriesInstanceUid: firstSeries.seriesInstanceUid,
               label: `${first.modality} · ${firstSeries.seriesDescription}`,
               frame: 0,
+              frameCount: 1,
+              frameUids: [],
+              pacsStatus: "idle",
+              seriesNumber: null,
               wwl: { ...DEFAULT_WWL },
               view: defaultView(),
             };
@@ -452,12 +756,17 @@ export default function ImagingComparePage() {
             seriesInstanceUid: g.seriesInstanceUid,
             label: g.label,
             frame: 0,
+            frameCount: 1,
+            frameUids: [],
+            pacsStatus: "idle" as PacsStatus,
+            seriesNumber: null,
             wwl: { ...DEFAULT_WWL },
             view: defaultView(),
           })),
         );
         setDiffA(res.data.seriesGroups[0]?.seriesInstanceUid ?? null);
         setDiffB(res.data.seriesGroups[1]?.seriesInstanceUid ?? null);
+        setPacsFrameStatus({});
         message.success(t("imagingCompare.sessionCreated"));
         await loadSessions();
       } else {
@@ -492,6 +801,10 @@ export default function ImagingComparePage() {
             seriesInstanceUid: g.seriesInstanceUid,
             label: g.label,
             frame: 0,
+            frameCount: 1,
+            frameUids: [],
+            pacsStatus: "idle" as PacsStatus,
+            seriesNumber: null,
             wwl: { ...DEFAULT_WWL },
             view: defaultView(),
           })),
@@ -499,6 +812,7 @@ export default function ImagingComparePage() {
         setDiffA(s.seriesGroups[0]?.seriesInstanceUid ?? null);
         setDiffB(s.seriesGroups[1]?.seriesInstanceUid ?? null);
         setDiffMetrics(null);
+        setPacsFrameStatus({});
         if (s.patientId) {
           const pRes = await imagingCompareApi.getPatientStudies(s.patientId);
           if (pRes.success && pRes.data) {
@@ -525,6 +839,7 @@ export default function ImagingComparePage() {
           setSession(null);
           setDiffMetrics(null);
           setCells([0, 1, 2, 3].map(makeEmptyCell));
+          setPacsFrameStatus({});
         }
         await loadSessions();
       } else {
@@ -553,12 +868,23 @@ export default function ImagingComparePage() {
   const assignCellSeries = useCallback(
     (index: number, uid: string) => {
       const option = sessionOptions.find((o) => o.value === uid);
+      setPacsFrameStatus((prev) => {
+        if (!(uid in prev)) return prev;
+        const next = { ...prev };
+        delete next[uid];
+        return next;
+      });
       setCells((prev) => {
         const next = [...prev];
         next[index] = {
           ...next[index]!,
           seriesInstanceUid: uid,
           label: option?.label ?? uid,
+          frame: 0,
+          frameCount: 1,
+          frameUids: [],
+          pacsStatus: "idle",
+          seriesNumber: null,
           wwl: { ...DEFAULT_WWL },
           view: defaultView(),
         };
@@ -574,7 +900,7 @@ export default function ImagingComparePage() {
         prev.map((c, i) => {
           if (c.seriesInstanceUid === null) return c;
           if (!sync.frame && i !== activeCell) return c;
-          const maxFrame = 127;
+          const maxFrame = Math.max(0, c.frameCount - 1);
           return {
             ...c,
             frame: Math.max(0, Math.min(maxFrame, c.frame + delta)),
@@ -843,6 +1169,47 @@ export default function ImagingComparePage() {
     );
   }, [diffMetrics]);
 
+  const activeFrameCount = Math.max(1, cells[activeCell]?.frameCount ?? 1);
+  const activeFrame = Math.min(
+    cells[activeCell]?.frame ?? 0,
+    activeFrameCount - 1,
+  );
+  const activeFrameLabel = t("imagingCompare.frameCounter", {
+    current: activeFrame + 1,
+    total: activeFrameCount,
+  });
+
+  const handleWadoStatus = useCallback(
+    (seriesInstanceUid: string, state: "decoded" | "undecoded" | "error") => {
+      setPacsFrameStatus((prev) =>
+        prev[seriesInstanceUid] === state
+          ? prev
+          : { ...prev, [seriesInstanceUid]: state },
+      );
+    },
+    [],
+  );
+
+  const pacsImageBadge = useMemo(() => {
+    const selected = cells.filter((c) => c.seriesInstanceUid !== null);
+    if (selected.length === 0) return null;
+    const connected = selected.some((c) => {
+      if (c.pacsStatus === "synthetic") return false;
+      if (
+        c.seriesInstanceUid &&
+        pacsFrameStatus[c.seriesInstanceUid] === "error"
+      )
+        return false;
+      return true;
+    });
+    return connected
+      ? { label: t("imagingCompare.pacsBadge"), color: "blue" as const }
+      : {
+          label: t("imagingCompare.pacsFallbackBadge"),
+          color: "orange" as const,
+        };
+  }, [cells, pacsFrameStatus]);
+
   const btnStyle: React.CSSProperties = {
     background: "transparent",
     border: "1px solid #334155",
@@ -883,6 +1250,11 @@ export default function ImagingComparePage() {
         <span style={{ fontSize: 11, color: "var(--text-muted, #64748b)" }}>
           {t("imagingCompare.subtitle")}
         </span>
+        {pacsImageBadge && (
+          <Tag color={pacsImageBadge.color} style={{ marginRight: 0 }}>
+            {pacsImageBadge.label}
+          </Tag>
+        )}
         <div style={{ flex: 1 }} />
         <Button
           size="small"
@@ -1414,16 +1786,21 @@ export default function ImagingComparePage() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {t("imagingCompare.slice")} {cells[activeCell]?.frame ?? 0}/127
+                {activeFrameLabel}
               </span>
               <Slider
                 min={0}
-                max={127}
-                value={cells[activeCell]?.frame ?? 0}
+                max={activeFrameCount - 1}
+                value={activeFrame}
                 onChange={(v) =>
                   setCells((prev) =>
                     prev.map((c, i) =>
-                      i !== activeCell && !sync.frame ? c : { ...c, frame: v },
+                      i !== activeCell && !sync.frame
+                        ? c
+                        : {
+                            ...c,
+                            frame: Math.min(v, Math.max(1, c.frameCount) - 1),
+                          },
                     ),
                   )
                 }
@@ -1450,6 +1827,20 @@ export default function ImagingComparePage() {
               const option = sessionOptions.find(
                 (o) => o.value === cell.seriesInstanceUid,
               );
+              const frameError = cell.seriesInstanceUid
+                ? pacsFrameStatus[cell.seriesInstanceUid] === "error"
+                : false;
+              const degraded = cell.pacsStatus === "synthetic" || frameError;
+              const sourceLabel = degraded
+                ? t("imagingCompare.pacsUnavailable")
+                : cell.pacsStatus === "pacs"
+                  ? cell.seriesNumber
+                    ? t("imagingCompare.pacsSource", {
+                        series: cell.seriesNumber,
+                      })
+                    : t("imagingCompare.pacsBadge")
+                  : t("imagingCompare.pacsConnecting");
+              const sourceColor = degraded ? "orange" : "geekblue";
               return (
                 <div
                   key={i}
@@ -1509,10 +1900,28 @@ export default function ImagingComparePage() {
                         {option.modality}
                       </Tag>
                     )}
+                    {cell.seriesInstanceUid && (
+                      <Tag
+                        color={sourceColor}
+                        style={{
+                          marginLeft: "var(--space-1, 4px)",
+                          fontSize: 10,
+                        }}
+                      >
+                        {sourceLabel}
+                      </Tag>
+                    )}
                   </div>
                   <CompareCell
                     cell={cell}
                     modality={option?.modality ?? "CT"}
+                    studyUid={
+                      cell.seriesInstanceUid
+                        ? (seriesMetaMap.get(cell.seriesInstanceUid)
+                            ?.studyUid ?? null)
+                        : null
+                    }
+                    onWadoStatus={handleWadoStatus}
                     active={activeCell === i}
                     onActivate={() => setActiveCell(i)}
                     onWheel={handleCellWheel}
