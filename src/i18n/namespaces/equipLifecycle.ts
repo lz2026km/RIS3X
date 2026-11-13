@@ -176,6 +176,15 @@ export default {
     "equipLifecycle.retireReason": "报废原因",
     "equipLifecycle.retireReasonPlaceholder": "请输入报废原因（选填）",
     "equipLifecycle.confirmRetire": "确认报废",
+    "equipLifecycle.retireRequested":
+      "报废申请已提交，等待设备科审批：{{name}}",
+    "equipLifecycle.retireRequestedDemo": "报废申请已提交（演示）：{{name}}",
+    "equipLifecycle.retireApprove": "批准报废",
+    "equipLifecycle.retireReject": "驳回",
+    "equipLifecycle.retireApproved": "已批准报废：{{name}}",
+    "equipLifecycle.retireRejected": "已驳回报废申请：{{name}}",
+    "equipLifecycle.retireApproveFailed": "报废审批失败，请重试",
+    "equipLifecycle.statusRetirePending": "待审批",
     "equipLifecycle.newPlanTitle": "新建维保计划",
     "equipLifecycle.planDeviceName": "设备名称",
     "equipLifecycle.planDevicePlaceholder": "请输入设备名称",
@@ -383,6 +392,17 @@ export default {
     "equipLifecycle.retireReasonPlaceholder":
       "Enter retirement reason (optional)",
     "equipLifecycle.confirmRetire": "Confirm Retirement",
+    "equipLifecycle.retireRequested":
+      "Retirement requested, pending approval: {{name}}",
+    "equipLifecycle.retireRequestedDemo":
+      "Retirement requested (demo): {{name}}",
+    "equipLifecycle.retireApprove": "Approve",
+    "equipLifecycle.retireReject": "Reject",
+    "equipLifecycle.retireApproved": "Retirement approved: {{name}}",
+    "equipLifecycle.retireRejected": "Retirement rejected: {{name}}",
+    "equipLifecycle.retireApproveFailed":
+      "Retirement approval failed, please retry",
+    "equipLifecycle.statusRetirePending": "Pending approval",
     "equipLifecycle.newPlanTitle": "New Maintenance Plan",
     "equipLifecycle.planDeviceName": "Device Name",
     "equipLifecycle.planDevicePlaceholder": "Enter device name",

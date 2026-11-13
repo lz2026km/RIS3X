@@ -119,7 +119,7 @@ const CRITICAL_STATE_TO_STATUS: Record<string, string> = {
   RECEIPTED: "receipted",
   RESOLVING: "resolving",
   RESOLVED: "resolved",
-  CLOSED_LOOP: "resolved",
+  CLOSED_LOOP: "closed_loop",
   ESCALATED: "escalated",
   CANCELLED: "cancelled",
 };

@@ -25,6 +25,7 @@ import { criticalApi } from "../../services/api/criticalApi";
 import { CriticalValueStatsSection } from "./CriticalValueStatsSection";
 import { CriticalValueListSection } from "./CriticalValueListSection";
 import { CriticalValueModals } from "./CriticalValueModals";
+import { CriticalStateActions, STATE_TO_STATUS } from "./CriticalStateActions";
 import BatchActionBar from "../../components/batch/BatchActionBar";
 import { useOperationLog } from "../../hooks/useOperationLog";
 import {
@@ -86,10 +87,18 @@ const TABS = [
   },
 ];
 
+// [v3.0.6.11-107] 前端筛选 → 后端 10 态 (overdue 为派生筛选项, 不走 state 查询)
 const CRITICAL_STATUS_TO_STATE: Record<string, string> = {
   pending: "FOUND",
+  notified: "NOTIFIED",
+  voice_called: "VOICE_CALLED",
+  acknowledged: "ACKNOWLEDGED",
+  receipted: "RECEIPTED",
   resolving: "RESOLVING",
   resolved: "RESOLVED",
+  closed_loop: "CLOSED_LOOP",
+  escalated: "ESCALATED",
+  cancelled: "CANCELLED",
 };
 const CRITICAL_SEVERITY_TO_API: Record<string, string> = {
   危及生命: "CRITICAL",
@@ -278,7 +287,16 @@ export default function CriticalValuePage() {
         return false;
     }
     const cvStoreStatus = toStoreStatus(String(cv.status));
-    if (statusFilter !== "全部" && cvStoreStatus !== statusFilter) return false;
+    if (statusFilter === "overdue") {
+      // [v3.0.6.11-107] 超时 = 非终态且发现超过 2 小时 (派生筛选, 后端无此 state)
+      const ts = cvTimeMs(cv);
+      const terminal = ["resolved", "closed_loop", "cancelled"].includes(
+        cvStoreStatus,
+      );
+      if (terminal || Number.isNaN(ts) || Date.now() - ts <= 120 * 60 * 1000)
+        return false;
+    } else if (statusFilter !== "全部" && cvStoreStatus !== statusFilter)
+      return false;
     if (modalityFilter !== "全部" && cv.modality !== modalityFilter)
       return false;
     if (severityFilter !== "全部" && cv.severity !== severityFilter)
@@ -555,6 +573,18 @@ export default function CriticalValuePage() {
           reason: escalateReason,
         });
         if (res.success) {
+          const stateRes = await criticalApi.update(escalateCV.id, {
+            state: "ESCALATED",
+          });
+          if (!stateRes.success) {
+            showToast(
+              stateRes.error?.message ?? t("criticalValuePage.escalateFailed"),
+              "error",
+            );
+            setShowEscalateModal(false);
+            setEscalateCV(null);
+            return;
+          }
           showToast(t("criticalValuePage.escalateSent"));
           setSelectedCV((prev) =>
             prev && prev.id === escalateCV.id
@@ -602,7 +632,7 @@ export default function CriticalValuePage() {
     }
   };
 
-  // [W2-A] 删除: DELETE /criticals/:id
+  // [W2-A] 删除: DELETE /criticals/:id (后端仅允许删除 FOUND 误录)
   const handleDelete = async (cv: CriticalValue) => {
     setCvActionBusy(true);
     try {
@@ -626,6 +656,57 @@ export default function CriticalValuePage() {
     } finally {
       setCvActionBusy(false);
     }
+  };
+
+  // [v3.0.6.11-107] 状态机推进: 处理中 / 作废 走 PATCH /criticals/:id (后端 CRITICAL_TRANSITIONS 门禁)
+  const handleAdvanceState = async (
+    cv: CriticalValue,
+    nextState: string,
+    successMsg: string,
+    logAction: string,
+  ) => {
+    setCvActionBusy(true);
+    try {
+      const res = await criticalApi.update(cv.id, { state: nextState });
+      log(logAction, cv.id);
+      if (res.success) {
+        showToast(successMsg);
+        setSelectedCV((prev) =>
+          prev && prev.id === cv.id
+            ? {
+                ...prev,
+                state: nextState,
+                status: STATE_TO_STATUS[nextState] ?? prev.status,
+              }
+            : prev,
+        );
+        void useCriticalStore.getState().load();
+      } else {
+        showToast(res.error?.message ?? t("common.status.failed"), "error");
+      }
+    } catch (err) {
+      showActionError(err);
+    } finally {
+      setCvActionBusy(false);
+    }
+  };
+
+  const handleResolving = (cv: CriticalValue) => {
+    void handleAdvanceState(
+      cv,
+      "RESOLVING",
+      t("criticalValuePage.resolving"),
+      "resolving",
+    );
+  };
+
+  const handleCancel = (cv: CriticalValue) => {
+    void handleAdvanceState(
+      cv,
+      "CANCELLED",
+      t("criticalValuePage.cancelled"),
+      "cancel",
+    );
   };
 
   // [W2-A] 直达 5 步闭环工作流
@@ -1044,6 +1125,8 @@ export default function CriticalValuePage() {
               onTransferToFollowUp={handleTransferToFollowUp}
               onEscalate={handleEscalate}
               onCloseLoop={handleCloseLoop}
+              onResolving={handleResolving}
+              onCancel={handleCancel}
               onDelete={handleDelete}
               onGo5Step={handleGo5Step}
               actionBusy={cvActionBusy}
@@ -1066,6 +1149,25 @@ export default function CriticalValuePage() {
                   setActiveTab={setDetailTab}
                   followUpRecords={followUpRecords}
                   historyEvents={historyEvents}
+                  actions={
+                    <CriticalStateActions
+                      cv={selectedCV}
+                      busy={cvActionBusy}
+                      handlers={{
+                        onNotify: () => handleContactClinical(selectedCV),
+                        onVoiceCall: () => handleVoiceCall(selectedCV),
+                        onAcknowledge: () => void handleAcknowledge(selectedCV),
+                        onClinicalReceipt: () =>
+                          handleClinicalReceipt(selectedCV),
+                        onResolving: () => handleResolving(selectedCV),
+                        onResolved: () => handleProcess(selectedCV),
+                        onCloseLoop: () => void handleCloseLoop(selectedCV),
+                        onEscalate: () => handleEscalate(selectedCV),
+                        onCancel: () => handleCancel(selectedCV),
+                        onDelete: () => void handleDelete(selectedCV),
+                      }}
+                    />
+                  }
                 />
               </div>
             )}

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -463,6 +464,12 @@ export class CriticalsService {
       where: { id, tenantId },
     });
     if (!existing) throw new NotFoundException(`CriticalValue ${id} not found`);
+    // [v3.0.6.11-107] 审计保留: 仅允许删除 FOUND 误录, 已进入流程的记录只能作废(CANCELLED)
+    if (String(existing.state) !== "FOUND") {
+      throw new ConflictException(
+        "危急值已进入流程, 不允许删除; 请使用作废(CANCELLED)",
+      );
+    }
     await this.prisma.criticalValue.delete({ where: { id, tenantId } });
     return { ok: true };
   }

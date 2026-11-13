@@ -52,8 +52,66 @@ describe("DeviceMgmtService", () => {
     expect(r.id).toBe("x1");
     expect(mockPrisma.device.update).toHaveBeenCalledWith({
       where: { id: "x1", tenantId: "default" },
-      data: { status: "MAINTENANCE" },
+      data: { state: "MAINTENANCE" },
     });
+  });
+
+  it("maps retirement request and approval to state RETIRED", async () => {
+    mockPrisma.device.findFirst.mockResolvedValue({
+      ...row,
+      state: "IDLE",
+      retirementStatus: "NONE",
+    });
+    mockPrisma.device.update.mockResolvedValue({
+      id: "x1",
+      state: "IDLE",
+      retirementStatus: "PENDING",
+    });
+    const requested = await svc.requestRetirement("x1", {
+      reason: "超过使用年限",
+    });
+    expect(requested.retirementStatus).toBe("PENDING");
+    expect(mockPrisma.device.update).toHaveBeenCalledWith({
+      where: { id: "x1", tenantId: "default" },
+      data: expect.objectContaining({
+        retirementStatus: "PENDING",
+        retiredReason: "超过使用年限",
+      }),
+    });
+
+    mockPrisma.device.findFirst.mockResolvedValue({
+      ...row,
+      state: "IDLE",
+      retirementStatus: "PENDING",
+    });
+    mockPrisma.device.update.mockResolvedValue({
+      id: "x1",
+      state: "RETIRED",
+      retirementStatus: "APPROVED",
+    });
+    const approved = await svc.approveRetirement("x1", {
+      approved: true,
+      approvedBy: "admin",
+    });
+    expect(approved.retirementStatus).toBe("APPROVED");
+    expect(mockPrisma.device.update).toHaveBeenCalledWith({
+      where: { id: "x1", tenantId: "default" },
+      data: expect.objectContaining({
+        state: "RETIRED",
+        retirementStatus: "APPROVED",
+      }),
+    });
+  });
+
+  it("refuses to approve a retirement with no pending request", async () => {
+    mockPrisma.device.findFirst.mockResolvedValue({
+      ...row,
+      state: "IDLE",
+      retirementStatus: "NONE",
+    });
+    await expect(
+      svc.approveRetirement("x1", { approved: true }),
+    ).rejects.toThrow();
   });
 
   it("lists, gets and updates devices", async () => {

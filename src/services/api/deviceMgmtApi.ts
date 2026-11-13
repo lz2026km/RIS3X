@@ -27,8 +27,13 @@ export interface EquipmentLifecycle {
   serialNumber?: string;
   manufacturer?: string;
   location?: string;
-  status?: "ACTIVE" | "MAINTENANCE" | "RETIRED";
-  state?: "IDLE" | "IN_USE" | "MAINTENANCE" | "BROKEN" | "OFFLINE";
+  status?: "ACTIVE" | "MAINTENANCE" | "OFFLINE" | "RETIRED";
+  state?: "IDLE" | "IN_USE" | "MAINTENANCE" | "BROKEN" | "OFFLINE" | "RETIRED";
+  retirementStatus?: "NONE" | "PENDING" | "APPROVED" | "REJECTED";
+  retirementRequestedBy?: string;
+  retirementApprovedBy?: string;
+  retiredReason?: string;
+  retiredAt?: string;
   todayExams?: number;
   todayUsageMin?: number;
   purchaseDate?: string;
@@ -325,6 +330,31 @@ export const deviceMgmtApi = {
   ) => {
     const res = await api.put<EquipmentLifecycle>(
       `/device-mgmt/equipment-lifecycle/${id}`,
+      dto,
+    );
+    await invalidateApiCacheByPrefix("/device-mgmt/equipment-lifecycle");
+    return res;
+  },
+
+  // [v3.0.6.16-9] 报废审批: 申请 -> 批准/驳回 (后端保留审批轨迹, 不再直接改状态)
+  requestRetirement: async (
+    id: string,
+    dto: { reason?: string; requestedBy?: string },
+  ) => {
+    const res = await api.post<EquipmentLifecycle>(
+      `/device-mgmt/equipment-lifecycle/${id}/retire-request`,
+      dto,
+    );
+    await invalidateApiCacheByPrefix("/device-mgmt/equipment-lifecycle");
+    return res;
+  },
+
+  approveRetirement: async (
+    id: string,
+    dto: { approved: boolean; approvedBy?: string; opinion?: string },
+  ) => {
+    const res = await api.post<EquipmentLifecycle>(
+      `/device-mgmt/equipment-lifecycle/${id}/retire-approve`,
       dto,
     );
     await invalidateApiCacheByPrefix("/device-mgmt/equipment-lifecycle");

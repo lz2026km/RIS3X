@@ -1,8 +1,19 @@
-﻿import { Controller, Get, HttpCode, HttpStatus, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
-import { Roles } from '../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { DeviceMgmtService } from './devicemgmt.service'
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  Query,
+} from "@nestjs/common";
+import { Roles } from "../common/decorators/roles.decorator";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { DeviceMgmtService } from "./devicemgmt.service";
+import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
 import {
   AddMaterialSchema,
   CreateMaintenancePlanSchema,
@@ -14,111 +25,221 @@ import {
   UpdateDeviceSchema,
   UpdateEquipmentLifecycleSchema,
   UpdateMaintenancePlanSchema,
-} from './devicemgmt.schema'
+  RequestRetirementSchema,
+  ApproveRetirementSchema,
+} from "./devicemgmt.schema";
 
-@ApiTags('device-mgmt')
+@ApiTags("device-mgmt")
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR')
-@Controller('device-mgmt')
+@Roles("ADMIN", "DIRECTOR")
+@Controller("device-mgmt")
 export class DeviceMgmtController {
   constructor(private readonly svc: DeviceMgmtService) {}
 
   // [v3.0.6.11-99 Wave 10D] 设备总览 (总数/在线/故障/维护中)
-  @Get('overview')
-  getOverview() { return this.svc.getOverview() }
+  @Get("overview")
+  getOverview() {
+    return this.svc.getOverview();
+  }
 
   // [v3.0.6.11-99 Wave 10D] 设备使用趋势 (近 N 日)
-  @Get('usage-trend')
-  getUsageTrend(@Query('days') days?: string) { return this.svc.getUsageTrend(Number(days ?? 30)) }
+  @Get("usage-trend")
+  getUsageTrend(@Query("days") days?: string) {
+    return this.svc.getUsageTrend(Number(days ?? 30));
+  }
 
   // [v3.0.6.11-99 Wave 10D] 房间设备分布
-  @Get('by-room')
-  getByRoom() { return this.svc.getByRoom() }
+  @Get("by-room")
+  getByRoom() {
+    return this.svc.getByRoom();
+  }
 
   // [v3.0.6.11-99 Wave 10D] 维护计划日历 (按月分组)
-  @Get('maintenance-calendar')
-  getMaintenanceCalendar(@Query('month') month?: string) { return this.svc.getMaintenanceCalendar(month) }
+  @Get("maintenance-calendar")
+  getMaintenanceCalendar(@Query("month") month?: string) {
+    return this.svc.getMaintenanceCalendar(month);
+  }
 
-  @Get('equipment-lifecycle')
-  listEquipmentLifecycle() { return this.svc.listEquipmentLifecycle() }
+  @Get("equipment-lifecycle")
+  listEquipmentLifecycle() {
+    return this.svc.listEquipmentLifecycle();
+  }
 
-  @Get('equipment-lifecycle/:id')
-  getEquipmentLifecycle(@Param('id') id: string) { return this.svc.getEquipmentLifecycle(id) }
+  @Get("equipment-lifecycle/:id")
+  getEquipmentLifecycle(@Param("id") id: string) {
+    return this.svc.getEquipmentLifecycle(id);
+  }
 
-  @Put('equipment-lifecycle/:id')
-  updateEquipmentLifecycle(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateEquipmentLifecycleSchema)) body: Record<string, unknown>) { return this.svc.updateEquipmentLifecycle(id, body) }
+  @Put("equipment-lifecycle/:id")
+  updateEquipmentLifecycle(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateEquipmentLifecycleSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.updateEquipmentLifecycle(id, body);
+  }
 
-  @Get('devices')
-  listDevices() { return this.svc.listDevices() }
+  // [v3.0.6.16-9] 报废审批: 申请 -> 批准/驳回 (保留审批轨迹, 不再直接改状态)
+  @Post("equipment-lifecycle/:id/retire-request")
+  @HttpCode(HttpStatus.OK)
+  requestRetirement(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(RequestRetirementSchema))
+    body: { reason?: string; requestedBy?: string },
+  ) {
+    return this.svc.requestRetirement(id, body);
+  }
 
-  @Get('devices/:id')
-  getDevice(@Param('id') id: string) { return this.svc.getDevice(id) }
+  @Post("equipment-lifecycle/:id/retire-approve")
+  @HttpCode(HttpStatus.OK)
+  approveRetirement(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(ApproveRetirementSchema))
+    body: { approved: boolean; approvedBy?: string; opinion?: string },
+  ) {
+    return this.svc.approveRetirement(id, body);
+  }
 
-  @Put('devices/:id')
-  updateDevice(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateDeviceSchema)) body: Record<string, unknown>) { return this.svc.updateDevice(id, body) }
+  @Get("devices")
+  listDevices() {
+    return this.svc.listDevices();
+  }
 
-  @Get('faults')
-  listDeviceFaults() { return this.svc.listDeviceFaults() }
+  @Get("devices/:id")
+  getDevice(@Param("id") id: string) {
+    return this.svc.getDevice(id);
+  }
 
-  @Post('faults')
-  reportDeviceFault(@Body(new ZodValidationPipe(ReportDeviceFaultSchema)) body: Record<string, unknown>) { return this.svc.reportDeviceFault(body) }
+  @Put("devices/:id")
+  updateDevice(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateDeviceSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.updateDevice(id, body);
+  }
 
-  @Get('materials')
-  listMaterials() { return this.svc.listMaterials() }
+  @Get("faults")
+  listDeviceFaults() {
+    return this.svc.listDeviceFaults();
+  }
 
-  @Post('materials')
-  addMaterial(@Body(new ZodValidationPipe(AddMaterialSchema)) body: Record<string, unknown>) { return this.svc.addMaterial(body) }
+  @Post("faults")
+  reportDeviceFault(
+    @Body(new ZodValidationPipe(ReportDeviceFaultSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.reportDeviceFault(body);
+  }
 
-  @Get('dose-tracking')
-  getDoseTracking() { return this.svc.getDoseTracking() }
+  @Get("materials")
+  listMaterials() {
+    return this.svc.listMaterials();
+  }
 
-  @Post('dose-tracking')
-  recordDose(@Body(new ZodValidationPipe(RecordDoseSchema)) body: Record<string, unknown>) { return this.svc.recordDose(body) }
+  @Post("materials")
+  addMaterial(
+    @Body(new ZodValidationPipe(AddMaterialSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.addMaterial(body);
+  }
 
-  @Get('contrast/adverse-reactions')
-  listAdverseReactions() { return this.svc.listAdverseReactions() }
+  @Get("dose-tracking")
+  getDoseTracking() {
+    return this.svc.getDoseTracking();
+  }
 
-  @Post('contrast/adverse-reactions')
+  @Post("dose-tracking")
+  recordDose(
+    @Body(new ZodValidationPipe(RecordDoseSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.recordDose(body);
+  }
+
+  @Get("contrast/adverse-reactions")
+  listAdverseReactions() {
+    return this.svc.listAdverseReactions();
+  }
+
+  @Post("contrast/adverse-reactions")
   @HttpCode(HttpStatus.CREATED)
-  reportAdverseReaction(@Body(new ZodValidationPipe(ReportAdverseReactionSchema)) body: Record<string, unknown>) { return this.svc.reportAdverseReaction(body) }
+  reportAdverseReaction(
+    @Body(new ZodValidationPipe(ReportAdverseReactionSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.reportAdverseReaction(body);
+  }
 
-  @Get('contrast/injection')
-  getInjectionWorkstation() { return this.svc.getInjectionWorkstation() }
+  @Get("contrast/injection")
+  getInjectionWorkstation() {
+    return this.svc.getInjectionWorkstation();
+  }
 
   // [W1-B] 注射指令下发: ContrastInjectionWorkstationPage 开始注射按钮
-  @Post('contrast/injection')
+  @Post("contrast/injection")
   @HttpCode(HttpStatus.CREATED)
-  sendInjectionCommand(@Body(new ZodValidationPipe(SendInjectionCommandSchema)) body: Record<string, unknown>) { return this.svc.sendInjectionCommand(body) }
+  sendInjectionCommand(
+    @Body(new ZodValidationPipe(SendInjectionCommandSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.sendInjectionCommand(body);
+  }
 
-  @Get('contrast/inventory')
-  getContrastInventory() { return this.svc.getContrastInventory() }
+  @Get("contrast/inventory")
+  getContrastInventory() {
+    return this.svc.getContrastInventory();
+  }
 
-  @Put('contrast/inventory/:id')
-  updateContrastInventory(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateContrastInventorySchema)) body: Record<string, unknown>) { return this.svc.updateContrastInventory(id, body) }
+  @Put("contrast/inventory/:id")
+  updateContrastInventory(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateContrastInventorySchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.updateContrastInventory(id, body);
+  }
 
-  @Get('contrast/quality')
-  getContrastQuality() { return this.svc.getContrastQuality() }
+  @Get("contrast/quality")
+  getContrastQuality() {
+    return this.svc.getContrastQuality();
+  }
 
   // [W4-B] 保养计划 CRUD + 到期提醒 (静态子路由 maintenance-due 先于 :id 注册)
-  @Get('maintenance-due')
-  maintenanceDue(@Query('days') days?: string) { return this.svc.maintenanceDue(Number(days ?? 30)) }
-
-  @Get('maintenance-plans')
-  listMaintenancePlans(@Query('deviceId') deviceId?: string, @Query('status') status?: string) {
-    return this.svc.listMaintenancePlans({ deviceId, status })
+  @Get("maintenance-due")
+  maintenanceDue(@Query("days") days?: string) {
+    return this.svc.maintenanceDue(Number(days ?? 30));
   }
 
-  @Post('maintenance-plans')
+  @Get("maintenance-plans")
+  listMaintenancePlans(
+    @Query("deviceId") deviceId?: string,
+    @Query("status") status?: string,
+  ) {
+    return this.svc.listMaintenancePlans({ deviceId, status });
+  }
+
+  @Post("maintenance-plans")
   @HttpCode(HttpStatus.CREATED)
-  createMaintenancePlan(@Body(new ZodValidationPipe(CreateMaintenancePlanSchema)) body: Record<string, unknown>) {
-    return this.svc.createMaintenancePlan(body)
+  createMaintenancePlan(
+    @Body(new ZodValidationPipe(CreateMaintenancePlanSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.createMaintenancePlan(body);
   }
 
-  @Put('maintenance-plans/:id')
-  updateMaintenancePlan(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateMaintenancePlanSchema)) body: Record<string, unknown>) {
-    return this.svc.updateMaintenancePlan(id, body)
+  @Put("maintenance-plans/:id")
+  updateMaintenancePlan(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateMaintenancePlanSchema))
+    body: Record<string, unknown>,
+  ) {
+    return this.svc.updateMaintenancePlan(id, body);
   }
 
-  @Delete('maintenance-plans/:id')
-  deleteMaintenancePlan(@Param('id') id: string) { return this.svc.deleteMaintenancePlan(id) }
+  @Delete("maintenance-plans/:id")
+  deleteMaintenancePlan(@Param("id") id: string) {
+    return this.svc.deleteMaintenancePlan(id);
+  }
 }

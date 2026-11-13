@@ -945,18 +945,17 @@ export default function EquipmentLifecyclePage() {
     setDeviceForm(emptyDeviceForm);
   };
 
-  // [G005 Wave2A P1] 确认报废: updateEquipmentLifecycle 状态流转 → 失败回退本地
+  // [v3.0.6.16-9] 报废改为两级: 先提交申请 (不直接改状态), 再由设备科批准/驳回
   const handleConfirmScrap = async () => {
     if (!deviceToScrap) return;
     try {
-      const res = await deviceMgmtApi.updateEquipmentLifecycle(
-        deviceToScrap.id,
-        { status: "RETIRED", notes: scrapReason },
-      );
+      const res = await deviceMgmtApi.requestRetirement(deviceToScrap.id, {
+        reason: scrapReason,
+      });
       if (res.success) {
         await loadLifecycle();
         message.success(
-          t("equipLifecycle.deviceRetired", { name: deviceToScrap.name }),
+          t("equipLifecycle.retireRequested", { name: deviceToScrap.name }),
         );
         setShowScrap(false);
         setScrapReason("");
@@ -968,21 +967,39 @@ export default function EquipmentLifecyclePage() {
     if (isApiData) {
       setApiLifecycleData((prev) =>
         prev.map((d) =>
-          d.id === deviceToScrap.id ? { ...d, status: "RETIRED" } : d,
-        ),
-      );
-    } else {
-      setLocalDevices((prev) =>
-        prev.map((d) =>
-          d.id === deviceToScrap.id ? { ...d, status: "已报废" } : d,
+          d.id === deviceToScrap.id ? { ...d, retirementStatus: "PENDING" } : d,
         ),
       );
     }
     message.success(
-      t("equipLifecycle.deviceRetiredDemo", { name: deviceToScrap.name }),
+      t("equipLifecycle.retireRequestedDemo", { name: deviceToScrap.name }),
     );
     setShowScrap(false);
     setScrapReason("");
+  };
+
+  // [v3.0.6.16-9] 报废审批: 批准 -> state=RETIRED; 驳回 -> REJECTED
+  const handleApproveScrap = async (device: any, approved: boolean) => {
+    try {
+      const res = await deviceMgmtApi.approveRetirement(device.id, {
+        approved,
+        opinion: approved ? undefined : scrapReason || undefined,
+      });
+      if (res.success) {
+        await loadLifecycle();
+        message.success(
+          approved
+            ? t("equipLifecycle.retireApproved", { name: device.name })
+            : t("equipLifecycle.retireRejected", { name: device.name }),
+        );
+        return;
+      }
+      message.error(
+        res.error?.message ?? t("equipLifecycle.retireApproveFailed"),
+      );
+    } catch {
+      message.error(t("equipLifecycle.retireApproveFailed"));
+    }
   };
 
   // [G005 Wave2A P1] 保存维保计划: createMaintenancePlan → 失败回退本地
@@ -1132,7 +1149,11 @@ export default function EquipmentLifecyclePage() {
             ? "在用"
             : d.status === "MAINTENANCE"
               ? "维保中"
-              : "已报废",
+              : d.status === "OFFLINE"
+                ? "离线"
+                : "已报废",
+        retirementStatus: d.retirementStatus ?? "NONE",
+        retireReason: d.retiredReason ?? "",
         useCount: 0,
         lastUse: "-",
         nextMaint: d.nextMaintenanceDate ?? "-",
@@ -1470,7 +1491,14 @@ export default function EquipmentLifecyclePage() {
       title: t("equipLifecycle.thStatus"),
       dataIndex: "status",
       key: "status",
-      render: (v: string) => <StatusBadge status={v} />,
+      render: (v: string, d: any) =>
+        d?.retirementStatus === "PENDING" ? (
+          <span style={{ ...s.badge, ...s.badgeOrange }}>
+            {t("equipLifecycle.statusRetirePending")}
+          </span>
+        ) : (
+          <StatusBadge status={v} />
+        ),
     },
     {
       title: t("equipLifecycle.thUseCount"),
@@ -1545,21 +1573,48 @@ export default function EquipmentLifecyclePage() {
             <Eye size={14} />
             {t("equipLifecycle.detail")}
           </button>
-          {d.status !== "已报废" && (
-            <button
-              style={{
-                ...s.btn,
-                ...s.btnGhost,
-                fontSize: 12,
-                padding: "6px 12px",
-              }}
-              onClick={() => {
-                setDeviceToScrap(d);
-                setShowScrap(true);
-              }}
-            >
-              {t("equipLifecycle.retire")}
-            </button>
+          {d.retirementStatus === "PENDING" ? (
+            <>
+              <button
+                style={{
+                  ...s.btn,
+                  ...s.btnPrimary,
+                  fontSize: 12,
+                  padding: "6px 12px",
+                }}
+                onClick={() => void handleApproveScrap(d, true)}
+              >
+                {t("equipLifecycle.retireApprove")}
+              </button>
+              <button
+                style={{
+                  ...s.btn,
+                  ...s.btnGhost,
+                  fontSize: 12,
+                  padding: "6px 12px",
+                }}
+                onClick={() => void handleApproveScrap(d, false)}
+              >
+                {t("equipLifecycle.retireReject")}
+              </button>
+            </>
+          ) : (
+            d.status !== "已报废" && (
+              <button
+                style={{
+                  ...s.btn,
+                  ...s.btnGhost,
+                  fontSize: 12,
+                  padding: "6px 12px",
+                }}
+                onClick={() => {
+                  setDeviceToScrap(d);
+                  setShowScrap(true);
+                }}
+              >
+                {t("equipLifecycle.retire")}
+              </button>
+            )
           )}
         </div>
       ),

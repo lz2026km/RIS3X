@@ -1,5 +1,9 @@
 import { CriticalsService } from "./criticals.service";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from "@nestjs/common";
 
 const makeSystemConfig = () =>
   ({
@@ -122,14 +126,12 @@ describe("CriticalsService", () => {
         .mockResolvedValue({ id: "cv-1", state: "CLOSED_LOOP" });
       const prisma = makePrisma({
         criticalValue: {
-          findFirst: jest
-            .fn()
-            .mockResolvedValue({
-              id: "cv-1",
-              description: "x",
-              severity: "HIGH",
-              state: "RESOLVED",
-            }),
+          findFirst: jest.fn().mockResolvedValue({
+            id: "cv-1",
+            description: "x",
+            severity: "HIGH",
+            state: "RESOLVED",
+          }),
           update,
         },
       });
@@ -151,14 +153,12 @@ describe("CriticalsService", () => {
       const update = jest.fn().mockResolvedValue({});
       const prisma = makePrisma({
         criticalValue: {
-          findFirst: jest
-            .fn()
-            .mockResolvedValue({
-              id: "cv-1",
-              description: "x",
-              severity: "HIGH",
-              state: "RESOLVING",
-            }),
+          findFirst: jest.fn().mockResolvedValue({
+            id: "cv-1",
+            description: "x",
+            severity: "HIGH",
+            state: "RESOLVING",
+          }),
           update,
         },
       });
@@ -190,14 +190,12 @@ describe("CriticalsService", () => {
         .mockResolvedValue({ id: "cv-1", state: "NOTIFIED" });
       const prisma = makePrisma({
         criticalValue: {
-          findFirst: jest
-            .fn()
-            .mockResolvedValue({
-              id: "cv-1",
-              description: "x",
-              severity: "HIGH",
-              state: "FOUND",
-            }),
+          findFirst: jest.fn().mockResolvedValue({
+            id: "cv-1",
+            description: "x",
+            severity: "HIGH",
+            state: "FOUND",
+          }),
           update,
         },
       });
@@ -214,14 +212,12 @@ describe("CriticalsService", () => {
     it("非法跳转: FOUND → RESOLVED 抛 400 INVALID_TRANSITION", async () => {
       const prisma = makePrisma({
         criticalValue: {
-          findFirst: jest
-            .fn()
-            .mockResolvedValue({
-              id: "cv-1",
-              description: "x",
-              severity: "HIGH",
-              state: "FOUND",
-            }),
+          findFirst: jest.fn().mockResolvedValue({
+            id: "cv-1",
+            description: "x",
+            severity: "HIGH",
+            state: "FOUND",
+          }),
           update: jest.fn(),
         },
       });
@@ -237,14 +233,12 @@ describe("CriticalsService", () => {
     it("终态不可变: CLOSED_LOOP → RESOLVED 抛 400", async () => {
       const prisma = makePrisma({
         criticalValue: {
-          findFirst: jest
-            .fn()
-            .mockResolvedValue({
-              id: "cv-1",
-              description: "x",
-              severity: "HIGH",
-              state: "CLOSED_LOOP",
-            }),
+          findFirst: jest.fn().mockResolvedValue({
+            id: "cv-1",
+            description: "x",
+            severity: "HIGH",
+            state: "CLOSED_LOOP",
+          }),
           update: jest.fn(),
         },
       });
@@ -260,14 +254,12 @@ describe("CriticalsService", () => {
         .mockResolvedValue({ id: "cv-1", state: "FOUND" });
       const prisma = makePrisma({
         criticalValue: {
-          findFirst: jest
-            .fn()
-            .mockResolvedValue({
-              id: "cv-1",
-              description: "x",
-              severity: "HIGH",
-              state: "FOUND",
-            }),
+          findFirst: jest.fn().mockResolvedValue({
+            id: "cv-1",
+            description: "x",
+            severity: "HIGH",
+            state: "FOUND",
+          }),
           update,
         },
       });
@@ -328,14 +320,12 @@ describe("CriticalsService", () => {
       const update = jest.fn().mockResolvedValue({});
       const prisma = makePrisma({
         criticalValue: {
-          findFirst: jest
-            .fn()
-            .mockResolvedValue({
-              id: "cv-1",
-              state: "FOUND",
-              description: "主动脉夹层",
-              severity: "CRITICAL",
-            }),
+          findFirst: jest.fn().mockResolvedValue({
+            id: "cv-1",
+            state: "FOUND",
+            description: "主动脉夹层",
+            severity: "CRITICAL",
+          }),
           update,
         },
         criticalValueNotification: { createMany },
@@ -372,14 +362,12 @@ describe("CriticalsService", () => {
       const createMany = jest.fn().mockResolvedValue({ count: 1 });
       const prisma = makePrisma({
         criticalValue: {
-          findFirst: jest
-            .fn()
-            .mockResolvedValue({
-              id: "cv-2",
-              state: "FOUND",
-              description: "x",
-              severity: "HIGH",
-            }),
+          findFirst: jest.fn().mockResolvedValue({
+            id: "cv-2",
+            state: "FOUND",
+            description: "x",
+            severity: "HIGH",
+          }),
           update: jest.fn().mockResolvedValue({}),
         },
         criticalValueNotification: { createMany },
@@ -412,24 +400,20 @@ describe("CriticalsService", () => {
       const createMany = jest.fn().mockResolvedValue({ count: 1 });
       const prisma = makePrisma({
         criticalValue: {
-          findFirst: jest
-            .fn()
-            .mockResolvedValue({
-              id: "cv-3",
-              state: "FOUND",
-              description: "x",
-              severity: "HIGH",
-            }),
+          findFirst: jest.fn().mockResolvedValue({
+            id: "cv-3",
+            state: "FOUND",
+            description: "x",
+            severity: "HIGH",
+          }),
           update: jest.fn().mockResolvedValue({}),
         },
         criticalValueNotification: { createMany },
         systemConfig: {
-          findUnique: jest
-            .fn()
-            .mockResolvedValue({
-              key: "critical_channel_PHONE",
-              value: { enabled: false },
-            }),
+          findUnique: jest.fn().mockResolvedValue({
+            key: "critical_channel_PHONE",
+            value: { enabled: false },
+          }),
         },
       });
       const service = new CriticalsService(prisma, makeSystemConfig());
@@ -494,17 +478,15 @@ describe("CriticalsService", () => {
           ]),
         },
         criticalValueNotification: {
-          findMany: jest
-            .fn()
-            .mockResolvedValue([
-              {
-                criticalId: "cv-1",
-                channel: "PHONE",
-                status: "SUCCESS",
-                triggeredAt: new Date("2026-08-01T08:05:00Z"),
-                recipientPhone: "13800000001",
-              },
-            ]),
+          findMany: jest.fn().mockResolvedValue([
+            {
+              criticalId: "cv-1",
+              channel: "PHONE",
+              status: "SUCCESS",
+              triggeredAt: new Date("2026-08-01T08:05:00Z"),
+              recipientPhone: "13800000001",
+            },
+          ]),
         },
         exam: {
           findMany: jest
@@ -617,6 +599,46 @@ describe("CriticalsService", () => {
       expect(findMany).toHaveBeenCalledWith(
         expect.objectContaining({ take: 5 }),
       );
+    });
+  });
+
+  // [v3.0.6.11-107] 删除语义: 仅 FOUND 误录可删, 已进入流程记录保留审计
+  describe("delete (审计保留)", () => {
+    it("deletes FOUND record", async () => {
+      const del = jest.fn().mockResolvedValue({});
+      const prisma = makePrisma({
+        criticalValue: {
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({ id: "cv-1", state: "FOUND" }),
+          delete: del,
+        },
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await expect(service.delete("cv-1")).resolves.toEqual({ ok: true });
+      expect(del).toHaveBeenCalledWith({
+        where: { id: "cv-1", tenantId: expect.anything() },
+      });
+    });
+
+    it("rejects deleting NOTIFIED record with 409 and keeps audit trail", async () => {
+      const del = jest.fn();
+      const prisma = makePrisma({
+        criticalValue: {
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({ id: "cv-2", state: "NOTIFIED" }),
+          delete: del,
+        },
+      });
+      const service = new CriticalsService(prisma, makeSystemConfig());
+      await expect(service.delete("cv-2")).rejects.toBeInstanceOf(
+        ConflictException,
+      );
+      await expect(service.delete("cv-2")).rejects.toThrow(
+        "请使用作废(CANCELLED)",
+      );
+      expect(del).not.toHaveBeenCalled();
     });
   });
 });

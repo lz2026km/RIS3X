@@ -7,7 +7,15 @@
  * - 响应耗时统计 (按级别平均确认耗时 / 升级率)
  * API 不可用 (mock 模式无 MSW handler) 时回退内置演示数据。
  */
-import { criticalEscalationApi, type EscalationChain, type EscalationLevel, type ChainStatus, type EscalationConfig, type EscalationStats } from '../../../../services/api/criticalEscalationApi';
+import {
+  criticalEscalationApi,
+  type EscalationChain,
+  type EscalationLevel,
+  type ChainStatus,
+  type EscalationConfig,
+  type EscalationStats,
+} from "../../../../services/api/criticalEscalationApi";
+import { criticalApi } from "../../../../services/api";
 import {
   Card,
   Tag,
@@ -17,7 +25,6 @@ import {
   Statistic,
   Button,
   InputNumber,
-  
   Steps,
   message,
   Spin,
@@ -27,155 +34,306 @@ import {
   Empty,
   Select,
   Tooltip,
-} from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { Siren, Clock, ArrowUp, CheckCircle2, XCircle, Settings, Activity, ShieldAlert } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { t } from '../../../../i18n/appI18n';
-import { DataTable } from '../../../common/DataTable';
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import {
+  Siren,
+  Clock,
+  ArrowUp,
+  CheckCircle2,
+  XCircle,
+  Settings,
+  Activity,
+  ShieldAlert,
+} from "lucide-react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { t } from "../../../../i18n/appI18n";
+import { DataTable } from "../../../common/DataTable";
 
 const STATUS_META: Record<ChainStatus, { label: string; color: string }> = {
-  NOTIFYING: { label: t('criticalEscalation.status.notifying'), color: 'blue' },
-  PENDING_CONFIRM: { label: t('criticalEscalation.status.pendingConfirm'), color: 'gold' },
-  CONFIRMED: { label: t('criticalEscalation.status.confirmed'), color: 'green' },
-  ESCALATED: { label: t('criticalEscalation.status.escalated'), color: 'volcano' },
-  CLOSED: { label: t('criticalEscalation.status.closed'), color: 'default' },
+  NOTIFYING: { label: t("criticalEscalation.status.notifying"), color: "blue" },
+  PENDING_CONFIRM: {
+    label: t("criticalEscalation.status.pendingConfirm"),
+    color: "gold",
+  },
+  CONFIRMED: {
+    label: t("criticalEscalation.status.confirmed"),
+    color: "green",
+  },
+  ESCALATED: {
+    label: t("criticalEscalation.status.escalated"),
+    color: "volcano",
+  },
+  CLOSED: { label: t("criticalEscalation.status.closed"), color: "default" },
 };
 
 const LEVEL_META: Record<EscalationLevel, { label: string; color: string }> = {
-  1: { label: t('criticalEscalation.level.1'), color: 'blue' },
-  2: { label: t('criticalEscalation.level.2'), color: 'gold' },
-  3: { label: t('criticalEscalation.level.3'), color: 'red' },
+  1: { label: t("criticalEscalation.level.1"), color: "blue" },
+  2: { label: t("criticalEscalation.level.2"), color: "gold" },
+  3: { label: t("criticalEscalation.level.3"), color: "red" },
 };
 
 const SEVERITY_META: Record<string, string> = {
-  critical: 'red',
-  emergency: 'volcano',
-  warning: 'gold',
-  info: 'blue',
+  critical: "red",
+  emergency: "volcano",
+  warning: "gold",
+  info: "blue",
 };
 
 // ================= 演示回退数据 (API 不可用) =================
 
 const DEMO_CONFIG: EscalationConfig = {
   levels: [
-    { level: 1, name: '一级电话', role: '值班医师', timeoutMinutes: 15, channels: ['电话', '短信'] },
-    { level: 2, name: '二级值班', role: '值班主任医师', timeoutMinutes: 10, channels: ['电话', '短信', '应用内'] },
-    { level: 3, name: '三级科主任', role: '科主任', timeoutMinutes: 5, channels: ['电话', '应用内'] },
+    {
+      level: 1,
+      name: "一级电话",
+      role: "值班医师",
+      timeoutMinutes: 15,
+      channels: ["电话", "短信"],
+    },
+    {
+      level: 2,
+      name: "二级值班",
+      role: "值班主任医师",
+      timeoutMinutes: 10,
+      channels: ["电话", "短信", "应用内"],
+    },
+    {
+      level: 3,
+      name: "三级科主任",
+      role: "科主任",
+      timeoutMinutes: 5,
+      channels: ["电话", "应用内"],
+    },
   ],
   rules: [
-    { key: 'auto-timeout', name: '超时自动升级', description: '当前级别超时未确认, 自动升级至下一级别', enabled: true },
-    { key: 'manual-escalate', name: '手动升级', description: '值班医生可根据危急程度手动立即升级', enabled: true },
-    { key: 'max-level-cap', name: '最高级别封顶', description: '达到三级科主任后不再自动升级', enabled: true },
+    {
+      key: "auto-timeout",
+      name: "超时自动升级",
+      description: "当前级别超时未确认, 自动升级至下一级别",
+      enabled: true,
+    },
+    {
+      key: "manual-escalate",
+      name: "手动升级",
+      description: "值班医生可根据危急程度手动立即升级",
+      enabled: true,
+    },
+    {
+      key: "max-level-cap",
+      name: "最高级别封顶",
+      description: "达到三级科主任后不再自动升级",
+      enabled: true,
+    },
   ],
-  statusLabels: { NOTIFYING: '通知中', PENDING_CONFIRM: '待确认', CONFIRMED: '已确认', ESCALATED: '已升级', CLOSED: '已关闭' },
-  stepLabels: { NOTIFIED: '已通知', CONFIRMED: '已确认', TIMEOUT: '超时' },
+  statusLabels: {
+    NOTIFYING: "通知中",
+    PENDING_CONFIRM: "待确认",
+    CONFIRMED: "已确认",
+    ESCALATED: "已升级",
+    CLOSED: "已关闭",
+  },
+  stepLabels: { NOTIFIED: "已通知", CONFIRMED: "已确认", TIMEOUT: "超时" },
 };
 
 const DEMO_CHAINS: EscalationChain[] = [
   {
-    id: 'ESC-1',
-    criticalValueId: 'CV-20260814-001',
-    patientName: '李明',
-    modality: 'CT',
-    title: '主动脉夹层可能',
-    severity: 'critical',
-    status: 'CONFIRMED',
+    id: "ESC-1",
+    criticalValueId: "CV-20260814-001",
+    patientName: "李明",
+    modality: "CT",
+    title: "主动脉夹层可能",
+    severity: "critical",
+    status: "CONFIRMED",
     currentLevel: 1,
-    startedAt: '2026-08-14T09:00:00.000Z',
-    currentLevelStartedAt: '2026-08-14T09:00:00.000Z',
-    currentDeadline: '2026-08-14T09:15:00.000Z',
+    startedAt: "2026-08-14T09:00:00.000Z",
+    currentLevelStartedAt: "2026-08-14T09:00:00.000Z",
+    currentDeadline: "2026-08-14T09:15:00.000Z",
     escalatedCount: 0,
-    acknowledgedBy: '值班医师 王浩',
-    acknowledgedAt: '2026-08-14T09:08:00.000Z',
-    steps: [{ level: 1, levelName: '一级电话', role: '值班医师', status: 'CONFIRMED', timeoutMinutes: 15, startedAt: '2026-08-14T09:00:00.000Z', deadline: '2026-08-14T09:15:00.000Z', notifiedAt: '2026-08-14T09:00:00.000Z', confirmedAt: '2026-08-14T09:08:00.000Z', confirmedBy: '值班医师 王浩' }],
+    acknowledgedBy: "值班医师 王浩",
+    acknowledgedAt: "2026-08-14T09:08:00.000Z",
+    steps: [
+      {
+        level: 1,
+        levelName: "一级电话",
+        role: "值班医师",
+        status: "CONFIRMED",
+        timeoutMinutes: 15,
+        startedAt: "2026-08-14T09:00:00.000Z",
+        deadline: "2026-08-14T09:15:00.000Z",
+        notifiedAt: "2026-08-14T09:00:00.000Z",
+        confirmedAt: "2026-08-14T09:08:00.000Z",
+        confirmedBy: "值班医师 王浩",
+      },
+    ],
     history: [
-      { at: '2026-08-14T09:00:00.000Z', reason: '启动升级链, 一级电话通知值班医师' },
-      { at: '2026-08-14T09:08:00.000Z', reason: '值班医师 8 分钟确认危急值' },
+      {
+        at: "2026-08-14T09:00:00.000Z",
+        reason: "启动升级链, 一级电话通知值班医师",
+      },
+      { at: "2026-08-14T09:08:00.000Z", reason: "值班医师 8 分钟确认危急值" },
     ],
   },
   {
-    id: 'ESC-2',
-    criticalValueId: 'CV-20260814-002',
-    patientName: '张伟',
-    modality: 'MR',
-    title: '急性大面积脑梗死',
-    severity: 'emergency',
-    status: 'ESCALATED',
+    id: "ESC-2",
+    criticalValueId: "CV-20260814-002",
+    patientName: "张伟",
+    modality: "MR",
+    title: "急性大面积脑梗死",
+    severity: "emergency",
+    status: "ESCALATED",
     currentLevel: 2,
-    startedAt: '2026-08-14T10:00:00.000Z',
-    currentLevelStartedAt: '2026-08-14T10:18:00.000Z',
-    currentDeadline: '2026-08-14T10:28:00.000Z',
+    startedAt: "2026-08-14T10:00:00.000Z",
+    currentLevelStartedAt: "2026-08-14T10:18:00.000Z",
+    currentDeadline: "2026-08-14T10:28:00.000Z",
     escalatedCount: 1,
     steps: [
-      { level: 1, levelName: '一级电话', role: '值班医师', status: 'TIMEOUT', timeoutMinutes: 15, startedAt: '2026-08-14T10:00:00.000Z', deadline: '2026-08-14T10:15:00.000Z', notifiedAt: '2026-08-14T10:00:00.000Z' },
-      { level: 2, levelName: '二级值班', role: '值班主任医师', status: 'NOTIFIED', timeoutMinutes: 10, startedAt: '2026-08-14T10:18:00.000Z', deadline: '2026-08-14T10:28:00.000Z', notifiedAt: '2026-08-14T10:18:00.000Z' },
+      {
+        level: 1,
+        levelName: "一级电话",
+        role: "值班医师",
+        status: "TIMEOUT",
+        timeoutMinutes: 15,
+        startedAt: "2026-08-14T10:00:00.000Z",
+        deadline: "2026-08-14T10:15:00.000Z",
+        notifiedAt: "2026-08-14T10:00:00.000Z",
+      },
+      {
+        level: 2,
+        levelName: "二级值班",
+        role: "值班主任医师",
+        status: "NOTIFIED",
+        timeoutMinutes: 10,
+        startedAt: "2026-08-14T10:18:00.000Z",
+        deadline: "2026-08-14T10:28:00.000Z",
+        notifiedAt: "2026-08-14T10:18:00.000Z",
+      },
     ],
     history: [
-      { at: '2026-08-14T10:00:00.000Z', reason: '启动升级链, 一级电话通知值班医师' },
-      { at: '2026-08-14T10:18:00.000Z', reason: '一级超时 18 分钟未确认, 自动升级二级值班' },
+      {
+        at: "2026-08-14T10:00:00.000Z",
+        reason: "启动升级链, 一级电话通知值班医师",
+      },
+      {
+        at: "2026-08-14T10:18:00.000Z",
+        reason: "一级超时 18 分钟未确认, 自动升级二级值班",
+      },
     ],
   },
   {
-    id: 'ESC-3',
-    criticalValueId: 'CV-20260814-003',
-    patientName: '赵敏',
-    modality: 'CT',
-    title: '肝破裂出血',
-    severity: 'critical',
-    status: 'NOTIFYING',
+    id: "ESC-3",
+    criticalValueId: "CV-20260814-003",
+    patientName: "赵敏",
+    modality: "CT",
+    title: "肝破裂出血",
+    severity: "critical",
+    status: "NOTIFYING",
     currentLevel: 1,
-    startedAt: '2026-08-14T11:00:00.000Z',
-    currentLevelStartedAt: '2026-08-14T11:00:00.000Z',
-    currentDeadline: '2026-08-14T11:15:00.000Z',
+    startedAt: "2026-08-14T11:00:00.000Z",
+    currentLevelStartedAt: "2026-08-14T11:00:00.000Z",
+    currentDeadline: "2026-08-14T11:15:00.000Z",
     escalatedCount: 0,
-    steps: [{ level: 1, levelName: '一级电话', role: '值班医师', status: 'NOTIFIED', timeoutMinutes: 15, startedAt: '2026-08-14T11:00:00.000Z', deadline: '2026-08-14T11:15:00.000Z', notifiedAt: '2026-08-14T11:00:00.000Z' }],
-    history: [{ at: '2026-08-14T11:00:00.000Z', reason: '启动升级链, 一级电话通知值班医师' }],
+    steps: [
+      {
+        level: 1,
+        levelName: "一级电话",
+        role: "值班医师",
+        status: "NOTIFIED",
+        timeoutMinutes: 15,
+        startedAt: "2026-08-14T11:00:00.000Z",
+        deadline: "2026-08-14T11:15:00.000Z",
+        notifiedAt: "2026-08-14T11:00:00.000Z",
+      },
+    ],
+    history: [
+      {
+        at: "2026-08-14T11:00:00.000Z",
+        reason: "启动升级链, 一级电话通知值班医师",
+      },
+    ],
   },
 ];
 
 const DEMO_STATS: EscalationStats = {
   total: 4,
-  byStatus: { NOTIFYING: 1, PENDING_CONFIRM: 0, CONFIRMED: 1, ESCALATED: 1, CLOSED: 1 },
+  byStatus: {
+    NOTIFYING: 1,
+    PENDING_CONFIRM: 0,
+    CONFIRMED: 1,
+    ESCALATED: 1,
+    CLOSED: 1,
+  },
   avgResponseMinutes: 8.2,
   avgEscalationCount: 1.2,
   escalationRate: 50,
   closedRate: 25,
   byLevel: [
-    { level: 1, levelName: '一级电话', count: 4, confirmed: 2, escalated: 2, avgResponseMinutes: 8 },
-    { level: 2, levelName: '二级值班', count: 2, confirmed: 0, escalated: 1, avgResponseMinutes: 0 },
-    { level: 3, levelName: '三级科主任', count: 1, confirmed: 1, escalated: 0, avgResponseMinutes: 3 },
+    {
+      level: 1,
+      levelName: "一级电话",
+      count: 4,
+      confirmed: 2,
+      escalated: 2,
+      avgResponseMinutes: 8,
+    },
+    {
+      level: 2,
+      levelName: "二级值班",
+      count: 2,
+      confirmed: 0,
+      escalated: 1,
+      avgResponseMinutes: 0,
+    },
+    {
+      level: 3,
+      levelName: "三级科主任",
+      count: 1,
+      confirmed: 1,
+      escalated: 0,
+      avgResponseMinutes: 3,
+    },
   ],
 };
 
-const isoAhead = (minutes: number): string => new Date(Date.now() + minutes * 60000).toISOString();
+const isoAhead = (minutes: number): string =>
+  new Date(Date.now() + minutes * 60000).toISOString();
 
 // 让演示链的倒计时有意义: 未终态链 deadline 相对当前时间
 const demoChainsWithLiveDeadline = (): EscalationChain[] =>
   DEMO_CHAINS.map((c) => {
-    if (c.status === 'CONFIRMED' || c.status === 'CLOSED') return c;
+    if (c.status === "CONFIRMED" || c.status === "CLOSED") return c;
     const offset = c.currentLevel === 1 ? 9 : 4;
     const deadline = isoAhead(offset);
-    return { ...c, currentDeadline: deadline, steps: c.steps.map((s, i) => (i === c.steps.length - 1 ? { ...s, deadline } : s)) };
+    return {
+      ...c,
+      currentDeadline: deadline,
+      steps: c.steps.map((s, i) =>
+        i === c.steps.length - 1 ? { ...s, deadline } : s,
+      ),
+    };
   });
 
 // ================= 主组件 =================
 
 export const CriticalEscalationV2: React.FC = () => {
   const [config, setConfig] = useState<EscalationConfig>(DEMO_CONFIG);
-  const [chains, setChains] = useState<EscalationChain[]>(demoChainsWithLiveDeadline);
+  const [chains, setChains] = useState<EscalationChain[]>(
+    demoChainsWithLiveDeadline,
+  );
   const [stats, setStats] = useState<EscalationStats>(DEMO_STATS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [draftTimeouts, setDraftTimeouts] = useState<Record<EscalationLevel, number>>({
+  const [draftTimeouts, setDraftTimeouts] = useState<
+    Record<EscalationLevel, number>
+  >({
     1: DEMO_CONFIG.levels[0]!.timeoutMinutes,
     2: DEMO_CONFIG.levels[1]!.timeoutMinutes,
     3: DEMO_CONFIG.levels[2]!.timeoutMinutes,
   });
   const [detail, setDetail] = useState<EscalationChain | null>(null);
   const [confirming, setConfirming] = useState<EscalationChain | null>(null);
-  const [confirmBy, setConfirmBy] = useState('值班医师');
+  const [confirmBy, setConfirmBy] = useState("值班医师");
   const [tick, setTick] = useState(0);
 
   // 倒计时刷新
@@ -187,9 +345,24 @@ export const CriticalEscalationV2: React.FC = () => {
 
   const load = useCallback(async () => {
     const [cfg, chainRes, statRes] = await Promise.all([
-      criticalEscalationApi.getConfig().catch(() => ({ success: false as const, data: null as unknown as EscalationConfig })),
-      criticalEscalationApi.listChains().catch(() => ({ success: false as const, data: null as unknown as EscalationChain[] })),
-      criticalEscalationApi.getStats().catch(() => ({ success: false as const, data: null as unknown as EscalationStats })),
+      criticalEscalationApi
+        .getConfig()
+        .catch(() => ({
+          success: false as const,
+          data: null as unknown as EscalationConfig,
+        })),
+      criticalEscalationApi
+        .listChains()
+        .catch(() => ({
+          success: false as const,
+          data: null as unknown as EscalationChain[],
+        })),
+      criticalEscalationApi
+        .getStats()
+        .catch(() => ({
+          success: false as const,
+          data: null as unknown as EscalationStats,
+        })),
     ]);
     if (cfg.success) {
       setConfig(cfg.data);
@@ -212,60 +385,142 @@ export const CriticalEscalationV2: React.FC = () => {
   }, [load]);
 
   const runTick = async (id: string) => {
-    const res = await criticalEscalationApi.tick(id).catch(() => ({ success: false as const, data: null as unknown as EscalationChain, error: undefined }));
+    const res = await criticalEscalationApi
+      .tick(id)
+      .catch(() => ({
+        success: false as const,
+        data: null as unknown as EscalationChain,
+        error: undefined,
+      }));
     if (res.success) {
       const updated = res.data;
-      if (updated.escalatedCount > (chains.find((c) => c.id === id)?.escalatedCount ?? 0)) {
-        message.warning(t('w9e.criticalEscalationV2.autoEscalatedMsg', { id: updated.id, level: LEVEL_META[updated.currentLevel]?.label }));
+      if (
+        updated.escalatedCount >
+        (chains.find((c) => c.id === id)?.escalatedCount ?? 0)
+      ) {
+        message.warning(
+          t("w9e.criticalEscalationV2.autoEscalatedMsg", {
+            id: updated.id,
+            level: LEVEL_META[updated.currentLevel]?.label,
+          }),
+        );
       }
       await load();
     }
   };
 
   const runEscalate = async (c: EscalationChain) => {
-    const res = await criticalEscalationApi.escalate(c.id, { reason: '危急程度高, 手动升级', escalatedBy: '当前用户' }).catch(() => ({ success: false as const, data: null as unknown as EscalationChain, error: undefined }));
+    const res = await criticalEscalationApi
+      .escalate(c.id, {
+        reason: "危急程度高, 手动升级",
+        escalatedBy: "当前用户",
+      })
+      .catch(() => ({
+        success: false as const,
+        data: null as unknown as EscalationChain,
+        error: undefined,
+      }));
     if (res.success) {
-      message.success(t('w9e.criticalEscalationV2.escalatedMsg', { id: c.id, level: LEVEL_META[res.data.currentLevel]?.label }));
+      message.success(
+        t("w9e.criticalEscalationV2.escalatedMsg", {
+          id: c.id,
+          level: LEVEL_META[res.data.currentLevel]?.label,
+        }),
+      );
       await load();
     } else {
-      message.error(res.error?.message ?? t('criticalEscalation.escalateFailed'));
+      message.error(
+        res.error?.message ?? t("criticalEscalation.escalateFailed"),
+      );
     }
   };
 
   const runClose = async (c: EscalationChain) => {
-    const res = await criticalEscalationApi.closeChain(c.id, { closedBy: '当前用户', comment: '升级链关闭' }).catch(() => ({ success: false as const, data: null as unknown as EscalationChain, error: undefined }));
+    const res = await criticalEscalationApi
+      .closeChain(c.id, { closedBy: "当前用户", comment: "升级链关闭" })
+      .catch(() => ({
+        success: false as const,
+        data: null as unknown as EscalationChain,
+        error: undefined,
+      }));
     if (res.success) {
-      message.success(t('w9e.criticalEscalationV2.closedMsg', { id: c.id }));
+      message.success(t("w9e.criticalEscalationV2.closedMsg", { id: c.id }));
       await load();
     } else {
-      message.error(res.error?.message ?? t('criticalEscalation.closeFailed'));
+      message.error(res.error?.message ?? t("criticalEscalation.closeFailed"));
     }
   };
 
   const runAcknowledge = async () => {
     if (!confirming) return;
     const res = await criticalEscalationApi
-      .acknowledge(confirming.id, { confirmedBy: confirmBy.trim() || '值班医师', comment: '已电话确认并通知临床' })
-      .catch(() => ({ success: false as const, data: null as unknown as EscalationChain, error: undefined }));
+      .acknowledge(confirming.id, {
+        confirmedBy: confirmBy.trim() || "值班医师",
+        comment: "已电话确认并通知临床",
+      })
+      .catch(() => ({
+        success: false as const,
+        data: null as unknown as EscalationChain,
+        error: undefined,
+      }));
     if (res.success) {
-      message.success(t('w9e.criticalEscalationV2.confirmedMsg', { id: confirming.id, level: LEVEL_META[confirming.currentLevel]?.label }));
+      message.success(
+        t("w9e.criticalEscalationV2.confirmedMsg", {
+          id: confirming.id,
+          level: LEVEL_META[confirming.currentLevel]?.label,
+        }),
+      );
       setConfirming(null);
       await load();
     } else {
-      message.error(res.error?.message ?? t('criticalEscalation.confirmFailed'));
+      message.error(
+        res.error?.message ?? t("criticalEscalation.confirmFailed"),
+      );
+    }
+  };
+
+  const runClinicalReceipt = async (c: EscalationChain) => {
+    if (!c.criticalValueId) {
+      message.error(t("criticalEscalation.receiptFailed"));
+      return;
+    }
+    const res = await criticalApi
+      .clinicalReceipt(c.criticalValueId, {
+        confirmedBy: "当前用户",
+        comment: "确认接收",
+      })
+      .catch(() => null);
+    if (res?.success) {
+      message.success(t("criticalEscalation.receiptConfirmed"));
+      await load();
+    } else {
+      message.error(
+        res?.error?.message ?? t("criticalEscalation.receiptFailed"),
+      );
     }
   };
 
   const saveConfig = async () => {
     setSaving(true);
     try {
-      const levels = config.levels.map((l) => ({ level: l.level, name: l.name, role: l.role, timeoutMinutes: draftTimeouts[l.level] ?? l.timeoutMinutes, channels: l.channels }));
-      const res = await criticalEscalationApi.updateConfig(levels).catch(() => ({ success: false as const, data: null as unknown as { levels: EscalationConfig['levels'] } }));
+      const levels = config.levels.map((l) => ({
+        level: l.level,
+        name: l.name,
+        role: l.role,
+        timeoutMinutes: draftTimeouts[l.level] ?? l.timeoutMinutes,
+        channels: l.channels,
+      }));
+      const res = await criticalEscalationApi
+        .updateConfig(levels)
+        .catch(() => ({
+          success: false as const,
+          data: null as unknown as { levels: EscalationConfig["levels"] },
+        }));
       if (res.success) {
         setConfig({ ...config, levels: res.data.levels });
-        message.success(t('criticalEscalation.configSaved'));
+        message.success(t("criticalEscalation.configSaved"));
       } else {
-        message.warning(t('criticalEscalation.saveFailed'));
+        message.warning(t("criticalEscalation.saveFailed"));
       }
       setEditing(false);
     } finally {
@@ -273,62 +528,171 @@ export const CriticalEscalationV2: React.FC = () => {
     }
   };
 
-  const remainingMin = (deadline: string): number => Math.max(0, Math.round((new Date(deadline).getTime() - Date.now()) / 60000));
+  const remainingMin = (deadline: string): number =>
+    Math.max(
+      0,
+      Math.round((new Date(deadline).getTime() - Date.now()) / 60000),
+    );
 
   const columns: ColumnsType<EscalationChain> = [
-    { title: t('criticalEscalation.col.chain'), dataIndex: 'id', key: 'id', width: 80, render: (v: string) => <Tag color="purple">{v}</Tag> },
-    { title: t('criticalEscalation.col.patient'), dataIndex: 'patientName', key: 'patientName', width: 80 },
-    { title: t('criticalEscalation.col.criticalValue'), dataIndex: 'title', key: 'title', ellipsis: true },
-    { title: t('criticalEscalation.col.level'), dataIndex: 'severity', key: 'severity', width: 80, render: (v: string) => <Tag color={SEVERITY_META[v] ?? 'blue'}>{v}</Tag> },
     {
-      title: t('criticalEscalation.col.currentLevel'),
-      dataIndex: 'currentLevel',
-      key: 'currentLevel',
+      title: t("criticalEscalation.col.chain"),
+      dataIndex: "id",
+      key: "id",
+      width: 80,
+      render: (v: string) => <Tag color="purple">{v}</Tag>,
+    },
+    {
+      title: t("criticalEscalation.col.patient"),
+      dataIndex: "patientName",
+      key: "patientName",
+      width: 80,
+    },
+    {
+      title: t("criticalEscalation.col.criticalValue"),
+      dataIndex: "title",
+      key: "title",
+      ellipsis: true,
+    },
+    {
+      title: t("criticalEscalation.col.level"),
+      dataIndex: "severity",
+      key: "severity",
+      width: 80,
+      render: (v: string) => <Tag color={SEVERITY_META[v] ?? "blue"}>{v}</Tag>,
+    },
+    {
+      title: t("criticalEscalation.col.currentLevel"),
+      dataIndex: "currentLevel",
+      key: "currentLevel",
       width: 100,
-      render: (v: EscalationLevel, r) => <Tag color={LEVEL_META[v]?.color}>{LEVEL_META[v]?.label}{r.escalatedCount > 0 ? t('w9e.criticalEscalationV2.escalatedTimesSuffix', { count: r.escalatedCount }) : ''}</Tag>,
+      render: (v: EscalationLevel, r) => (
+        <Tag color={LEVEL_META[v]?.color}>
+          {LEVEL_META[v]?.label}
+          {r.escalatedCount > 0
+            ? t("w9e.criticalEscalationV2.escalatedTimesSuffix", {
+                count: r.escalatedCount,
+              })
+            : ""}
+        </Tag>
+      ),
     },
     {
-      title: t('criticalEscalation.col.status'),
-      dataIndex: 'status',
-      key: 'status',
+      title: t("criticalEscalation.col.status"),
+      dataIndex: "status",
+      key: "status",
       width: 90,
-      render: (v: ChainStatus) => <Tag color={STATUS_META[v]?.color}>{STATUS_META[v]?.label}</Tag>,
+      render: (v: ChainStatus) => (
+        <Tag color={STATUS_META[v]?.color}>{STATUS_META[v]?.label}</Tag>
+      ),
     },
     {
-      title: t('criticalEscalation.col.countdown'),
-      key: 'countdown',
+      title: t("criticalEscalation.col.countdown"),
+      key: "countdown",
       width: 120,
       render: (_, r) => {
-        if (r.status === 'CONFIRMED' || r.status === 'CLOSED') return <span style={{ color: '#94a3b8' }}>-</span>;
+        if (r.status === "CONFIRMED" || r.status === "CLOSED")
+          return <span style={{ color: "#94a3b8" }}>-</span>;
         const min = remainingMin(r.currentDeadline);
         return (
           <Space size={4}>
-            <Clock size={12} color={min <= 2 ? 'var(--color-error-600)' : min <= 5 ? 'var(--color-warning-500)' : '#10b981'} />
-            <strong style={{ color: min <= 2 ? 'var(--color-error-600)' : min <= 5 ? 'var(--color-warning-500)' : '#10b981' }}>{min}</strong>
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>{t('criticalEscalation.minutes')}</span>
+            <Clock
+              size={12}
+              color={
+                min <= 2
+                  ? "var(--color-error-600)"
+                  : min <= 5
+                    ? "var(--color-warning-500)"
+                    : "#10b981"
+              }
+            />
+            <strong
+              style={{
+                color:
+                  min <= 2
+                    ? "var(--color-error-600)"
+                    : min <= 5
+                      ? "var(--color-warning-500)"
+                      : "#10b981",
+              }}
+            >
+              {min}
+            </strong>
+            <span style={{ fontSize: 11, color: "#94a3b8" }}>
+              {t("criticalEscalation.minutes")}
+            </span>
           </Space>
         );
       },
     },
     {
-      title: t('criticalEscalation.col.action'),
-      key: 'action',
+      title: t("criticalEscalation.col.action"),
+      key: "action",
       width: 260,
       render: (_, r) => (
         <Space size={4} wrap>
-          <Button size="small" icon={<Activity size={12} />} onClick={() => void runTick(r.id)}>{t('criticalEscalation.tickCheck')}</Button>
-          {(r.status === 'NOTIFYING' || r.status === 'PENDING_CONFIRM' || r.status === 'ESCALATED') && (
+          <Button
+            size="small"
+            icon={<Activity size={12} />}
+            onClick={() => void runTick(r.id)}
+          >
+            {t("criticalEscalation.tickCheck")}
+          </Button>
+          {(r.status === "NOTIFYING" ||
+            r.status === "PENDING_CONFIRM" ||
+            r.status === "ESCALATED") && (
             <>
-              <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => { setConfirmBy('值班医师'); setConfirming(r); }}>{t('criticalEscalation.confirm')}</Button>
-              <Tooltip title={r.currentLevel >= 3 ? t('criticalEscalation.atMaxLevel') : t('criticalEscalation.escalateNextHint')}>
-                <Button size="small" danger icon={<ArrowUp size={12} />} disabled={r.currentLevel >= 3} onClick={() => void runEscalate(r)}>{t('criticalEscalation.escalate')}</Button>
+              <Button
+                size="small"
+                type="primary"
+                icon={<CheckCircle2 size={12} />}
+                onClick={() => {
+                  setConfirmBy("值班医师");
+                  setConfirming(r);
+                }}
+              >
+                {t("criticalEscalation.confirm")}
+              </Button>
+              <Tooltip
+                title={
+                  r.currentLevel >= 3
+                    ? t("criticalEscalation.atMaxLevel")
+                    : t("criticalEscalation.escalateNextHint")
+                }
+              >
+                <Button
+                  size="small"
+                  danger
+                  icon={<ArrowUp size={12} />}
+                  disabled={r.currentLevel >= 3}
+                  onClick={() => void runEscalate(r)}
+                >
+                  {t("criticalEscalation.escalate")}
+                </Button>
               </Tooltip>
             </>
           )}
-          {r.status !== 'CLOSED' && (
-            <Button size="small" icon={<XCircle size={12} />} onClick={() => void runClose(r)}>{t('criticalEscalation.close')}</Button>
+          {r.status !== "CLOSED" && (
+            <Button
+              size="small"
+              icon={<XCircle size={12} />}
+              onClick={() => void runClose(r)}
+            >
+              {t("criticalEscalation.close")}
+            </Button>
           )}
-          <Button size="small" onClick={() => setDetail(r)}>{t('criticalEscalation.staircase')}</Button>
+          {r.criticalValueId && r.status !== "CLOSED" && (
+            <Button
+              size="small"
+              icon={<CheckCircle2 size={12} />}
+              onClick={() => void runClinicalReceipt(r)}
+            >
+              {t("criticalEscalation.receiptConfirm")}
+            </Button>
+          )}
+          <Button size="small" onClick={() => setDetail(r)}>
+            {t("criticalEscalation.staircase")}
+          </Button>
         </Space>
       ),
     },
@@ -336,62 +700,117 @@ export const CriticalEscalationV2: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}>
+      <div style={{ textAlign: "center", padding: "var(--space-12, 48px)" }}>
         <Spin />
       </div>
     );
   }
 
   return (
-    <div data-testid="critical-escalation-v2" role="region" aria-label={t('criticalEscalation.ariaLabel')} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
-      <Card size="small" style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #7c3aed 100%)', border: 'none' }} styles={{ body: { padding: 'var(--space-3, 12px)' } }}>
-        <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
+    <div
+      data-testid="critical-escalation-v2"
+      role="region"
+      aria-label={t("criticalEscalation.ariaLabel")}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-3, 12px)",
+      }}
+    >
+      <Card
+        size="small"
+        style={{
+          background: "linear-gradient(135deg, #b91c1c 0%, #7c3aed 100%)",
+          border: "none",
+        }}
+        styles={{ body: { padding: "var(--space-3, 12px)" } }}
+      >
+        <Space style={{ width: "100%", justifyContent: "space-between" }} wrap>
           <Space>
             <Siren size={18} color="#fff" />
-            <strong style={{ color: '#fff', fontSize: 16 }}>{t('criticalEscalation.title')}</strong>
+            <strong style={{ color: "#fff", fontSize: 16 }}>
+              {t("criticalEscalation.title")}
+            </strong>
             <Tag color="red">F12</Tag>
-            <Tag color="gold">{t('criticalEscalation.stateMachine')}</Tag>
+            <Tag color="gold">{t("criticalEscalation.stateMachine")}</Tag>
           </Space>
-          <Button size="small" icon={<Settings size={12} />} onClick={() => setEditing(!editing)}>
-            {editing ? t('criticalEscalation.collapseConfig') : t('criticalEscalation.chainConfig')}
+          <Button
+            size="small"
+            icon={<Settings size={12} />}
+            onClick={() => setEditing(!editing)}
+          >
+            {editing
+              ? t("criticalEscalation.collapseConfig")
+              : t("criticalEscalation.chainConfig")}
           </Button>
         </Space>
       </Card>
 
       {editing && (
-        <Card size="small" title={<Space><Settings size={14} /> {t('criticalEscalation.configTitle')}</Space>}>
+        <Card
+          size="small"
+          title={
+            <Space>
+              <Settings size={14} /> {t("criticalEscalation.configTitle")}
+            </Space>
+          }
+        >
           <Row gutter={[12, 12]}>
             {config.levels.map((l) => (
               <Col xs={24} md={8} key={l.level}>
-                <Card size="small" style={{ borderTop: `4px solid ${LEVEL_META[l.level]?.color}` }}>
-                  <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                <Card
+                  size="small"
+                  style={{
+                    borderTop: `4px solid ${LEVEL_META[l.level]?.color}`,
+                  }}
+                >
+                  <Space
+                    style={{ width: "100%", justifyContent: "space-between" }}
+                  >
                     <Space>
                       <Tag color={LEVEL_META[l.level]?.color}>{l.name}</Tag>
-                      <span style={{ fontSize: 12, color: '#64748b' }}>{l.role}</span>
+                      <span style={{ fontSize: 12, color: "#64748b" }}>
+                        {l.role}
+                      </span>
                     </Space>
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{l.channels.join('/')}</span>
+                    <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                      {l.channels.join("/")}
+                    </span>
                   </Space>
-                  <div style={{ margin: '8px 0 4px', fontSize: 12 }}>{t('criticalEscalation.timeoutMinutes')}</div>
+                  <div style={{ margin: "8px 0 4px", fontSize: 12 }}>
+                    {t("criticalEscalation.timeoutMinutes")}
+                  </div>
                   <InputNumber
                     size="small"
                     min={1}
                     max={240}
-                    style={{ width: '100%' }}
+                    style={{ width: "100%" }}
                     value={draftTimeouts[l.level]}
-                    onChange={(v) => setDraftTimeouts((prev) => ({ ...prev, [l.level]: Number(v ?? 15) }))}
+                    onChange={(v) =>
+                      setDraftTimeouts((prev) => ({
+                        ...prev,
+                        [l.level]: Number(v ?? 15),
+                      }))
+                    }
                   />
                 </Card>
               </Col>
             ))}
           </Row>
-          <Space wrap style={{ marginTop: 'var(--space-3, 12px)' }}>
+          <Space wrap style={{ marginTop: "var(--space-3, 12px)" }}>
             {config.rules.map((r) => (
               <Tooltip key={r.key} title={r.description}>
-                <Tag color={r.enabled ? 'green' : 'default'}>{r.name}</Tag>
+                <Tag color={r.enabled ? "green" : "default"}>{r.name}</Tag>
               </Tooltip>
             ))}
-            <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} loading={saving} onClick={() => void saveConfig()}>
-              {t('criticalEscalation.saveConfig')}
+            <Button
+              size="small"
+              type="primary"
+              icon={<CheckCircle2 size={12} />}
+              loading={saving}
+              onClick={() => void saveConfig()}
+            >
+              {t("criticalEscalation.saveConfig")}
             </Button>
           </Space>
         </Card>
@@ -399,42 +818,114 @@ export const CriticalEscalationV2: React.FC = () => {
 
       <Row gutter={12}>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title={t('criticalEscalation.totalChains')} value={stats.total} prefix={<Siren size={14} />} valueStyle={{ color: 'var(--color-primary-800)' }} /></Card>
+          <Card size="small">
+            <Statistic
+              title={t("criticalEscalation.totalChains")}
+              value={stats.total}
+              prefix={<Siren size={14} />}
+              valueStyle={{ color: "var(--color-primary-800)" }}
+            />
+          </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title={t('criticalEscalation.avgConfirmTime')} value={stats.avgResponseMinutes} suffix={t('criticalEscalation.minutes')} prefix={<Clock size={14} />} valueStyle={{ color: '#0d9488' }} /></Card>
+          <Card size="small">
+            <Statistic
+              title={t("criticalEscalation.avgConfirmTime")}
+              value={stats.avgResponseMinutes}
+              suffix={t("criticalEscalation.minutes")}
+              prefix={<Clock size={14} />}
+              valueStyle={{ color: "#0d9488" }}
+            />
+          </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title={t('criticalEscalation.escalationRate')} value={stats.escalationRate} suffix="%" prefix={<ArrowUp size={14} />} valueStyle={{ color: 'var(--color-warning-500)' }} /></Card>
+          <Card size="small">
+            <Statistic
+              title={t("criticalEscalation.escalationRate")}
+              value={stats.escalationRate}
+              suffix="%"
+              prefix={<ArrowUp size={14} />}
+              valueStyle={{ color: "var(--color-warning-500)" }}
+            />
+          </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title={t('criticalEscalation.avgEscalationCount')} value={stats.avgEscalationCount} prefix={<ShieldAlert size={14} />} valueStyle={{ color: 'var(--color-error-600)' }} /></Card>
+          <Card size="small">
+            <Statistic
+              title={t("criticalEscalation.avgEscalationCount")}
+              value={stats.avgEscalationCount}
+              prefix={<ShieldAlert size={14} />}
+              valueStyle={{ color: "var(--color-error-600)" }}
+            />
+          </Card>
         </Col>
       </Row>
 
       <Card
         size="small"
-        title={<Space><Activity size={14} /> {t('criticalEscalation.chainList')}</Space>}
-        extra={<Space><Tag color="purple">{stats.byStatus.ESCALATED ?? 0} {t('criticalEscalation.status.escalated')}</Tag><Tag color="green">{stats.byStatus.CONFIRMED ?? 0} {t('criticalEscalation.status.confirmed')}</Tag></Space>}
+        title={
+          <Space>
+            <Activity size={14} /> {t("criticalEscalation.chainList")}
+          </Space>
+        }
+        extra={
+          <Space>
+            <Tag color="purple">
+              {stats.byStatus.ESCALATED ?? 0}{" "}
+              {t("criticalEscalation.status.escalated")}
+            </Tag>
+            <Tag color="green">
+              {stats.byStatus.CONFIRMED ?? 0}{" "}
+              {t("criticalEscalation.status.confirmed")}
+            </Tag>
+          </Space>
+        }
       >
         {chains.length === 0 ? (
-          <Empty description={t('criticalEscalation.noChains')} />
+          <Empty description={t("criticalEscalation.noChains")} />
         ) : (
-          <DataTable rowKey="id" columns={columns} dataSource={chains} pagination={{ pageSize: 6, showSizeChanger: false }} scroll={{ x: 'max-content' }} />
+          <DataTable
+            rowKey="id"
+            columns={columns}
+            dataSource={chains}
+            pagination={{ pageSize: 6, showSizeChanger: false }}
+            scroll={{ x: "max-content" }}
+          />
         )}
       </Card>
 
-      <Card size="small" title={<Space><Clock size={14} /> {t('criticalEscalation.byLevelStats')}</Space>}>
+      <Card
+        size="small"
+        title={
+          <Space>
+            <Clock size={14} /> {t("criticalEscalation.byLevelStats")}
+          </Space>
+        }
+      >
         <Row gutter={[8, 8]}>
           {stats.byLevel.map((l) => (
             <Col xs={24} md={8} key={l.level}>
-              <Card size="small" style={{ borderLeft: `4px solid ${LEVEL_META[l.level]?.color}` }}>
-                <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+              <Card
+                size="small"
+                style={{
+                  borderLeft: `4px solid ${LEVEL_META[l.level]?.color}`,
+                }}
+              >
+                <Space
+                  style={{ width: "100%", justifyContent: "space-between" }}
+                >
                   <strong style={{ fontSize: 12 }}>{l.levelName}</strong>
-                  <Tag color={LEVEL_META[l.level]?.color}>{l.count} {t('criticalEscalation.times')}</Tag>
+                  <Tag color={LEVEL_META[l.level]?.color}>
+                    {l.count} {t("criticalEscalation.times")}
+                  </Tag>
                 </Space>
-                <div style={{ marginTop: 6, fontSize: 12, color: '#64748b' }}>
-                  {t('criticalEscalation.confirmed')} {l.confirmed} {t('criticalEscalation.times')} · {t('criticalEscalation.timeout')} {l.escalated} {t('criticalEscalation.times')} · {t('criticalEscalation.avg')} {l.avgResponseMinutes} {t('criticalEscalation.minutes')}
+                <div style={{ marginTop: 6, fontSize: 12, color: "#64748b" }}>
+                  {t("criticalEscalation.confirmed")} {l.confirmed}{" "}
+                  {t("criticalEscalation.times")} ·{" "}
+                  {t("criticalEscalation.timeout")} {l.escalated}{" "}
+                  {t("criticalEscalation.times")} ·{" "}
+                  {t("criticalEscalation.avg")} {l.avgResponseMinutes}{" "}
+                  {t("criticalEscalation.minutes")}
                 </div>
               </Card>
             </Col>
@@ -443,23 +934,70 @@ export const CriticalEscalationV2: React.FC = () => {
       </Card>
 
       {/* ===== 确认弹窗 ===== */}
-      <Modal title={confirming ? t('w9e.criticalEscalationV2.confirmTitle', { id: confirming.id }) : ''} open={!!confirming} onCancel={() => setConfirming(null)} onOk={() => void runAcknowledge()} okText={t('criticalEscalation.confirm')} width={420}>
+      <Modal
+        title={
+          confirming
+            ? t("w9e.criticalEscalationV2.confirmTitle", { id: confirming.id })
+            : ""
+        }
+        open={!!confirming}
+        onCancel={() => setConfirming(null)}
+        onOk={() => void runAcknowledge()}
+        okText={t("criticalEscalation.confirm")}
+        width={420}
+      >
         {confirming && (
-          <Space direction="vertical" style={{ width: '100%' }} size={8}>
+          <Space direction="vertical" style={{ width: "100%" }} size={8}>
             <Descriptions size="small" column={1}>
-              <Descriptions.Item label={t('criticalEscalation.col.patient')}>{confirming.patientName}</Descriptions.Item>
-              <Descriptions.Item label={t('criticalEscalation.col.criticalValue')}>{confirming.title}</Descriptions.Item>
-              <Descriptions.Item label={t('criticalEscalation.col.currentLevel')}>{LEVEL_META[confirming.currentLevel]?.label} ({confirming.steps[confirming.steps.length - 1]?.role})</Descriptions.Item>
-              <Descriptions.Item label={t('criticalEscalation.timeoutRemaining')}>{remainingMin(confirming.currentDeadline)} {t('criticalEscalation.minutes')}</Descriptions.Item>
+              <Descriptions.Item label={t("criticalEscalation.col.patient")}>
+                {confirming.patientName}
+              </Descriptions.Item>
+              <Descriptions.Item
+                label={t("criticalEscalation.col.criticalValue")}
+              >
+                {confirming.title}
+              </Descriptions.Item>
+              <Descriptions.Item
+                label={t("criticalEscalation.col.currentLevel")}
+              >
+                {LEVEL_META[confirming.currentLevel]?.label} (
+                {confirming.steps[confirming.steps.length - 1]?.role})
+              </Descriptions.Item>
+              <Descriptions.Item
+                label={t("criticalEscalation.timeoutRemaining")}
+              >
+                {remainingMin(confirming.currentDeadline)}{" "}
+                {t("criticalEscalation.minutes")}
+              </Descriptions.Item>
             </Descriptions>
-            <div style={{ marginBottom: 'var(--space-1, 4px)' }}>{t('criticalEscalation.confirmBy')}</div>
-            <Select size="small" style={{ width: '100%' }} value={confirmBy} onChange={setConfirmBy} options={['值班医师', '值班主任医师', '科主任', '护士站'].map((v) => ({ value: v, label: v }))} />
+            <div style={{ marginBottom: "var(--space-1, 4px)" }}>
+              {t("criticalEscalation.confirmBy")}
+            </div>
+            <Select
+              size="small"
+              style={{ width: "100%" }}
+              value={confirmBy}
+              onChange={setConfirmBy}
+              options={["值班医师", "值班主任医师", "科主任", "护士站"].map(
+                (v) => ({ value: v, label: v }),
+              )}
+            />
           </Space>
         )}
       </Modal>
 
       {/* ===== 阶梯图弹窗 ===== */}
-      <Modal title={detail ? t('w9e.criticalEscalationV2.staircaseTitle', { id: detail.id }) : ''} open={!!detail} footer={null} onCancel={() => setDetail(null)} width={560}>
+      <Modal
+        title={
+          detail
+            ? t("w9e.criticalEscalationV2.staircaseTitle", { id: detail.id })
+            : ""
+        }
+        open={!!detail}
+        footer={null}
+        onCancel={() => setDetail(null)}
+        width={560}
+      >
         {detail && <ChainStaircase chain={detail} />}
       </Modal>
     </div>
@@ -470,58 +1008,141 @@ export const CriticalEscalationV2: React.FC = () => {
 
 const ChainStaircase: React.FC<{ chain: EscalationChain }> = ({ chain }) => {
   const levelOf = (level: EscalationLevel) => LEVEL_META[level];
-  const fmt = (v?: string) => (v ? new Date(v).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '-');
-  const remainingMin = (deadline: string): number => Math.max(0, Math.round((new Date(deadline).getTime() - Date.now()) / 60000));
+  const fmt = (v?: string) =>
+    v
+      ? new Date(v).toLocaleTimeString("zh-CN", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "-";
+  const remainingMin = (deadline: string): number =>
+    Math.max(
+      0,
+      Math.round((new Date(deadline).getTime() - Date.now()) / 60000),
+    );
 
-  const statusForStep = (status: EscalationChain['steps'][number]['status']): 'finish' | 'process' | 'error' | 'wait' => {
-    if (status === 'CONFIRMED') return 'finish';
-    if (status === 'TIMEOUT') return 'error';
-    return 'process';
+  const statusForStep = (
+    status: EscalationChain["steps"][number]["status"],
+  ): "finish" | "process" | "error" | "wait" => {
+    if (status === "CONFIRMED") return "finish";
+    if (status === "TIMEOUT") return "error";
+    return "process";
   };
 
-  const steps = useMemo(() => chain.steps.map((s, i) => ({
-    title: (
-      <Space size={6}>
-        <Tag color={levelOf(s.level)?.color}>{s.levelName}</Tag>
-        {s.status === 'CONFIRMED' ? <Tag color="green">{t('criticalEscalation.status.confirmed')}</Tag> : s.status === 'TIMEOUT' ? <Tag color="red">{t('criticalEscalation.timeout')}</Tag> : <Tag color="blue">{t('criticalEscalation.notified')}</Tag>}
-      </Space>
-    ),
-    description: (
-      <Space direction="vertical" size={2}>
-        <span style={{ fontSize: 12 }}>{t('criticalEscalation.role')} {s.role} · {t('criticalEscalation.started')} {fmt(s.startedAt)} · {t('criticalEscalation.deadline')} {fmt(s.deadline)}</span>
-        {s.status === 'NOTIFIED' && s.deadline && (
-          <span style={{ fontSize: 12, color: remainingMin(s.deadline) <= 2 ? 'var(--color-error-600)' : 'var(--color-warning-500)' }}>
-            {t('criticalEscalation.countdownLabel')} {remainingMin(s.deadline)} {t('criticalEscalation.minutes')}
-          </span>
-        )}
-        {s.status === 'CONFIRMED' && s.confirmedBy && (
-          <span style={{ fontSize: 12, color: '#10b981' }}>{s.confirmedBy} {t('criticalEscalation.confirmedAt')} {fmt(s.confirmedAt)} {t('criticalEscalation.confirmedVerb')}</span>
-        )}
-        {s.status === 'TIMEOUT' && <span style={{ fontSize: 12, color: 'var(--color-error-600)' }}>{t('criticalEscalation.autoEscalated')}</span>}
-        {i < chain.steps.length - 1 && <ArrowUp size={12} style={{ color: 'var(--color-error-600)', marginTop: 'var(--space-1, 4px)' }} />}
-      </Space>
-    ),
-    status: statusForStep(s.status),
-  })), [chain.steps]);
+  const steps = useMemo(
+    () =>
+      chain.steps.map((s, i) => ({
+        title: (
+          <Space size={6}>
+            <Tag color={levelOf(s.level)?.color}>{s.levelName}</Tag>
+            {s.status === "CONFIRMED" ? (
+              <Tag color="green">
+                {t("criticalEscalation.status.confirmed")}
+              </Tag>
+            ) : s.status === "TIMEOUT" ? (
+              <Tag color="red">{t("criticalEscalation.timeout")}</Tag>
+            ) : (
+              <Tag color="blue">{t("criticalEscalation.notified")}</Tag>
+            )}
+          </Space>
+        ),
+        description: (
+          <Space direction="vertical" size={2}>
+            <span style={{ fontSize: 12 }}>
+              {t("criticalEscalation.role")} {s.role} ·{" "}
+              {t("criticalEscalation.started")} {fmt(s.startedAt)} ·{" "}
+              {t("criticalEscalation.deadline")} {fmt(s.deadline)}
+            </span>
+            {s.status === "NOTIFIED" && s.deadline && (
+              <span
+                style={{
+                  fontSize: 12,
+                  color:
+                    remainingMin(s.deadline) <= 2
+                      ? "var(--color-error-600)"
+                      : "var(--color-warning-500)",
+                }}
+              >
+                {t("criticalEscalation.countdownLabel")}{" "}
+                {remainingMin(s.deadline)} {t("criticalEscalation.minutes")}
+              </span>
+            )}
+            {s.status === "CONFIRMED" && s.confirmedBy && (
+              <span style={{ fontSize: 12, color: "#10b981" }}>
+                {s.confirmedBy} {t("criticalEscalation.confirmedAt")}{" "}
+                {fmt(s.confirmedAt)} {t("criticalEscalation.confirmedVerb")}
+              </span>
+            )}
+            {s.status === "TIMEOUT" && (
+              <span style={{ fontSize: 12, color: "var(--color-error-600)" }}>
+                {t("criticalEscalation.autoEscalated")}
+              </span>
+            )}
+            {i < chain.steps.length - 1 && (
+              <ArrowUp
+                size={12}
+                style={{
+                  color: "var(--color-error-600)",
+                  marginTop: "var(--space-1, 4px)",
+                }}
+              />
+            )}
+          </Space>
+        ),
+        status: statusForStep(s.status),
+      })),
+    [chain.steps],
+  );
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size={12}>
+    <Space direction="vertical" style={{ width: "100%" }} size={12}>
       <Alert
-        type={chain.status === 'CLOSED' ? 'info' : chain.status === 'CONFIRMED' ? 'success' : chain.status === 'ESCALATED' ? 'warning' : 'info'}
+        type={
+          chain.status === "CLOSED"
+            ? "info"
+            : chain.status === "CONFIRMED"
+              ? "success"
+              : chain.status === "ESCALATED"
+                ? "warning"
+                : "info"
+        }
         showIcon
-        title={t('w9e.criticalEscalationV2.statusCurrent', { status: STATUS_META[chain.status]?.label, current: LEVEL_META[chain.currentLevel]?.label })}
+        title={t("w9e.criticalEscalationV2.statusCurrent", {
+          status: STATUS_META[chain.status]?.label,
+          current: LEVEL_META[chain.currentLevel]?.label,
+        })}
         description={
           <Space size={4}>
-            <span style={{ fontSize: 12 }}>{t('criticalEscalation.started')} {fmt(chain.startedAt)} · {t('criticalEscalation.escalate')} {chain.escalatedCount} {t('criticalEscalation.times')} · {t('criticalEscalation.confirmBy')} {chain.acknowledgedBy ?? '-'}</span>
+            <span style={{ fontSize: 12 }}>
+              {t("criticalEscalation.started")} {fmt(chain.startedAt)} ·{" "}
+              {t("criticalEscalation.escalate")} {chain.escalatedCount}{" "}
+              {t("criticalEscalation.times")} ·{" "}
+              {t("criticalEscalation.confirmBy")} {chain.acknowledgedBy ?? "-"}
+            </span>
           </Space>
         }
       />
-      <Steps direction="vertical" size="small" current={chain.steps.length - 1} items={steps} />
-      <Card size="small" title={<span style={{ fontSize: 12 }}>{t('criticalEscalation.escalationRecords')}</span>}>
+      <Steps
+        direction="vertical"
+        size="small"
+        current={chain.steps.length - 1}
+        items={steps}
+      />
+      <Card
+        size="small"
+        title={
+          <span style={{ fontSize: 12 }}>
+            {t("criticalEscalation.escalationRecords")}
+          </span>
+        }
+      >
         <Space direction="vertical" size={4}>
           {chain.history.map((h, i) => (
-            <div key={i} style={{ fontSize: 12, color: '#475569' }}>
-              <Tag color="blue" style={{ fontSize: 11 }}>{fmt(h.at)}</Tag> {h.reason}
+            <div key={i} style={{ fontSize: 12, color: "#475569" }}>
+              <Tag color="blue" style={{ fontSize: 11 }}>
+                {fmt(h.at)}
+              </Tag>{" "}
+              {h.reason}
             </div>
           ))}
         </Space>

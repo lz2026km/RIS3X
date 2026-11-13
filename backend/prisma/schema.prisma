@@ -57,6 +57,7 @@ enum DeviceState {
   MAINTENANCE
   BROKEN
   OFFLINE
+  RETIRED
 }
 
 enum CriticalState {
@@ -343,6 +344,12 @@ model Device {
   todayExams    Int         @default(0) @map("today_exams")
   todayUsageMin Int         @default(0) @map("today_usage_min")
   version       Int         @default(0)
+  // [v3.0.6.16-9] 设备报废审批: 申请 -> 批准/驳回, 保留审批轨迹与原因
+  retirementStatus      String    @default("NONE") @map("retirement_status")
+  retirementRequestedBy String?   @map("retirement_requested_by")
+  retirementApprovedBy  String?   @map("retirement_approved_by")
+  retiredReason         String?   @map("retired_reason")
+  retiredAt             DateTime? @map("retired_at")
   exams         Exam[]
   appointments  Appointment[]
   createdAt     DateTime    @default(now()) @map("created_at")

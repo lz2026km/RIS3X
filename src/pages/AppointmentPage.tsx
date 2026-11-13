@@ -114,7 +114,14 @@ interface Appointment {
   referringDoctorName: string;
   clinicalDiagnosis: string;
   notes: string;
-  status: "pending" | "confirmed" | "checked-in" | "cancelled" | "no-show";
+  status:
+    | "pending"
+    | "confirmed"
+    | "checked-in"
+    | "completed"
+    | "cancelled"
+    | "no-show";
+  state?: AppointmentDto["state"];
   priority: "normal" | "urgent" | "critical";
   cancelReason?: string;
   createdAt: string;
@@ -131,6 +138,139 @@ interface AppointmentRules {
   noShowPenalty: number;
   enabled: boolean;
 }
+
+// [v3.0.6.16-9] 预约状态机来源: backend/src/appointments/appointments.service.ts APPOINTMENT_TRANSITIONS
+type AppointmentState = AppointmentDto["state"];
+
+const APPOINTMENT_TRANSITIONS: Record<AppointmentState, AppointmentState[]> = {
+  SCHEDULED: ["CONFIRMED", "REGISTERED", "CHECKED_IN", "CANCELLED", "NO_SHOW"],
+  CONFIRMED: ["REGISTERED", "CHECKED_IN", "CANCELLED", "NO_SHOW"],
+  REGISTERED: ["CHECKED_IN", "CANCELLED", "NO_SHOW"],
+  CHECKED_IN: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
+  IN_PROGRESS: ["COMPLETED", "CANCELLED"],
+  COMPLETED: [],
+  CANCELLED: [],
+  NO_SHOW: [],
+};
+
+const STATE_TO_STATUS: Record<AppointmentState, Appointment["status"]> = {
+  SCHEDULED: "pending",
+  CONFIRMED: "confirmed",
+  REGISTERED: "pending",
+  CHECKED_IN: "checked-in",
+  IN_PROGRESS: "checked-in",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+  NO_SHOW: "no-show",
+};
+
+const STATUS_TO_STATE: Record<string, AppointmentState> = {
+  pending: "SCHEDULED",
+  scheduled: "SCHEDULED",
+  confirmed: "CONFIRMED",
+  registered: "REGISTERED",
+  "checked-in": "CHECKED_IN",
+  checkedIn: "CHECKED_IN",
+  "in-progress": "IN_PROGRESS",
+  inProgress: "IN_PROGRESS",
+  completed: "COMPLETED",
+  cancelled: "CANCELLED",
+  "no-show": "NO_SHOW",
+  noShow: "NO_SHOW",
+};
+
+const STATE_ACTION_LABEL_KEY: Record<AppointmentState, string> = {
+  SCHEDULED: "apptPage.action.schedule",
+  CONFIRMED: "apptPage.action.confirm",
+  REGISTERED: "apptPage.action.register",
+  CHECKED_IN: "apptPage.action.checkIn",
+  IN_PROGRESS: "apptPage.action.startExam",
+  COMPLETED: "apptPage.action.complete",
+  CANCELLED: "apptPage.action.cancel",
+  NO_SHOW: "apptPage.action.markNoShow",
+};
+
+const appointmentStateOf = (apt: {
+  state?: AppointmentState;
+  status?: string;
+}): AppointmentState =>
+  apt.state ?? STATUS_TO_STATE[apt.status ?? ""] ?? "SCHEDULED";
+
+const withAppointmentState = (
+  apt: Appointment,
+  state: AppointmentState,
+): Appointment => ({
+  ...apt,
+  state,
+  status: STATE_TO_STATUS[state],
+  updatedAt: new Date().toLocaleString("zh-CN"),
+});
+
+const mapAppointmentDto = (
+  raw: Record<string, any>,
+  fallback?: {
+    gender?: string;
+    age?: number;
+    idCard?: string;
+    phone?: string;
+  },
+): Appointment => {
+  const start = raw.startAt ? new Date(raw.startAt) : new Date();
+  const validStart = Boolean(raw.startAt) && !Number.isNaN(start.getTime());
+  const examDate =
+    raw.examDate ??
+    (validStart
+      ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`
+      : "");
+  const examTime =
+    raw.examTime ??
+    (validStart
+      ? `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`
+      : "");
+  const state: AppointmentState =
+    raw.state ?? STATUS_TO_STATE[String(raw.status ?? "")] ?? "SCHEDULED";
+  const priority: Appointment["priority"] =
+    raw.priority === "STAT"
+      ? "critical"
+      : raw.priority === "URGENT"
+        ? "urgent"
+        : raw.priority === "critical" || raw.priority === "urgent"
+          ? raw.priority
+          : "normal";
+  return {
+    id: String(raw.id ?? ""),
+    patientId: String(raw.patientId ?? ""),
+    patientName: String(raw.patientName ?? ""),
+    patientInitials: getNameInitials(String(raw.patientName ?? "")),
+    gender: raw.gender ?? fallback?.gender ?? "未知",
+    age: raw.age ?? fallback?.age ?? 0,
+    idCard: raw.idCard ?? fallback?.idCard ?? "",
+    phone: raw.phone ?? fallback?.phone ?? "",
+    examItemId: raw.examItemId ?? "",
+    examItemName:
+      raw.examItemName ??
+      (raw.bodyPart
+        ? `${raw.modality} ${raw.bodyPart}`
+        : String(raw.modality ?? "")),
+    modality: String(raw.modality ?? ""),
+    bodyPart: raw.bodyPart ?? "",
+    examDate,
+    examTime,
+    deviceId: String(raw.deviceId ?? ""),
+    deviceName: String(raw.deviceName ?? ""),
+    roomId: raw.roomId ?? "",
+    roomName: raw.roomName ?? raw.room ?? "",
+    referringDoctorId: raw.referringDoctorId ?? "",
+    referringDoctorName: raw.referringDoctorName ?? raw.referringDoctor ?? "",
+    clinicalDiagnosis: raw.clinicalDiagnosis ?? raw.note ?? "",
+    notes: raw.notes ?? raw.note ?? "",
+    status: STATE_TO_STATUS[state],
+    state,
+    priority,
+    createdAt: raw.createdAt ?? "",
+    updatedAt: raw.updatedAt ?? "",
+  };
+};
 
 // 提醒记录类型
 type ReminderStatus = "已发送" | "已确认" | "已改期" | "已取消";
@@ -564,7 +704,11 @@ export default function AppointmentPage() {
         const aptItems =
           (aptRes.data as { items?: unknown[] } | null)?.items ?? [];
         if (aptRes.success && Array.isArray(aptItems)) {
-          setAppointments(aptItems as unknown as Appointment[]);
+          setAppointments(
+            aptItems.map((item) =>
+              mapAppointmentDto(item as Record<string, unknown>),
+            ),
+          );
           setLoadError(null);
         } else {
           setAppointments([]);
@@ -708,6 +852,11 @@ export default function AppointmentPage() {
     useState<Appointment | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleTime, setRescheduleTime] = useState("08:00");
+  const [rescheduleSubmitting, setRescheduleSubmitting] = useState(false);
+  const [rescheduleError, setRescheduleError] = useState("");
   const [cancelReason, setCancelReason] = useState("");
   const [validationError, setValidationError] = useState("");
   const [cancelReasonError, setCancelReasonError] = useState("");
@@ -1236,57 +1385,13 @@ export default function AppointmentPage() {
   };
 
   // 服务端返回对象 → 本地 Appointment (列表/日历展示)
-  const toLocalAppointment = (dto: AppointmentDto): Appointment => {
-    const start = new Date(dto.startAt);
-    const date = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`;
-    const time = `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`;
-    const statusMap: Record<string, string> = {
-      SCHEDULED: "pending",
-      CONFIRMED: "confirmed",
-      REGISTERED: "pending",
-      CHECKED_IN: "checked-in",
-      IN_PROGRESS: "checked-in",
-      COMPLETED: "completed",
-      CANCELLED: "cancelled",
-      NO_SHOW: "no-show",
-    };
-    const priority: Appointment["priority"] =
-      dto.priority === "STAT"
-        ? "critical"
-        : dto.priority === "URGENT"
-          ? "urgent"
-          : "normal";
-    return {
-      id: dto.id,
-      patientId: dto.patientId,
-      patientName: dto.patientName,
-      patientInitials: getNameInitials(dto.patientName),
+  const toLocalAppointment = (dto: AppointmentDto): Appointment =>
+    mapAppointmentDto(dto as unknown as Record<string, unknown>, {
       gender: formData.gender,
       age: parseInt(formData.age) || 0,
       idCard: formData.idCard,
       phone: formData.phone,
-      examItemId: "",
-      examItemName: dto.bodyPart
-        ? `${dto.modality} ${dto.bodyPart}`
-        : dto.modality,
-      modality: dto.modality,
-      bodyPart: dto.bodyPart || "",
-      examDate: date,
-      examTime: time,
-      deviceId: dto.deviceId,
-      deviceName: dto.deviceName,
-      roomId: "",
-      roomName: dto.room || "",
-      referringDoctorId: "",
-      referringDoctorName: dto.referringDoctor || "",
-      clinicalDiagnosis: dto.note || "",
-      notes: dto.note || "",
-      status: (statusMap[dto.state] ?? "pending") as Appointment["status"],
-      priority,
-      createdAt: dto.createdAt || new Date().toLocaleString("zh-CN"),
-      updatedAt: dto.updatedAt || new Date().toLocaleString("zh-CN"),
-    };
-  };
+    });
 
   const resetAppointmentForm = () => {
     setFormData({
@@ -1406,22 +1511,32 @@ export default function AppointmentPage() {
       setCancelReasonError(t("apptPage.errCancelNotAllowed"));
       return;
     }
-    await appointmentApi.cancel(selectedAppointment.id);
+    const res = await appointmentApi.cancel(
+      selectedAppointment.id,
+      cancelReason,
+    );
+    if (!res.success) {
+      setCancelReasonError(res.error?.message ?? t("apptPage.actionFailed"));
+      return;
+    }
     setAppointments((prev) =>
       prev.map((a) =>
         a.id === selectedAppointment.id
           ? {
               ...a,
               status: "cancelled",
+              state: "CANCELLED",
               cancelReason,
               updatedAt: new Date().toLocaleString("zh-CN"),
             }
           : a,
       ),
     );
+    message.success(t("apptPage.status.cancelled"));
     setShowCancelModal(false);
     setCancelReason("");
     setSelectedAppointment(null);
+    setReloadTick((n) => n + 1);
   };
 
   // 打开详情
@@ -1431,47 +1546,172 @@ export default function AppointmentPage() {
   };
 
   // ====== [W14-UX] 右键上下文操作 + 批量操作 ======
-  const checkInAppointment = async (apt: { id: string }) => {
+  const cancelAppointmentDirect = (apt: Appointment) => {
+    const state = appointmentStateOf(apt);
+    if (!APPOINTMENT_TRANSITIONS[state].includes("CANCELLED")) {
+      message.warning(t("apptPage.actionInvalid"));
+      return;
+    }
+    setSelectedAppointment(apt);
+    setShowCancelModal(true);
+  };
+
+  const applyStateTransition = async (
+    apt: Appointment,
+    target: AppointmentState,
+  ) => {
+    if (target === "CANCELLED") {
+      cancelAppointmentDirect(apt);
+      return;
+    }
+    if (!APPOINTMENT_TRANSITIONS[appointmentStateOf(apt)].includes(target)) {
+      message.warning(t("apptPage.actionInvalid"));
+      return;
+    }
+    const res =
+      target === "NO_SHOW"
+        ? await appointmentApi.markNoShow(apt.id)
+        : await appointmentApi.update(apt.id, { state: target });
+    if (!res.success) {
+      message.error(res.error?.message ?? t("apptPage.actionFailed"));
+      return;
+    }
+    const serverState =
+      target === "NO_SHOW"
+        ? "NO_SHOW"
+        : ((res.data as AppointmentDto | null)?.state ?? target);
+    const next = withAppointmentState(apt, serverState);
+    setAppointments((prev) => prev.map((a) => (a.id === apt.id ? next : a)));
+    setSelectedAppointment((prev) =>
+      prev && prev.id === apt.id ? next : prev,
+    );
+    message.success(
+      t("apptPage.actionDone", {
+        state: t(STATE_ACTION_LABEL_KEY[target]),
+      }),
+    );
+    setReloadTick((n) => n + 1);
+  };
+
+  const checkInAppointment = async (apt: Appointment) => {
+    await applyStateTransition(apt, "CHECKED_IN");
+  };
+
+  const refreshRescheduleRecords = async () => {
+    const rs = await appointmentApi.getRescheduleRecords();
+    if (rs.success && Array.isArray(rs.data))
+      setRescheduleRecords(rs.data as unknown as RescheduleRecord[]);
+  };
+
+  const performReschedule = async (
+    apt: Appointment,
+    date: string,
+    time: string,
+  ): Promise<boolean> => {
+    if (!date || !time) return false;
+    const start = new Date(`${date}T${time}:00`);
+    if (Number.isNaN(start.getTime())) {
+      message.error(t("apptPage.rescheduleFailed"));
+      return false;
+    }
+    const end = new Date(start.getTime() + 30 * 60 * 1000);
+    const startAt = start.toISOString();
+    const endAt = end.toISOString();
+    const check = await appointmentApi.checkConflicts({
+      id: apt.id,
+      patientId: apt.patientId || undefined,
+      deviceId: apt.deviceId || undefined,
+      roomId: apt.roomId || undefined,
+      modality: apt.modality,
+      startAt,
+      endAt,
+    });
+    if (!check.success) {
+      message.error(check.error?.message ?? t("apptPage.rescheduleFailed"));
+      return false;
+    }
+    const conflicts = check.data?.conflicts ?? [];
+    const blocked =
+      !!check.data?.blocked || conflicts.some((c) => c.severity === "ERROR");
+    if (blocked) {
+      const detail = conflicts
+        .filter((c) => c.severity === "ERROR")
+        .map((c) => c.message)
+        .join("; ");
+      message.error(detail || t("apptPage.rescheduleConflict"));
+      return false;
+    }
+    const res = await appointmentApi.update(apt.id, { startAt, endAt });
+    if (!res.success) {
+      message.error(res.error?.message ?? t("apptPage.rescheduleFailed"));
+      return false;
+    }
     setAppointments((prev) =>
       prev.map((a) =>
         a.id === apt.id
           ? {
               ...a,
-              status: "checked-in",
+              examDate: date,
+              examTime: time,
               updatedAt: new Date().toLocaleString("zh-CN"),
             }
           : a,
       ),
     );
-    await appointmentApi
-      .update(apt.id, { state: "CHECKED_IN" })
-      .catch(() => null);
-    message.success(t("apptPage.status.checkedIn"));
+    return true;
   };
 
   const rescheduleAppointment = (apt: Appointment) => {
-    const d = new Date(apt.examDate);
-    if (!Number.isNaN(d.getTime())) d.setDate(d.getDate() + 1);
-    const newDate = Number.isNaN(d.getTime()) ? apt.examDate : formatDateObj(d);
-    setAppointments((prev) =>
-      prev.map((a) =>
-        a.id === apt.id
-          ? {
-              ...a,
-              examDate: newDate,
-              updatedAt: new Date().toLocaleString("zh-CN"),
-            }
-          : a,
-      ),
-    );
-    message.success(
-      t("w14Ux.batch.done", { count: 1, action: t("w14Ux.batch.reschedule") }),
-    );
+    setSelectedAppointment(apt);
+    setRescheduleDate(apt.examDate || formatDateObj(new Date()));
+    setRescheduleTime(apt.examTime || "08:00");
+    setRescheduleError("");
+    setShowRescheduleModal(true);
   };
 
-  const cancelAppointmentDirect = (apt: Appointment) => {
-    setSelectedAppointment(apt);
-    setShowCancelModal(true);
+  const handleRescheduleConfirm = async () => {
+    if (!selectedAppointment || !rescheduleDate || !rescheduleTime) {
+      setRescheduleError(t("apptPage.rescheduleFailed"));
+      return;
+    }
+    setRescheduleSubmitting(true);
+    setRescheduleError("");
+    const ok = await performReschedule(
+      selectedAppointment,
+      rescheduleDate,
+      rescheduleTime,
+    );
+    setRescheduleSubmitting(false);
+    if (!ok) {
+      setRescheduleError(t("apptPage.rescheduleFailed"));
+      return;
+    }
+    setSelectedAppointment((prev) =>
+      prev
+        ? {
+            ...prev,
+            examDate: rescheduleDate,
+            examTime: rescheduleTime,
+            updatedAt: new Date().toLocaleString("zh-CN"),
+          }
+        : prev,
+    );
+    setShowRescheduleModal(false);
+    message.success(t("apptPage.rescheduleSuccess"));
+    await refreshRescheduleRecords();
+    setReloadTick((n) => n + 1);
+  };
+
+  const handleRestoreNoShow = async (apt: Appointment) => {
+    const res = await appointmentApi.restoreNoShow(apt.id);
+    if (!res.success) {
+      message.error(res.error?.message ?? t("apptPage.restoreFailed"));
+      return;
+    }
+    message.success(t("apptPage.restoreSuccess"));
+    setShowDetailModal(false);
+    setSelectedAppointment(null);
+    setReloadTick((n) => n + 1);
   };
 
   const printAppointment = () => {
@@ -1480,57 +1720,81 @@ export default function AppointmentPage() {
 
   const handleAppointmentBatch = async (action: string, ids: string[]) => {
     const targets = appointments.filter((a) => ids.includes(a.id));
+    let okCount = 0;
+    let firstError = "";
     if (action === "checkin") {
+      const updated = new Map<string, Appointment>();
       for (const apt of targets) {
-        await appointmentApi
-          .update(apt.id, { state: "CHECKED_IN" })
-          .catch(() => null);
+        const res = await appointmentApi.update(apt.id, {
+          state: "CHECKED_IN",
+        });
+        if (res.success) {
+          okCount += 1;
+          const state =
+            (res.data as AppointmentDto | null)?.state ?? "CHECKED_IN";
+          updated.set(apt.id, withAppointmentState(apt, state));
+        } else if (!firstError) {
+          firstError = res.error?.message ?? t("apptPage.actionFailed");
+        }
       }
-      setAppointments((prev) =>
-        prev.map((a) =>
-          ids.includes(a.id) ? { ...a, status: "checked-in" } : a,
-        ),
-      );
-      message.success(
-        t("w14Ux.batch.done", {
-          count: targets.length,
-          action: t("w14Ux.batch.checkIn"),
-        }),
-      );
+      if (updated.size > 0)
+        setAppointments((prev) => prev.map((a) => updated.get(a.id) ?? a));
     } else if (action === "cancel") {
+      const cancelled = new Set<string>();
       for (const apt of targets) {
-        await appointmentApi.cancel(apt.id).catch(() => null);
+        if (
+          !APPOINTMENT_TRANSITIONS[appointmentStateOf(apt)].includes(
+            "CANCELLED",
+          )
+        )
+          continue;
+        const res = await appointmentApi.cancel(apt.id);
+        if (res.success) {
+          okCount += 1;
+          cancelled.add(apt.id);
+        } else if (!firstError) {
+          firstError = res.error?.message ?? t("apptPage.actionFailed");
+        }
       }
-      setAppointments((prev) =>
-        prev.map((a) =>
-          ids.includes(a.id) ? { ...a, status: "cancelled" } : a,
-        ),
-      );
-      message.success(
-        t("w14Ux.batch.done", {
-          count: targets.length,
-          action: t("w14Ux.batch.cancel"),
-        }),
-      );
+      if (cancelled.size > 0)
+        setAppointments((prev) =>
+          prev.map((a) =>
+            cancelled.has(a.id)
+              ? { ...a, status: "cancelled", state: "CANCELLED" }
+              : a,
+          ),
+        );
     } else if (action === "reschedule") {
-      setAppointments((prev) =>
-        prev.map((a) => {
-          if (!ids.includes(a.id)) return a;
-          const d = new Date(a.examDate);
-          if (!Number.isNaN(d.getTime())) d.setDate(d.getDate() + 1);
-          return {
-            ...a,
-            examDate: Number.isNaN(d.getTime()) ? a.examDate : formatDateObj(d),
-          };
-        }),
-      );
+      for (const apt of targets) {
+        const d = new Date(apt.examDate);
+        if (!Number.isNaN(d.getTime())) d.setDate(d.getDate() + 1);
+        const nextDate = Number.isNaN(d.getTime())
+          ? apt.examDate
+          : formatDateObj(d);
+        const ok = await performReschedule(
+          apt,
+          nextDate,
+          apt.examTime || "08:00",
+        );
+        if (ok) okCount += 1;
+        else if (!firstError) firstError = t("apptPage.rescheduleFailed");
+      }
+      if (okCount > 0) await refreshRescheduleRecords();
+    }
+    if (okCount > 0)
       message.success(
         t("w14Ux.batch.done", {
-          count: targets.length,
-          action: t("w14Ux.batch.reschedule"),
+          count: okCount,
+          action:
+            action === "checkin"
+              ? t("w14Ux.batch.checkIn")
+              : action === "cancel"
+                ? t("w14Ux.batch.cancel")
+                : t("w14Ux.batch.reschedule"),
         }),
       );
-    }
+    if (firstError) message.error(firstError);
+    if (okCount > 0) setReloadTick((n) => n + 1);
     setSelectedAptIds(new Set());
   };
 
@@ -1540,6 +1804,12 @@ export default function AppointmentPage() {
   const borderGray = "var(--border-color)";
   const textGray = "#64748b";
   const whiteBg = "var(--bg-card)";
+  const selectedState = selectedAppointment
+    ? appointmentStateOf(selectedAppointment)
+    : null;
+  const selectedTransitions = selectedState
+    ? APPOINTMENT_TRANSITIONS[selectedState]
+    : [];
 
   // ====== 渲染 ======
   return (
@@ -1952,7 +2222,8 @@ export default function AppointmentPage() {
                   }
                   contextActions={{
                     onView: openDetail,
-                    onCheckIn: (apt) => void checkInAppointment(apt),
+                    onCheckIn: (apt) =>
+                      void checkInAppointment(apt as unknown as Appointment),
                     onCancel: cancelAppointmentDirect,
                     onReschedule: rescheduleAppointment,
                     onPrint: printAppointment,
@@ -3611,40 +3882,67 @@ export default function AppointmentPage() {
               </div>
 
               {/* 操作 */}
-              {selectedAppointment.status !== "cancelled" &&
-                selectedAppointment.status !== "no-show" && (
+              {(selectedTransitions.length > 0 ||
+                selectedState === "NO_SHOW") && (
+                <div
+                  style={{
+                    borderTop: `1px solid ${borderGray}`,
+                    paddingTop: 14,
+                  }}
+                >
+                  <AppText
+                    size="xs"
+                    weight={700}
+                    as="div"
+                    style={{
+                      color: primaryBlue,
+                      marginBottom: "var(--space-2, 8px)",
+                    }}
+                  >
+                    {t("apptPage.flowActions")}
+                  </AppText>
                   <div
                     style={{
                       display: "flex",
+                      flexWrap: "wrap",
                       gap: "var(--space-2, 8px)",
-                      borderTop: `1px solid ${borderGray}`,
-                      paddingTop: 14,
                     }}
                   >
-                    <button
-                      onClick={() => {
-                        setShowDetailModal(false);
-                        setShowCancelModal(true);
-                      }}
-                      style={{
-                        flex: 1,
-                        padding: "8px",
-                        background: "var(--color-error-bg)",
-                        color: "var(--color-error-600)",
-                        border: "none",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "var(--space-1, 4px)",
-                      }}
-                    >
-                      <XCircle size={13} /> {t("apptPage.cancelAppointment")}
-                    </button>
-                    <button
+                    {selectedTransitions.map((target) => (
+                      <Button
+                        key={target}
+                        size="small"
+                        type={target === "CANCELLED" ? "default" : "primary"}
+                        danger={target === "CANCELLED"}
+                        onClick={() => {
+                          if (target === "CANCELLED") {
+                            setShowDetailModal(false);
+                            cancelAppointmentDirect(selectedAppointment);
+                          } else {
+                            void applyStateTransition(
+                              selectedAppointment,
+                              target,
+                            );
+                          }
+                        }}
+                      >
+                        {t(STATE_ACTION_LABEL_KEY[target])}
+                      </Button>
+                    ))}
+                    {selectedState === "NO_SHOW" && (
+                      <Button
+                        size="small"
+                        type="primary"
+                        onClick={() =>
+                          void handleRestoreNoShow(selectedAppointment)
+                        }
+                      >
+                        {t("apptPage.action.restore")}
+                      </Button>
+                    )}
+                    <Button
+                      size="small"
+                      icon={<Edit2 size={13} />}
                       onClick={() => {
                         setFormData((prev) => ({
                           ...prev,
@@ -3668,26 +3966,12 @@ export default function AppointmentPage() {
                         setShowDetailModal(false);
                         setShowForm(true);
                       }}
-                      style={{
-                        flex: 1,
-                        padding: "8px",
-                        background: lightBlue,
-                        color: primaryBlue,
-                        border: "none",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "var(--space-1, 4px)",
-                      }}
                     >
-                      <Edit2 size={13} /> {t("apptPage.editAppointment")}
-                    </button>
+                      {t("apptPage.editAppointment")}
+                    </Button>
                   </div>
-                )}
+                </div>
+              )}
             </div>
           </Card>
         </div>
@@ -3871,6 +4155,160 @@ export default function AppointmentPage() {
                 >
                   {t("apptPage.confirmCancel")}
                 </button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* ====== 改约弹窗 ====== */}
+      {showRescheduleModal && selectedAppointment && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.45)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1001,
+          }}
+          onClick={() => {
+            if (!rescheduleSubmitting) {
+              setShowRescheduleModal(false);
+              setRescheduleError("");
+            }
+          }}
+        >
+          <Card
+            bordered={false}
+            style={{
+              background: whiteBg,
+              borderRadius: 12,
+              width: 440,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+              border: `1px solid ${borderGray}`,
+            }}
+            onClick={(e) => e.stopPropagation()}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div
+              style={{
+                padding: "14px 18px",
+                background: primaryBlue,
+                color: "#fff",
+                borderRadius: "12px 12px 0 0",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 14,
+                fontWeight: 800,
+              }}
+            >
+              <CalendarPlus size={16} /> {t("apptPage.rescheduleTitle")}
+            </div>
+            <div style={{ padding: 18 }}>
+              <div
+                style={{
+                  background: "var(--bg-card)",
+                  borderRadius: 6,
+                  padding: "8px 10px",
+                  border: `1px solid ${borderGray}`,
+                  marginBottom: 14,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: primaryBlue,
+                  }}
+                >
+                  {selectedAppointment.patientName}
+                </div>
+                <div style={{ fontSize: 12, color: textGray, marginTop: 2 }}>
+                  {selectedAppointment.examItemName} ·{" "}
+                  {selectedAppointment.examDate} {selectedAppointment.examTime}
+                </div>
+              </div>
+              {rescheduleError && (
+                <AppText
+                  size="xs"
+                  color="error"
+                  as="div"
+                  style={{ marginBottom: "var(--space-2, 8px)" }}
+                >
+                  {rescheduleError}
+                </AppText>
+              )}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "var(--space-3, 12px)",
+                  marginBottom: "var(--space-4, 16px)",
+                }}
+              >
+                <div>
+                  <AppText
+                    size="xs"
+                    color="secondary"
+                    as="div"
+                    style={{ marginBottom: "var(--space-1, 4px)" }}
+                  >
+                    {t("apptPage.rescheduleDate")}
+                  </AppText>
+                  <DatePicker
+                    style={{ width: "100%" }}
+                    format="YYYY-MM-DD"
+                    value={rescheduleDate ? dayjs(rescheduleDate) : null}
+                    onChange={(d) =>
+                      setRescheduleDate(d ? d.format("YYYY-MM-DD") : "")
+                    }
+                  />
+                </div>
+                <div>
+                  <AppText
+                    size="xs"
+                    color="secondary"
+                    as="div"
+                    style={{ marginBottom: "var(--space-1, 4px)" }}
+                  >
+                    {t("apptPage.rescheduleTime")}
+                  </AppText>
+                  <Select
+                    style={{ width: "100%" }}
+                    value={rescheduleTime}
+                    onChange={(v) => setRescheduleTime(v)}
+                    options={timeSlots.map((v) => ({ value: v, label: v }))}
+                  />
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
+                <Button
+                  style={{ flex: 1 }}
+                  disabled={rescheduleSubmitting}
+                  onClick={() => {
+                    setShowRescheduleModal(false);
+                    setRescheduleError("");
+                  }}
+                >
+                  {t("apptPage.back")}
+                </Button>
+                <Button
+                  type="primary"
+                  style={{ flex: 1 }}
+                  loading={rescheduleSubmitting}
+                  disabled={
+                    rescheduleSubmitting || !rescheduleDate || !rescheduleTime
+                  }
+                  onClick={() => void handleRescheduleConfirm()}
+                >
+                  {t("apptPage.rescheduleConfirm")}
+                </Button>
               </div>
             </div>
           </Card>

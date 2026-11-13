@@ -2447,11 +2447,24 @@ export default function WorklistPage() {
         if (target === "ARRIVED") {
           res = await examApi.checkIn(exam.id);
         } else if (target === "IN_PROGRESS") {
-          res = await examApi.start(exam.id);
+          if (from === "PAUSED") res = await worklistApi.resumeExam(exam.id);
+          else if (from === "QC_REJECT")
+            res = await worklistApi.updateState(exam.id, "IN_PROGRESS");
+          else res = await examApi.start(exam.id);
+        } else if (target === "PAUSED") {
+          res = await worklistApi.pauseExam(exam.id);
         } else if (target === "COMPLETED") {
           res = await examApi.complete(exam.id);
         } else if (target === "CANCELLED") {
           res = await examApi.cancel(exam.id, "看板拖拽取消");
+        } else if (
+          target === "IMAGE_READY" ||
+          target === "QC_REJECT" ||
+          target === "QC_PASS"
+        ) {
+          res = await worklistApi.updateState(exam.id, target);
+        } else if (target === "PENDING_REPORT") {
+          res = await worklistApi.updateStatus(exam.id, target);
         } else {
           return;
         }
@@ -4614,7 +4627,13 @@ export default function WorklistPage() {
             }
           }}
         >
-          <KanbanView exams={smartOrderedExams} onRowClick={setSelectedExam} />
+          <KanbanView
+            exams={smartOrderedExams}
+            onRowClick={setSelectedExam}
+            onStatusChange={(exam, targetStatus) =>
+              void transitionExamTo(exam, targetStatus)
+            }
+          />
           <DragOverlay />
         </DndContext>
       )}

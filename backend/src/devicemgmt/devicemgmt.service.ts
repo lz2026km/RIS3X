@@ -1,14 +1,14 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { getCurrentTenantId } from "../common/interceptors/tenant-context.interceptor";
 
 // 客户端可写字段白名单 (来源: devicemgmt.schema.ts 的 Zod schema), 防止越权改写 tenantId 等列
-const EQUIPMENT_LIFECYCLE_FIELDS = [
-  "status",
-  "maintenanceDate",
-  "notes",
-] as const;
 const DEVICE_UPDATE_FIELDS = [
   "name",
   "location",
@@ -410,13 +410,43 @@ export class DeviceMgmtService {
       where: { tenantId: getCurrentTenantId() },
       orderBy: { createdAt: "desc" },
     });
-    return { items, total: items.length };
+    return {
+      items: items.map((d) => this.toLifecycleDto(d)),
+      total: items.length,
+    };
   }
 
   async getEquipmentLifecycle(id: string) {
-    return this.prisma.device.findFirst({
+    const device = await this.prisma.device.findFirst({
       where: { id, tenantId: getCurrentTenantId() },
     });
+    return device ? this.toLifecycleDto(device) : null;
+  }
+
+  /**
+   * [v3.0.6.16-9] Prisma Device 用 `state`(枚举), 前端设备台账用 `status`
+   * (ACTIVE/MAINTENANCE/RETIRED)。旧实现直接读 `status` → 恒 undefined (表格状态空白),
+   * 写入时把 `status` 当列名 → Prisma 抛 "Unknown argument" (报废必然 500)。
+   */
+  private toLifecycleDto(device: Record<string, any>): Record<string, any> {
+    const state = String(device.state ?? "IDLE");
+    const status =
+      state === "RETIRED"
+        ? "RETIRED"
+        : state === "MAINTENANCE" || state === "BROKEN"
+          ? "MAINTENANCE"
+          : state === "OFFLINE"
+            ? "OFFLINE"
+            : "ACTIVE";
+    return { ...device, status };
+  }
+
+  private stateFromStatus(status: unknown): string | undefined {
+    if (status === "RETIRED") return "RETIRED";
+    if (status === "MAINTENANCE") return "MAINTENANCE";
+    if (status === "OFFLINE") return "OFFLINE";
+    if (status === "ACTIVE") return "IDLE";
+    return undefined;
   }
 
   async updateEquipmentLifecycle(id: string, body: Record<string, unknown>) {
@@ -425,9 +455,67 @@ export class DeviceMgmtService {
       where: { id, tenantId },
     });
     if (!existing) throw new NotFoundException(`Device ${id} not found`);
-    const data = pickDeviceFields(body, EQUIPMENT_LIFECYCLE_FIELDS);
-    if (Object.keys(data).length === 0) return existing;
-    return this.prisma.device.update({ where: { id, tenantId }, data });
+    const data: Record<string, unknown> = {};
+    const state = this.stateFromStatus(body.status);
+    if (state) data.state = state;
+    if (typeof body.notes === "string") data.retiredReason = body.notes;
+    if (Object.keys(data).length === 0) return this.toLifecycleDto(existing);
+    const updated = await this.prisma.device.update({
+      where: { id, tenantId },
+      data,
+    });
+    return this.toLifecycleDto(updated);
+  }
+
+  // [v3.0.6.16-9] 报废审批: 申请 (不直接改状态) -> 批准/驳回
+  async requestRetirement(
+    id: string,
+    body: { reason?: string; requestedBy?: string },
+  ) {
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.device.findFirst({
+      where: { id, tenantId },
+    });
+    if (!existing) throw new NotFoundException(`Device ${id} not found`);
+    if (existing.state === "RETIRED") {
+      throw new ConflictException(`Device ${id} already retired`);
+    }
+    const updated = await this.prisma.device.update({
+      where: { id, tenantId },
+      data: {
+        retirementStatus: "PENDING",
+        retirementRequestedBy: body.requestedBy ?? undefined,
+        retiredReason: body.reason ?? existing.retiredReason ?? undefined,
+      },
+    });
+    return this.toLifecycleDto(updated);
+  }
+
+  async approveRetirement(
+    id: string,
+    body: { approved: boolean; approvedBy?: string; opinion?: string },
+  ) {
+    const tenantId = getCurrentTenantId();
+    const existing = await this.prisma.device.findFirst({
+      where: { id, tenantId },
+    });
+    if (!existing) throw new NotFoundException(`Device ${id} not found`);
+    if (existing.retirementStatus !== "PENDING") {
+      throw new ConflictException(
+        `Device ${id} has no pending retirement request`,
+      );
+    }
+    const approved = body.approved === true;
+    const updated = await this.prisma.device.update({
+      where: { id, tenantId },
+      data: {
+        retirementStatus: approved ? "APPROVED" : "REJECTED",
+        retirementApprovedBy: body.approvedBy ?? undefined,
+        ...(approved ? { state: "RETIRED", retiredAt: new Date() } : {}),
+        ...(body.opinion ? { retiredReason: body.opinion } : {}),
+      },
+    });
+    return this.toLifecycleDto(updated);
   }
 
   async listDevices() {
@@ -451,8 +539,16 @@ export class DeviceMgmtService {
     });
     if (!existing) throw new NotFoundException(`Device ${id} not found`);
     const data = pickDeviceFields(body, DEVICE_UPDATE_FIELDS);
-    if (Object.keys(data).length === 0) return existing;
-    return this.prisma.device.update({ where: { id, tenantId }, data });
+    // [v3.0.6.16-9] `status` 不是 Device 表列 (表里是 `state` 枚举) → 映射, 否则 Prisma 抛 Unknown argument
+    const state = this.stateFromStatus(body.status);
+    delete (data as Record<string, unknown>).status;
+    if (state) (data as Record<string, unknown>).state = state;
+    if (Object.keys(data).length === 0) return this.toLifecycleDto(existing);
+    const updated = await this.prisma.device.update({
+      where: { id, tenantId },
+      data,
+    });
+    return this.toLifecycleDto(updated);
   }
 
   async listDeviceFaults() {

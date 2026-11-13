@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
-import { message } from "antd";
+import { Button, Tag, message } from "antd";
 import { getInjectionWorkstationService } from "../../services/contrast";
 import type {
   InjectionProtocol,
@@ -28,11 +28,13 @@ import type {
   ContrastObservation,
   ContrastAllergyTestRecord,
   ContrastAllergyResult,
+  ExtravasationEvent,
 } from "../../services/api/contrastSafetyApi";
 import { t } from "../../i18n/appI18n";
 import { uniqueId } from "../../utils/uniqueId";
 // [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-ICME-05 对比剂外渗发生率
 import { RqiIndicatorLink } from "../../components/qc/RqiIndicatorLink";
+import ExtravasationHandleModal from "../../components/contrast/ExtravasationHandleModal";
 import { AppSelectField } from "../../components/common/AppSelectField";
 // [v3.0.6.11-104 Wave 3D] 临床资料接入: eGFR 30-59 警告 + 注射前安全核查 + 介入操作核查 (独立子组件, 避开 Wave 3B 区块)
 import ContrastDataSections from "./ContrastDataSections";
@@ -117,6 +119,12 @@ export default function ContrastInjectionWorkstationPage() {
   const [startingObs, setStartingObs] = useState(false);
   const [doctorRelease, setDoctorRelease] = useState(false);
   const [recordForm, setRecordForm] = useState({ symptoms: "", action: "" });
+  const [extraOpenEvents, setExtraOpenEvents] = useState<ExtravasationEvent[]>(
+    [],
+  );
+  const [extraOpenLoading, setExtraOpenLoading] = useState(false);
+  const [extraHandleTarget, setExtraHandleTarget] =
+    useState<ExtravasationEvent | null>(null);
 
   const selectedProto = protocols.find((p) => p.id === selectedProtocol);
   const allergyResult: ContrastAllergyResult =
@@ -164,6 +172,27 @@ export default function ContrastInjectionWorkstationPage() {
       evaluatedAt: new Date().toISOString(),
     };
   };
+
+  const loadExtraOpenEvents = async () => {
+    setExtraOpenLoading(true);
+    try {
+      const res = await contrastSafetyApi.listExtravasations({
+        status: "open",
+        pageSize: 50,
+      });
+      if (res.success && res.data) {
+        setExtraOpenEvents(res.data.items ?? []);
+      }
+    } catch {
+      /* 外渗接口不可用时面板保持空态 */
+    } finally {
+      setExtraOpenLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadExtraOpenEvents();
+  }, []);
 
   useEffect(() => {
     const run = async () => {
@@ -870,7 +899,7 @@ export default function ContrastInjectionWorkstationPage() {
                   { key: "pregnancy", label: t("contrastSafety.pregnancy") },
                 ] as const
               ).map((item) => {
-                const check = preCheck?.checks.find((c) => c.key === item.key);
+                const check = preCheck?.checks?.find((c) => c.key === item.key);
                 const localPassed =
                   item.key === "consent"
                     ? consentSigned
@@ -945,7 +974,7 @@ export default function ContrastInjectionWorkstationPage() {
                 >
                   {t("contrastSafety.blocked")}
                 </div>
-                <div>{preCheck.blockers.map(blockerLabel).join("、")}</div>
+                <div>{preCheck.blockers?.map(blockerLabel).join("、")}</div>
               </div>
             )}
             {preCheck?.passed && (
@@ -1621,6 +1650,100 @@ export default function ContrastInjectionWorkstationPage() {
               </div>
             )}
           </div>
+
+          <div style={panelStyle}>
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-2, 8px)",
+                marginBottom: "var(--space-3, 12px)",
+              }}
+            >
+              <Syringe size={16} />
+              {t("contrast.extravasation.events")}
+              <Tag color="red">{extraOpenEvents.length}</Tag>
+            </div>
+            {extraOpenLoading ? (
+              <div
+                style={{ fontSize: 12, color: "var(--text-muted, #8b949e)" }}
+              >
+                {t("contrastWs.loading")}
+              </div>
+            ) : extraOpenEvents.length === 0 ? (
+              <div
+                style={{ fontSize: 12, color: "var(--text-muted, #8b949e)" }}
+              >
+                {t("contrast.extravasation.empty")}
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--space-2, 8px)",
+                }}
+              >
+                {extraOpenEvents.map((e) => (
+                  <div
+                    key={e.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "var(--space-3, 12px)",
+                      padding: "8px 10px",
+                      background: "var(--bg-primary, #0d1117)",
+                      borderRadius: 6,
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--space-2, 8px)",
+                        }}
+                      >
+                        <span style={{ fontWeight: 600 }}>{e.patientId}</span>
+                        <Tag color="red">{e.severity}</Tag>
+                        <span style={{ color: "var(--text-muted, #8b949e)" }}>
+                          {e.site} · {e.estimatedVolumeMl} mL
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-muted, #8b949e)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {e.management}
+                      </div>
+                    </div>
+                    <Button
+                      size="small"
+                      type="primary"
+                      onClick={() => setExtraHandleTarget(e)}
+                    >
+                      {t("contrast.extravasation.handle")}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <ExtravasationHandleModal
+            event={extraHandleTarget}
+            onClose={() => setExtraHandleTarget(null)}
+            onSuccess={() => void loadExtraOpenEvents()}
+          />
 
           {/* [v3.0.6.11-104 Wave 3D] 临床资料接入区块: eGFR 警告 + 安全核查清单 + 介入核查清单 */}
           <ContrastDataSections egfr={egfr} />

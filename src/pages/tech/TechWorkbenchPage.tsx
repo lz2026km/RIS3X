@@ -299,6 +299,8 @@ export default function TechWorkbenchPage() {
   const [techStats, setTechStats] = useState<WorklistTechnicianStatsDto | null>(
     null,
   );
+  const [pendingRetakes, setPendingRetakes] = useState<WorklistItemDto[]>([]);
+  const [pendingRetakesLoading, setPendingRetakesLoading] = useState(false);
   const [detail, setDetail] = useState<{
     techNotes?: string;
     doseDlp?: number;
@@ -351,6 +353,19 @@ export default function TechWorkbenchPage() {
     }
   }, []);
 
+  const loadPendingRetakes = useCallback(async () => {
+    setPendingRetakesLoading(true);
+    try {
+      const res = await worklistApi.listRetakeRequests();
+      const items = res.success ? (res.data?.items ?? []) : [];
+      setPendingRetakes(items.filter((i) => i.retakeStatus === "approved"));
+    } catch {
+      setPendingRetakes([]);
+    } finally {
+      setPendingRetakesLoading(false);
+    }
+  }, []);
+
   const refresh = useCallback(async () => {
     await invalidateApiCacheByPrefix("/worklist");
     await invalidateApiCacheByPrefix("/exams");
@@ -377,6 +392,10 @@ export default function TechWorkbenchPage() {
       offRooms();
     };
   }, [refresh, fetchToday]);
+
+  useEffect(() => {
+    if (activeTab === "retake") void loadPendingRetakes();
+  }, [activeTab, loadPendingRetakes]);
 
   // ---- 一键流转 ----
   const [busy, setBusy] = useState(false);
@@ -648,6 +667,34 @@ export default function TechWorkbenchPage() {
       await refresh();
     } catch (err) {
       message.error(err instanceof Error ? err.message : "操作失败");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const executeApprovedRetake = async (exam: WorklistItemDto) => {
+    if (exam.retakeStatus !== "approved") {
+      message.warning(t("w3d.retake.notApproved"));
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await worklistApi.updateState(
+        exam.id,
+        "IN_PROGRESS",
+        exam.retakeRequestNote ?? undefined,
+        { retakeReason: exam.retakeReason ?? undefined },
+      );
+      if (!res.success) {
+        message.error(res.error?.message ?? t("w3d.retake.executeFailed"));
+        return;
+      }
+      message.success(t("w3d.retake.executed"));
+      await Promise.all([loadPendingRetakes(), refresh()]);
+    } catch (err) {
+      message.error(
+        err instanceof Error ? err.message : t("w3d.retake.executeFailed"),
+      );
     } finally {
       setBusy(false);
     }
@@ -2385,6 +2432,124 @@ export default function TechWorkbenchPage() {
     </div>
   );
 
+  const pendingRetakeColumns: TableColumnsType<WorklistItemDto> = [
+    {
+      title: t("retakeAnalytics.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
+      width: 120,
+      render: (v: string, r) => v ?? r.patient?.name ?? "--",
+    },
+    {
+      title: t("retakeAnalytics.colExam"),
+      key: "exam",
+      width: 180,
+      render: (_v, r) =>
+        `${r.modality ?? ""} · ${r.examName ?? r.bodyPart ?? ""}`,
+    },
+    {
+      title: t("w3d.retake.reason"),
+      dataIndex: "retakeReason",
+      key: "retakeReason",
+      width: 140,
+      render: (v: string) =>
+        RETAKE_REASON_OPTIONS.find((o) => o.value === v)?.label ?? (v || "--"),
+    },
+    {
+      title: t("w3d.retake.applicant"),
+      dataIndex: "retakeRequestedBy",
+      key: "applicant",
+      width: 110,
+      render: (v: string) => v || "--",
+    },
+    {
+      title: t("w3d.retake.approver"),
+      dataIndex: "retakeApprover",
+      key: "approver",
+      width: 110,
+      render: (v: string) => v || "--",
+    },
+    {
+      title: t("retakeAnalytics.colActions"),
+      key: "action",
+      width: 130,
+      render: (_v, r) => (
+        <Button
+          size="small"
+          type="primary"
+          disabled={busy}
+          onClick={() => void executeApprovedRetake(r)}
+        >
+          {t("w3d.retake.execute")}
+        </Button>
+      ),
+    },
+  ];
+
+  const renderRetake = () => (
+    <div>
+      <div
+        style={{
+          background: "var(--bg-card)",
+          borderRadius: 12,
+          border: "1px solid var(--border-color)",
+          padding: "14px 18px",
+          marginBottom: "var(--space-4, 16px)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "var(--space-2, 8px)",
+          }}
+        >
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+            }}
+          >
+            <RefreshCw size={14} /> {t("w3d.retake.pendingExecution")}
+            <Tag color="green">{pendingRetakes.length}</Tag>
+          </span>
+          <Button
+            size="small"
+            icon={<RefreshCw size={12} />}
+            loading={pendingRetakesLoading}
+            onClick={() => void loadPendingRetakes()}
+          >
+            {t("techWorkbench.refresh")}
+          </Button>
+        </div>
+        {pendingRetakes.length === 0 && !pendingRetakesLoading ? (
+          <Empty
+            description={t("w3d.retake.pendingExecutionEmpty")}
+            style={{ padding: "var(--space-5, 20px)" }}
+          />
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <DataTable<WorklistItemDto>
+              rowKey="id"
+              loading={pendingRetakesLoading}
+              dataSource={pendingRetakes}
+              pagination={{ pageSize: 6, hideOnSinglePage: true }}
+              columns={pendingRetakeColumns}
+            />
+          </div>
+        )}
+      </div>
+      <RetakeRateAnalyticsPage
+        onQueueChanged={() => void loadPendingRetakes()}
+      />
+    </div>
+  );
+
   return (
     <PageContainer
       background="slate"
@@ -2469,7 +2634,7 @@ export default function TechWorkbenchPage() {
 
       {activeTab === "today" && renderToday()}
       {activeTab === "rooms" && <ExamRoomStatusBoard />}
-      {activeTab === "retake" && <RetakeRateAnalyticsPage />}
+      {activeTab === "retake" && renderRetake()}
       {activeTab === "execution" && renderExecution()}
       {activeTab === "handover" && renderHandover()}
       {activeTab === "emergency" && renderEmergency()}

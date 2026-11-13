@@ -43,6 +43,7 @@ import type {
 } from "../../services/api/contrastSafetyApi";
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import { AppSelectField } from "../../components/common/AppSelectField";
+import ExtravasationHandleModal from "../../components/contrast/ExtravasationHandleModal";
 import { severityToAntd, toneToAntd } from "../../theme/statusTokens";
 import { AppEmpty } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
@@ -141,6 +142,12 @@ export default function AdverseReactionPage() {
     Record<string, string>
   >({});
   const [extraForm] = Form.useForm();
+  const [extraStatusFilter, setExtraStatusFilter] = useState<
+    ExtravasationEvent["status"] | ""
+  >("");
+  const [handleTarget, setHandleTarget] = useState<ExtravasationEvent | null>(
+    null,
+  );
 
   useEffect(() => {
     const run = async () => {
@@ -243,6 +250,25 @@ export default function AdverseReactionPage() {
 
   const extraSevCount = (sev: ExtravasationSeverity) =>
     extraStats?.bySeverity?.find((x) => x.severity === sev)?.count ?? 0;
+
+  const reloadExtraEvents = async (
+    status: ExtravasationEvent["status"] | "" = extraStatusFilter,
+  ) => {
+    try {
+      const res = await contrastSafetyApi.listExtravasations({
+        pageSize: 100,
+        status: status || undefined,
+      });
+      if (res.success && res.data) setExtraEvents(res.data.items ?? []);
+    } catch {
+      /* 外渗列表接口不可用时保留当前数据 */
+    }
+  };
+
+  const reloadExtraStats = async () => {
+    const s = await contrastSafetyApi.getExtravasationStats().catch(() => null);
+    if (s?.success && s.data) setExtraStats(s.data);
+  };
 
   const extraByContrast = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -1288,6 +1314,43 @@ export default function AdverseReactionPage() {
               </Tag>
             ))}
           </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+              marginBottom: "var(--space-3, 12px)",
+              fontSize: 12,
+            }}
+          >
+            <span style={{ color: "var(--text-muted, #8b949e)" }}>
+              {t("contrast.extravasation.filterStatus")}
+            </span>
+            <AppSelectField
+              value={extraStatusFilter}
+              onChange={(v) => {
+                const next = String(v ?? "") as
+                  ExtravasationEvent["status"] | "";
+                setExtraStatusFilter(next);
+                void reloadExtraEvents(next);
+              }}
+              options={[
+                {
+                  value: "",
+                  label: t("contrast.extravasation.statusAll"),
+                },
+                {
+                  value: "open",
+                  label: t("contrast.extravasation.statusOpen"),
+                },
+                {
+                  value: "resolved",
+                  label: t("contrast.extravasation.statusResolved"),
+                },
+              ]}
+              style={{ width: 140 }}
+            />
+          </div>
           <DataTable
             rowKey="id"
             loading={extraLoading}
@@ -1340,6 +1403,40 @@ export default function AdverseReactionPage() {
                 width: 160,
                 render: (v: string) =>
                   new Date(v).toLocaleString("zh-CN", { hour12: false }),
+              },
+              {
+                title: t("contrast.extravasation.handledBy"),
+                dataIndex: "handledBy",
+                width: 110,
+                render: (v: string) => v || "--",
+              },
+              {
+                title: t("contrast.extravasation.handledAt"),
+                dataIndex: "handledAt",
+                width: 160,
+                render: (v: string) =>
+                  v
+                    ? new Date(v).toLocaleString("zh-CN", { hour12: false })
+                    : "--",
+              },
+              {
+                title: t("contrast.extravasation.actions"),
+                key: "actions",
+                width: 120,
+                render: (_: unknown, r: ExtravasationEvent) =>
+                  r.status !== "resolved" ? (
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => setHandleTarget(r)}
+                    >
+                      {t("contrast.extravasation.handle")}
+                    </Button>
+                  ) : (
+                    <span style={{ color: "var(--text-muted, #8b949e)" }}>
+                      --
+                    </span>
+                  ),
               },
             ]}
             scroll={{ x: "max-content" }}
@@ -1427,6 +1524,15 @@ export default function AdverseReactionPage() {
           </Row>
         </Form>
       </Modal>
+
+      <ExtravasationHandleModal
+        event={handleTarget}
+        onClose={() => setHandleTarget(null)}
+        onSuccess={() => {
+          void reloadExtraEvents();
+          void reloadExtraStats();
+        }}
+      />
 
       {showStats && stats && (
         <div

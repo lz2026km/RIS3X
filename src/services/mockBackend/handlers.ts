@@ -2107,13 +2107,15 @@ export const appointmentHandlers = [
         const stateMap: Record<string, string> = {
           SCHEDULED: "pending",
           CONFIRMED: "confirmed",
+          REGISTERED: "registered",
           CHECKED_IN: "checked-in",
-          IN_PROGRESS: "checked-in",
+          IN_PROGRESS: "in-progress",
           COMPLETED: "completed",
           CANCELLED: "cancelled",
-          NO_SHOW: "cancelled",
+          NO_SHOW: "no-show",
         };
         updated.status = stateMap[String(body.state)] ?? updated.status;
+        updated.state = body.state;
       }
       appointmentRecords = appointmentRecords.map((a) =>
         a.id === params.id ? updated : a,

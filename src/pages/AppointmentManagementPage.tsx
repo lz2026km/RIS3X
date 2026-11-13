@@ -3,7 +3,7 @@
 // 功能：预约列表、改约/取消、冲突检测、预约统计
 import { useState, useMemo, useCallback, useEffect } from "react";
 import dayjs from "dayjs";
-import { DatePicker } from "antd";
+import { DatePicker, message } from "antd";
 import { replayOrderEvent } from "../utils/orderStateAdapter";
 import { uniqueId } from "../utils/uniqueId";
 import {
@@ -1064,22 +1064,56 @@ export default function AppointmentManagementPage() {
       return;
     }
 
+    const startAt = new Date(
+      `${rescheduleData.examDate}T${rescheduleData.examTime}:00`,
+    );
+    const endAt = new Date(startAt.getTime() + 30 * 60 * 1000);
+    const startISO = startAt.toISOString();
+    const endISO = endAt.toISOString();
     try {
       const { appointmentApi } = await import("../services/api/appointmentApi");
-      const res = await appointmentApi.update(selectedAppointment.id, {
-        startAt: `${rescheduleData.examDate}T${rescheduleData.examTime}:00`,
-        endAt: `${rescheduleData.examDate}T${rescheduleData.examTime}:30`,
+      const check = await appointmentApi.checkConflicts({
+        id: selectedAppointment.id,
+        patientId: selectedAppointment.patientId || undefined,
+        deviceId: selectedAppointment.deviceId || undefined,
+        modality: selectedAppointment.modality,
+        startAt: startISO,
+        endAt: endISO,
       });
-      if (res.success && (res.data === null || typeof res.data === "object"))
-        setDataSource("real");
-      else setDataSource("demo");
+      if (!check.success) {
+        message.error(check.error?.message ?? t("apptMgmt.rescheduleFailed"));
+        return;
+      }
+      const apiConflicts = check.data?.conflicts ?? [];
+      const blocked =
+        !!check.data?.blocked ||
+        apiConflicts.some((c) => c.severity === "ERROR");
+      if (blocked) {
+        const detail = apiConflicts
+          .filter((c) => c.severity === "ERROR")
+          .map((c) => c.message)
+          .join("; ");
+        message.error(detail || t("apptMgmt.rescheduleConflict"));
+        return;
+      }
+      const res = await appointmentApi.update(selectedAppointment.id, {
+        startAt: startISO,
+        endAt: endISO,
+      });
+      if (!res.success) {
+        message.error(res.error?.message ?? t("apptMgmt.rescheduleFailed"));
+        return;
+      }
+      setDataSource("real");
     } catch {
-      setDataSource("demo");
+      message.error(t("apptMgmt.rescheduleFailed"));
+      return;
     }
 
     setAppointments((prev) =>
       prev.map((a) => (a.id === selectedAppointment.id ? updatedApt : a)),
     );
+    message.success(t("apptMgmt.rescheduleSuccess"));
     setShowRescheduleModal(false);
     setSelectedAppointment(null);
     setRescheduleData({ examDate: "", examTime: "", deviceId: "" });

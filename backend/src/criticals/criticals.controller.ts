@@ -1,198 +1,258 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { Roles } from '../common/decorators/roles.decorator'
-import { z } from 'zod'
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { CriticalsService, NotifyDto, EscalateDto, VoiceCallDto, ClinicalReceiptDto } from './criticals.service'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { Roles } from "../common/decorators/roles.decorator";
+import { z } from "zod";
+import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
+import {
+  CriticalsService,
+  NotifyDto,
+  EscalateDto,
+  VoiceCallDto,
+  ClinicalReceiptDto,
+} from "./criticals.service";
 
-const ChannelEnum = z.enum(['SMS', 'WECHAT', 'PHONE', 'DINGTALK', 'APP', 'SYSTEM', 'EMAIL'])
-const CategoryEnum = z.enum(['LIFE_THREATENING', 'URGENT', 'IMPORTANT'])
+const ChannelEnum = z.enum([
+  "SMS",
+  "WECHAT",
+  "PHONE",
+  "DINGTALK",
+  "APP",
+  "SYSTEM",
+  "EMAIL",
+]);
+const CategoryEnum = z.enum(["LIFE_THREATENING", "URGENT", "IMPORTANT"]);
 
 // 非必填字段由服务端从 criticalValue 记录带出(description→finding, severity→category),
 // 前端仍建议补全 patientName/patientId/finding 等关键字段以提升通知质量。
 const NotifySchema = z.object({
   criticalId: z.string().min(1),
-  patientName: z.string().optional().default('未知患者'),
-  patientId: z.string().optional().default(''),
-  category: CategoryEnum.optional().default('URGENT'),
-  finding: z.string().optional().default('危急值'),
+  patientName: z.string().optional().default("未知患者"),
+  patientId: z.string().optional().default(""),
+  category: CategoryEnum.optional().default("URGENT"),
+  finding: z.string().optional().default("危急值"),
   channels: z.array(ChannelEnum).min(1),
-  recipientName: z.string().optional().default('临床医生'),
-  recipientDept: z.string().optional().default('临床科室'),
-  recipientPhone: z.string().optional().default(''),
-})
+  recipientName: z.string().optional().default("临床医生"),
+  recipientDept: z.string().optional().default("临床科室"),
+  recipientPhone: z.string().optional().default(""),
+});
 
 const EscalateSchema = z.object({
   criticalId: z.string().min(1),
   reason: z.string().min(1),
-  newRecipients: z.array(z.object({ name: z.string(), dept: z.string(), phone: z.string() })).min(1),
-})
+  newRecipients: z
+    .array(z.object({ name: z.string(), dept: z.string(), phone: z.string() }))
+    .min(1),
+});
 
 const VoiceCallSchema = z.object({
   calledBy: z.string().min(1),
   phoneNumber: z.string().min(1),
   note: z.string().optional(),
-})
+});
 
 const ClinicalReceiptSchema = z.object({
   confirmedBy: z.string().min(1),
   confirmedAt: z.string().datetime().optional(),
   signature: z.string().optional(),
   comment: z.string().optional(),
-})
+});
 
 const CreateCriticalSchema = z.object({
   examId: z.string().optional(),
   description: z.string().min(1),
-  severity: z.enum(['LOW', 'HIGH', 'URGENT', 'CRITICAL']).default('HIGH'),
-  method: z.enum(['PHONE', 'SMS', 'SYSTEM', 'EMAIL', 'WECHAT']).default('SYSTEM'),
+  severity: z.enum(["LOW", "HIGH", "URGENT", "CRITICAL"]).default("HIGH"),
+  method: z
+    .enum(["PHONE", "SMS", "SYSTEM", "EMAIL", "WECHAT"])
+    .default("SYSTEM"),
   // [G005 Wave 8] 报告→危急值反向引用: 来源报告 ID (报告详情「危急值」区块按此反查)
   reportId: z.string().optional(),
-})
+});
 
 const UpdateCriticalSchema = z.object({
   description: z.string().optional(),
-  severity: z.enum(['LOW', 'HIGH', 'URGENT', 'CRITICAL']).optional(),
-  state: z.enum(['FOUND', 'NOTIFIED', 'VOICE_CALLED', 'ACKNOWLEDGED', 'RECEIPTED', 'RESOLVING', 'RESOLVED', 'CLOSED_LOOP']).optional(),
+  severity: z.enum(["LOW", "HIGH", "URGENT", "CRITICAL"]).optional(),
+  state: z
+    .enum([
+      "FOUND",
+      "NOTIFIED",
+      "VOICE_CALLED",
+      "ACKNOWLEDGED",
+      "RECEIPTED",
+      "RESOLVING",
+      "RESOLVED",
+      "CLOSED_LOOP",
+      "ESCALATED",
+      "CANCELLED",
+    ])
+    .optional(),
   notifiedTo: z.string().optional(),
   ackedBy: z.string().optional(),
   resolvedBy: z.string().optional(),
   closedBy: z.string().optional(),
-})
+});
 
-@ApiTags('criticals')
+@ApiTags("criticals")
 @ApiBearerAuth()
-@Roles('DOCTOR', 'DIRECTOR', 'ADMIN')
-@Controller('criticals')
+@Roles("DOCTOR", "DIRECTOR", "ADMIN")
+@Controller("criticals")
 export class CriticalsController {
   constructor(private readonly service: CriticalsService) {}
 
   @Get()
   list(
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
-    @Query('state') state?: string,
-    @Query('severity') severity?: string,
-    @Query('dateFrom') dateFrom?: string,
-    @Query('dateTo') dateTo?: string,
-    @Query('patientId') patientId?: string,
+    @Query("skip") skip?: string,
+    @Query("take") take?: string,
+    @Query("state") state?: string,
+    @Query("severity") severity?: string,
+    @Query("dateFrom") dateFrom?: string,
+    @Query("dateTo") dateTo?: string,
+    @Query("patientId") patientId?: string,
   ) {
     return this.service.list({
       skip: Number(skip ?? 0),
-      take: take === undefined || take === '' ? undefined : Number(take),
-      state, severity, dateFrom, dateTo, patientId,
-    })
+      take: take === undefined || take === "" ? undefined : Number(take),
+      state,
+      severity,
+      dateFrom,
+      dateTo,
+      patientId,
+    });
   }
 
-  @Get('stats')
+  @Get("stats")
   getStats() {
-    return this.service.getStats()
+    return this.service.getStats();
   }
 
-  @Get('stats/missed')
+  @Get("stats/missed")
   getMissedStats() {
-    return this.service.getMissedStats()
+    return this.service.getMissedStats();
   }
 
-  @Get('stats/notification')
+  @Get("stats/notification")
   getNotificationStats() {
-    return this.service.getNotificationStats()
+    return this.service.getNotificationStats();
   }
 
-  @Get('value5step/list')
+  @Get("value5step/list")
   getValue5StepList() {
-    return this.service.getValue5StepList()
+    return this.service.getValue5StepList();
   }
 
   // [v3.0.6.11-99 Wave 10D] 危急值总览 (今日/未处置/超时) — 静态子路由先于 :id 注册
-  @Get('overview')
+  @Get("overview")
   getOverview() {
-    return this.service.getOverview()
+    return this.service.getOverview();
   }
 
   // [v3.0.6.11-99 Wave 10D] 近 30 日危急值趋势
-  @Get('daily-trend')
-  getDailyTrend(@Query('days') days?: string) {
-    return this.service.getDailyTrend(Number(days ?? 30))
+  @Get("daily-trend")
+  getDailyTrend(@Query("days") days?: string) {
+    return this.service.getDailyTrend(Number(days ?? 30));
   }
 
   // [v3.0.6.11-99 Wave 10D] 科室维度统计
-  @Get('by-department')
+  @Get("by-department")
   getByDepartment() {
-    return this.service.getByDepartment()
+    return this.service.getByDepartment();
   }
 
   // [v3.0.6.11-105 Wave 1B] 国标 13 类危急值诊断字典 — 静态子路由先于 :id 注册
-  @Get('national-diagnoses')
+  @Get("national-diagnoses")
   getNationalDiagnoses() {
-    return this.service.getNationalDiagnoses()
+    return this.service.getNationalDiagnoses();
   }
 
   // [v3.0.6.11-105 Wave 1B] 国标口径 RQI 统计 (10 分钟通报完成率 + 署名完整性)
-  @Get('rqi-stats')
-  getRqiStats(@Query('months') months?: string) {
-    return this.service.getRqiStats(months === undefined || months === '' ? 1 : Number(months))
+  @Get("rqi-stats")
+  getRqiStats(@Query("months") months?: string) {
+    return this.service.getRqiStats(
+      months === undefined || months === "" ? 1 : Number(months),
+    );
   }
 
   // [G005 Wave 8] 按报告查询关联危急值 (反向引用) — 静态子路由先于 :id 注册
-  @Get('for-report/:reportId')
-  forReport(@Param('reportId') reportId: string) {
-    return this.service.forReport(reportId)
+  @Get("for-report/:reportId")
+  forReport(@Param("reportId") reportId: string) {
+    return this.service.forReport(reportId);
   }
 
-  @Get(':id')
-  get(@Param('id') id: string) {
-    return this.service.get(id)
+  @Get(":id")
+  get(@Param("id") id: string) {
+    return this.service.get(id);
   }
 
   @Post()
-  create(@Body(new ZodValidationPipe(CreateCriticalSchema)) body: z.infer<typeof CreateCriticalSchema>) {
-    return this.service.create(body)
+  create(
+    @Body(new ZodValidationPipe(CreateCriticalSchema))
+    body: z.infer<typeof CreateCriticalSchema>,
+  ) {
+    return this.service.create(body);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateCriticalSchema)) body: z.infer<typeof UpdateCriticalSchema>) {
-    return this.service.update(id, body)
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(UpdateCriticalSchema))
+    body: z.infer<typeof UpdateCriticalSchema>,
+  ) {
+    return this.service.update(id, body);
   }
 
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.service.delete(id)
+  @Delete(":id")
+  delete(@Param("id") id: string) {
+    return this.service.delete(id);
   }
 
-  @Post(':id/voice-call')
-  voiceCall(@Param('id') id: string, @Body(new ZodValidationPipe(VoiceCallSchema)) body: VoiceCallDto) {
-    return this.service.voiceCall(id, body)
+  @Post(":id/voice-call")
+  voiceCall(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(VoiceCallSchema)) body: VoiceCallDto,
+  ) {
+    return this.service.voiceCall(id, body);
   }
 
-  @Post(':id/clinical-receipt')
-  clinicalReceipt(@Param('id') id: string, @Body(new ZodValidationPipe(ClinicalReceiptSchema)) body: ClinicalReceiptDto) {
-    return this.service.clinicalReceipt(id, body)
+  @Post(":id/clinical-receipt")
+  clinicalReceipt(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(ClinicalReceiptSchema))
+    body: ClinicalReceiptDto,
+  ) {
+    return this.service.clinicalReceipt(id, body);
   }
 
-  @Post('notify')
+  @Post("notify")
   notify(@Body(new ZodValidationPipe(NotifySchema)) body: NotifyDto) {
-    return this.service.notify(body)
+    return this.service.notify(body);
   }
 
-  @Post('escalate')
+  @Post("escalate")
   escalate(@Body(new ZodValidationPipe(EscalateSchema)) body: EscalateDto) {
-    return this.service.escalate(body)
+    return this.service.escalate(body);
   }
 
-  @Get(':criticalId/history')
-  listHistory(@Param('criticalId') criticalId: string) {
-    return this.service.listHistory(criticalId)
+  @Get(":criticalId/history")
+  listHistory(@Param("criticalId") criticalId: string) {
+    return this.service.listHistory(criticalId);
   }
 
   // [v3.0.6.11-99 Wave 10D] 危急值全流程时间线
-  @Get(':id/timeline')
-  getTimeline(@Param('id') id: string) {
-    return this.service.getTimeline(id)
+  @Get(":id/timeline")
+  getTimeline(@Param("id") id: string) {
+    return this.service.getTimeline(id);
   }
 
-  @Post(':id/escalation-chain')
-  runEscalationChain(@Param('id') id: string) {
-    return this.service.runEscalationChain(id)
+  @Post(":id/escalation-chain")
+  runEscalationChain(@Param("id") id: string) {
+    return this.service.runEscalationChain(id);
   }
 }
