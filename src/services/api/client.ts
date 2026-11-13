@@ -60,12 +60,12 @@ function resolveApiMode(): ApiMode {
  */
 export function allowDemoFallback(): boolean {
   const raw = import.meta.env.VITE_ALLOW_DEMO_FALLBACK;
-  if (raw === undefined || raw === null || raw === '') {
+  if (raw === undefined || raw === null || raw === "") {
     // 未显式配置时按 API 模式推断: mock 演示环境允许回退, real 生产环境不允许
-    return currentApiMode() === 'mock';
+    return currentApiMode() === "mock";
   }
   const v = String(raw).trim().toLowerCase();
-  if (v === 'false' || v === '0' || v === 'off' || v === 'no') return false;
+  if (v === "false" || v === "0" || v === "off" || v === "no") return false;
   return true;
 }
 
@@ -92,7 +92,11 @@ const fallbackSubscribers = new Set<(records: DemoFallbackRecord[]) => void>();
 const FALLBACK_LIMIT = 200;
 
 /** 登记一次接口失败 (仅当演示回退被禁用时) */
-export function recordDemoFallback(url: string, code: string, message: string): void {
+export function recordDemoFallback(
+  url: string,
+  code: string,
+  message: string,
+): void {
   if (allowDemoFallback()) return; // 演示环境: 回退是预期行为, 不打扰
   const key = `${url}|${code}`;
   if (fallbackRegistry.some((r) => `${r.url}|${r.code}` === key)) return; // 去重
@@ -113,14 +117,17 @@ export function clearDemoFallbackRecords(): void {
 }
 
 /** 订阅回退记录变化 */
-export function subscribeDemoFallback(fn: (records: DemoFallbackRecord[]) => void): () => void {
+export function subscribeDemoFallback(
+  fn: (records: DemoFallbackRecord[]) => void,
+): () => void {
   fallbackSubscribers.add(fn);
   return () => {
     fallbackSubscribers.delete(fn);
   };
 }
 
-function resolveApiBaseUrl(): string | undefined {  if (typeof window !== "undefined") {
+function resolveApiBaseUrl(): string | undefined {
+  if (typeof window !== "undefined") {
     try {
       const ls = window.localStorage.getItem("ris_api_base_url");
       if (ls) return ls;
@@ -570,9 +577,14 @@ async function requestUploadWithProgress<T>(
                 : typeof flags.ok === "boolean"
                   ? flags.ok
                   : undefined;
-            normalized = okFlag === false
-              ? { success: false, data: null as unknown as T, error: apiError(raw, xhr.status) }
-              : { success: true, data: raw as T };
+            normalized =
+              okFlag === false
+                ? {
+                    success: false,
+                    data: null as unknown as T,
+                    error: apiError(raw, xhr.status),
+                  }
+                : { success: true, data: raw as T };
           } else {
             normalized = { success: true, data: raw as T };
           }
@@ -706,6 +718,33 @@ export interface NormalizedList<T> {
 export interface ListData<T> {
   data: T[];
   total: number;
+}
+
+/**
+ * [v3.0.6.16-9] 安全取出 `api.getList` 的行数组。
+ *
+ * 背景: `api.getList` 恒返回 `{ items, total }`, 但仓库里多处消费方仍写
+ * `Array.isArray(res.data) ? res.data : []` —— 恒为 false, 页面永久空表
+ * (`/reports` 报告工作台曾因此整天显示「接口不可用」)。本 helper 让取值点
+ * 无法再写错, 同时容忍上游偶发返回裸数组。
+ */
+export function listItems<T>(
+  res:
+    | {
+        success?: boolean;
+        data?: unknown;
+      }
+    | null
+    | undefined,
+): T[] {
+  if (!res || res.success === false) return [];
+  const d = res.data as unknown;
+  if (Array.isArray(d)) return d as T[];
+  if (d && typeof d === "object") {
+    const items = (d as { items?: unknown }).items;
+    if (Array.isArray(items)) return items as T[];
+  }
+  return [];
 }
 
 async function requestList<T>(

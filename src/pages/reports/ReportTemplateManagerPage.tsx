@@ -1,7 +1,8 @@
 // @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 TemplateManagementPage (/template-management 模板中心) 作为 Tab; 旧路由 /report-templates redirect 兼容。文件保留供回滚参考。
 // [W3-2] 报告模板管理: templatesApi 真实 CRUD (列表/新建/编辑/删除) + 分类筛选 + 使用统计 + 智能片段
 import { usePagination } from "@/hooks/usePagination";
-import { templatesApi } from "@/services/api/templatesApi";
+import { templatesApi, type TemplateDto } from "@/services/api/templatesApi";
+import { listItems } from "@/services/api/client";
 import {
   Card,
   Space,
@@ -104,8 +105,9 @@ export const ReportTemplateManagerPage: React.FC = () => {
     setError("");
     try {
       const res = await templatesApi.list({ category: category || undefined });
-      if (res.success && Array.isArray(res.data)) {
-        setTemplates(res.data as unknown as Template[]);
+      const rows = listItems<TemplateDto>(res);
+      if (res.success) {
+        setTemplates(rows as unknown as Template[]);
       } else {
         setError(res.error?.message ?? t("reportTpl.loadFailed"));
       }
@@ -121,8 +123,8 @@ export const ReportTemplateManagerPage: React.FC = () => {
     setSnippetLoading(true);
     try {
       const res = await templatesApi.listSnippets();
-      if (res.success && Array.isArray(res.data))
-        setSnippets(res.data as Snippet[]);
+      const rows = listItems<Snippet>(res);
+      if (res.success) setSnippets(rows);
     } catch {
       /* snippets 加载失败不阻塞 */
     } finally {

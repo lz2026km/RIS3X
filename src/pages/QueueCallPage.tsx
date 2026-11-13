@@ -18,7 +18,8 @@ import {
   PieChart,
 } from "lucide-react";
 import { initialQueueCalls } from "../data/initialData";
-import { queueApi } from "../services/api";
+import { queueApi, type QueueCallDto } from "../services/api";
+import { listItems } from "../services/api/client";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { AppSelectField } from "../components/common/AppSelectField";
 import { t } from "../i18n/appI18n";
@@ -852,8 +853,9 @@ export default function QueueCallPage() {
     void (async () => {
       const res = await queueApi.list();
       if (cancelled) return;
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setQueueCalls(res.data as unknown as QueueCallItem[]);
+      const rows = listItems<QueueCallDto>(res);
+      if (res.success && rows.length > 0) {
+        setQueueCalls(rows as unknown as QueueCallItem[]);
         setLoadError(null);
       } else {
         setQueueCalls(initialQueueCalls);
@@ -871,8 +873,9 @@ export default function QueueCallPage() {
   useEffect(() => {
     const interval = setInterval(async () => {
       const res = await queueApi.list();
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setQueueCalls(res.data as unknown as QueueCallItem[]);
+      const rows = listItems<QueueCallDto>(res);
+      if (res.success && rows.length > 0) {
+        setQueueCalls(rows as unknown as QueueCallItem[]);
       }
       void loadRooms();
     }, 15000);

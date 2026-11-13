@@ -10,7 +10,9 @@ import { AppSelectField } from "../components/common/AppSelectField";
 import {
   templatesApi,
   type TemplateApprovalStatus,
+  type TemplateDto,
 } from "../services/api/templatesApi";
+import { listItems } from "../services/api/client";
 import TemplatePendingSection from "./TemplatePendingSection";
 // [v3.0.6.11-104 Wave 5C] 模板中心: ReportTemplateManagerPage + EmrTemplatesPage 内嵌为 Tab (旧路由 /report-templates, /emr-templates redirect)
 import ReportTemplateManagerPage from "./reports/ReportTemplateManagerPage";
@@ -819,8 +821,8 @@ export default function TemplateManagementPage() {
     setExporting(true);
     try {
       const res = await templatesApi.list();
-      const items =
-        Array.isArray(res.data) && res.data.length > 0 ? res.data : templates;
+      const rows = listItems<TemplateDto & { content?: string }>(res);
+      const items = rows.length > 0 ? rows : templates;
       const exportData = items.map((t: any) => ({
         name: t.name,
         category: t.category,

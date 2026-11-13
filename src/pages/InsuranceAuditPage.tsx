@@ -9,7 +9,11 @@ import {
   datareportApi,
   type InsuranceAuditDto as DataReportAuditDto,
 } from "../services/api/datareportApi";
-import { insuranceApi } from "../services/api/insuranceApi";
+import {
+  insuranceApi,
+  type InsuranceAuditDto,
+} from "../services/api/insuranceApi";
+import { listItems } from "../services/api/client";
 import { PageHeader } from "../components/common/PageHeader";
 import { StatCard } from "../components/common/StatCard";
 import { AppText } from "../components/common/AppText";
@@ -4082,9 +4086,10 @@ export default function InsuranceAuditPage() {
       setShowCreateModal(false);
       // 同步刷新待审核列表
       const listRes = await insuranceApi.list();
-      if (listRes.success && Array.isArray(listRes.data)) {
+      const rows = listItems<InsuranceAuditDto>(listRes);
+      if (listRes.success) {
         const mapped: PendingAudit[] = [];
-        (listRes.data as any[]).forEach((d) => {
+        rows.forEach((d) => {
           if (d.status === "pending") {
             mapped.push({
               id: d.id,

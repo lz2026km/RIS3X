@@ -358,6 +358,15 @@ export const reportApi = {
 
   revise: async (id: string) => transition(id, "AMENDING"),
 
+  /**
+   * [v3.0.6.16-9] 通用流转: 让「修订/补充/升级/整改」这些**出口态**也能被推进。
+   * 此前前端只暴露了进入侧 (revise→AMENDING / supplement→SUPPLEMENTING /
+   * escalate→ESCALATED / rectify→RECTIFYING), 没有任何出口, 报告一旦进入这些
+   * 状态就永远卡住 (已发布报告的更正无法重新签发/发布)。
+   */
+  transitionTo: (id: string, to: ReportState, reason?: string) =>
+    transitionIfChanged(id, to, reason),
+
   // [G005 W2-C] 行删除: 后端 DELETE /reports/:id 需 body { reason } (状态置 WITHDRAWN)
   remove: async (id: string, reason: string = "手动删除") => {
     const res = await api.delete<ReportDto>(`/reports/${id}`, { reason });

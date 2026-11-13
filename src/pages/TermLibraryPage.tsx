@@ -32,7 +32,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { initialTermLibrary } from "../data/initialData";
-import { termApi } from "../services/api";
+import { termApi, type TermDto } from "../services/api";
+import { listItems } from "../services/api/client";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { message, Select } from "antd";
 import type { TableColumnsType } from "antd";
@@ -496,7 +497,8 @@ export default function TermLibraryPage() {
       setLoading(true);
       const res = await termApi.list();
       if (cancelled) return;
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+      const rows = listItems<TermDto>(res);
+      if (res.success && rows.length > 0) {
         setLoadError(null);
       } else {
         setLoadError(t9("termLibrary.apiUnavailable"));

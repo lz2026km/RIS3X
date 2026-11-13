@@ -19,7 +19,8 @@ import {
   deviceMgmtApi,
   type EquipmentLifecycle,
 } from "../services/api/deviceMgmtApi";
-import { oeeApi } from "../services/api/oeeApi";
+import { oeeApi, type OeeDeviceMetric } from "../services/api/oeeApi";
+import { listItems } from "../services/api/client";
 import { Card, message } from "antd";
 import type { TableColumnsType } from "antd";
 import { PageHeader } from "../components/common/PageHeader";
@@ -1177,12 +1178,9 @@ export default function EquipmentLifecyclePage() {
     setOeeLoading(true);
     try {
       const listRes = await oeeApi.list();
-      if (
-        listRes.success &&
-        Array.isArray(listRes.data) &&
-        listRes.data.length > 0
-      ) {
-        const devices = listRes.data as any[];
+      const rows = listItems<OeeDeviceMetric>(listRes);
+      if (listRes.success && rows.length > 0) {
+        const devices = rows;
         setOeeList(devices);
         setOeeReal(true);
         const map: Record<string, any[]> = {};

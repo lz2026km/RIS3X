@@ -14,7 +14,8 @@ import {
   type TermCategory,
   type TermEntry,
 } from "../data/knowledgeStatsMock";
-import { termApi } from "../services/api/termApi";
+import { termApi, type TermDto } from "../services/api/termApi";
+import { listItems } from "../services/api/client";
 import { t } from "../i18n/appI18n";
 import { ActionButton } from "../components/common/ActionButton";
 import { Typography } from "antd";
@@ -60,7 +61,7 @@ export default function TermSynonymGraphPage() {
     setApiError("");
     try {
       const res = await termApi.list();
-      const list = Array.isArray(res.data) ? res.data : [];
+      const list = listItems<TermDto>(res);
       if (list.length > 0) {
         const mapped: TermEntry[] = list.map((item: any, i: number) => ({
           id: item.id ?? `term-${i}`,

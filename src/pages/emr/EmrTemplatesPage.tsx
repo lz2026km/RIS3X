@@ -17,7 +17,11 @@ import {
   List,
 } from "antd";
 import { Plus, Edit3, Copy, FileText } from "lucide-react";
-import { templatesApi } from "../../services/api/templatesApi";
+import {
+  templatesApi,
+  type TemplateDto,
+} from "../../services/api/templatesApi";
+import { listItems } from "../../services/api/client";
 import { getCurrentUser } from "../../utils/auth";
 import { exportRowsToCsv } from "../../utils/exportRowsToCsv";
 import { t } from "../../i18n/appI18n";
@@ -112,8 +116,9 @@ export const EmrTemplatesPage: React.FC = () => {
     setApiError("");
     try {
       const res = await templatesApi.list();
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map((t: any, i: number) => ({
+      const rows = listItems<TemplateDto & { usage?: number }>(res);
+      if (res.success && rows.length > 0) {
+        const mapped = rows.map((t, i: number) => ({
           id: t.id || `tpl-${i}`,
           name: t.name || "未命名模板",
           category: t.category || "General",
@@ -244,14 +249,15 @@ export const EmrTemplatesPage: React.FC = () => {
         ]);
       } else {
         const listRes = await templatesApi.list();
-        if (listRes.success && Array.isArray(listRes.data)) {
+        const rows = listItems<TemplateDto & { usageCount?: number }>(listRes);
+        if (listRes.success) {
           setTemplates(
-            listRes.data.map((d) => ({
+            rows.map((d) => ({
               id: d.id,
               name: d.name,
               category: d.category,
               sections: [],
-              usageCount: (d as { usageCount?: number }).usageCount ?? 0,
+              usageCount: d.usageCount ?? 0,
             })),
           );
         }

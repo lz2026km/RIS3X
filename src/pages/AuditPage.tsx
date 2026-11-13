@@ -274,7 +274,7 @@ export default function AuditPage() {
       title: t("auditPage.colAction"),
       dataIndex: "action",
       key: "action",
-      width: 100,
+      width: 150,
       filters: [
         "CREATE",
         "UPDATE",
@@ -283,9 +283,16 @@ export default function AuditPage() {
         "LOGOUT",
         "EXPORT",
         "PRINT",
+        // [v3.0.6.16-9] PHI 读取审计 (HIPAA §164.312(b)): 动作形如 PHI_VIEW:/patients/:id
+        "PHI_VIEW",
       ].map((value) => ({ text: value, value })),
-      onFilter: (value, record) => record.action === value,
+      onFilter: (value, record) =>
+        value === "PHI_VIEW"
+          ? String(record.action).startsWith("PHI_VIEW")
+          : record.action === value,
       render: (v) => {
+        const text = String(v);
+        const base = text.startsWith("PHI_VIEW") ? "PHI_VIEW" : text;
         const colorMap: Record<string, string> = {
           CREATE: "green",
           UPDATE: "blue",
@@ -294,8 +301,13 @@ export default function AuditPage() {
           LOGOUT: "default",
           EXPORT: "orange",
           PRINT: "purple",
+          PHI_VIEW: "gold",
         };
-        return <Tag color={colorMap[String(v)] ?? "default"}>{String(v)}</Tag>;
+        return (
+          <Tooltip title={text}>
+            <Tag color={colorMap[base] ?? "default"}>{base}</Tag>
+          </Tooltip>
+        );
       },
     },
     {

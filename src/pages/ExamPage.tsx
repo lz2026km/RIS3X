@@ -922,7 +922,9 @@ export default function ExamPage() {
         await useExamStore.getState().transition(modal.exam.id, "cancel");
         void reloadExams();
       } else if (action === "quality") {
-        const state = imageQuality === "差" ? "QC_REJECT" : "IMAGE_READY";
+        // [v3.0.6.16-9] 质控通过必须发 QC_PASS (后端映射 PENDING_REPORT 待报告);
+        // 此前发 IMAGE_READY 只表示「图像可用」, 待报告桶因此永久为空
+        const state = imageQuality === "差" ? "QC_REJECT" : "QC_PASS";
         const res = await worklistApi.updateState(
           modal.exam.id,
           state,

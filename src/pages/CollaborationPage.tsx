@@ -30,7 +30,11 @@ import {
   type CollabComment,
   type CollabActivity,
 } from "../data/reviewRevisionCollabMock";
-import { consultationApi } from "../services/api/consultationApi";
+import {
+  consultationApi,
+  type ConsultationDto,
+} from "../services/api/consultationApi";
+import { listItems } from "../services/api/client";
 import { message } from "antd";
 import { t } from "../i18n/appI18n";
 // [v3.0.6.16-0] 原生 select 改用设计系统 AppSelectField
@@ -235,7 +239,7 @@ export default function CollaborationPage() {
       setError(null);
       try {
         const res = await consultationApi.list();
-        const list = Array.isArray(res.data) ? res.data : [];
+        const list = listItems<ConsultationDto>(res);
         if (list.length > 0) {
           const opts = list.map((c: any) => ({
             id: c.id,

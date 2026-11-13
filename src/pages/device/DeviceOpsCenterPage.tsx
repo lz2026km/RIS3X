@@ -56,7 +56,8 @@ import {
   StatCardGrid,
 } from "../../components/common";
 import { deviceOpsApi } from "../../services/api/deviceOpsApi";
-import { deviceApi } from "../../services/api/deviceApi";
+import { deviceApi, type DeviceDto } from "../../services/api/deviceApi";
+import { listItems } from "../../services/api/client";
 import type {
   Asset,
   CalibrationRecord,
@@ -193,7 +194,7 @@ export default function DeviceOpsCenterPage() {
     void (async () => {
       try {
         const res = await deviceApi.list({ take: 300 });
-        const list = Array.isArray(res?.data) ? res.data : [];
+        const list = listItems<DeviceDto>(res);
         if (cancelled) return;
         setDeviceOptions(
           list

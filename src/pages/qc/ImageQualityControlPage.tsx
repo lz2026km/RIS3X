@@ -77,12 +77,12 @@ export default function ImageQualityControlPage() {
   // [v3.0.6.11-92 Wave1B P0] 质控回写 busy key (质控通过/驳回 → worklistApi.updateState)
   const [qcBusy, setQcBusy] = useState("");
 
-  // [v3.0.6.11-92 Wave1B P0] 质控通过/驳回 → 写回 exam 状态 (通过 → IMAGE_READY 图像可用, 驳回 → QC_REJECT)
+  // [v3.0.6.16-9] 质控通过/驳回 → 写回 exam 状态 (通过 → QC_PASS → 后端映射 PENDING_REPORT 待报告, 驳回 → QC_REJECT)
   const handleQc = async (
     r: QcImageAiResult,
-    state: "IMAGE_READY" | "QC_REJECT",
+    state: "QC_PASS" | "QC_REJECT",
   ) => {
-    const key = `${r.id}:${state === "IMAGE_READY" ? "pass" : "reject"}`;
+    const key = `${r.id}:${state === "QC_PASS" ? "pass" : "reject"}`;
     if (qcBusy) return;
     setQcBusy(key);
     try {
@@ -95,7 +95,7 @@ export default function ImageQualityControlPage() {
       );
       if (res.success) {
         message.success(
-          state === "IMAGE_READY"
+          state === "QC_PASS"
             ? t("imageQualityControl.qcPassedMsg", { studyId: r.studyId })
             : t("imageQualityControl.qcRejectedMsg", { studyId: r.studyId }),
         );
@@ -104,7 +104,7 @@ export default function ImageQualityControlPage() {
             x.id === r.id
               ? {
                   ...x,
-                  status: state === "IMAGE_READY" ? "accepted" : "rejected",
+                  status: state === "QC_PASS" ? "accepted" : "rejected",
                 }
               : x,
           ),
@@ -348,7 +348,7 @@ export default function ImageQualityControlPage() {
             ghost
             icon={<CheckCircle size={12} />}
             loading={qcBusy === `${r.id}:pass`}
-            onClick={() => void handleQc(r, "IMAGE_READY")}
+            onClick={() => void handleQc(r, "QC_PASS")}
           >
             {t("imageQualityControl.pass")}
           </Button>

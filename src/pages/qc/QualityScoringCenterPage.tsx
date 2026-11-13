@@ -74,7 +74,8 @@ import {
   type QcTask,
   type QcTaskStatus,
 } from "../../services/api/reportQcV2Api";
-import { deviceApi } from "../../services/api/deviceApi";
+import { deviceApi, type DeviceDto } from "../../services/api/deviceApi";
+import { listItems } from "../../services/api/client";
 import { MODALITY_OPTIONS } from "../../constants/modality";
 import { t } from "../../i18n/appI18n";
 import {
@@ -2397,7 +2398,7 @@ function EquipmentTab() {
     void (async () => {
       try {
         const res = await deviceApi.list({ take: 200 });
-        const list = Array.isArray(res?.data) ? res.data : [];
+        const list = listItems<DeviceDto>(res);
         if (cancelled) return;
         setDeviceOptions(
           list.map((d) => ({

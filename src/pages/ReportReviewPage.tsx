@@ -35,6 +35,7 @@ import {
   type ReviewStatus,
 } from "../data/reviewRevisionCollabMock";
 import { reportApi, type ReportDto } from "../services/api/reportApi";
+import { listItems } from "../services/api/client";
 import { useAuth } from "../hooks/useAuth";
 // [v3.0.6.11-103 Wave 12] 审核增强: diff 高亮 / 危急值自动检测 / 随访建议
 import { computeDiff, type DiffChunk } from "../services/reportDiffEngine";
@@ -246,13 +247,14 @@ export default function ReportReviewPage() {
     setLoading(true);
     setError(null);
     const res = await reportApi.list({ take: "200" });
-    if (!res.success || !Array.isArray(res.data)) {
+    if (!res.success) {
       setError(res.error?.message ?? t("reportReviewPage.msgLoadFailed"));
       setTasks([]);
       setLoading(false);
       return;
     }
-    const mapped = res.data
+    const rows = listItems<ReportDto>(res);
+    const mapped = rows
       .map(reportToReviewTask)
       .filter((t): t is ReviewTask => t !== null);
     setTasks(mapped);

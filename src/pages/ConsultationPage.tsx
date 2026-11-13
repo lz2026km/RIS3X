@@ -45,6 +45,7 @@ import {
   initialPatients,
 } from "../data/initialData";
 import { consultationApi, type ConsultationDto } from "../services/api";
+import { listItems } from "../services/api/client";
 import { filesApi, isSupportedFile, sha256Hex } from "../services/api/filesApi";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { t } from "../i18n/appI18n";
@@ -602,8 +603,9 @@ export default function ConsultationPage() {
       setLoading(true);
       const res = await consultationApi.list();
       if (cancelled) return;
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setConsultations(res.data as unknown as typeof initialConsultations);
+      const rows = listItems<ConsultationDto>(res);
+      if (res.success && rows.length > 0) {
+        setConsultations(rows as unknown as typeof initialConsultations);
         setLoadError(null);
       } else {
         setConsultations(initialConsultations);

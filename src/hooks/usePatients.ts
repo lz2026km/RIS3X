@@ -7,8 +7,9 @@
  *
  * 本 Hook 走 `GET /patients?search=` 远程搜索, value 使用真实 patientId。
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { patientApi } from '../services/api/patientApi';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { patientApi } from "../services/api/patientApi";
+import { listItems } from "../services/api/client";
 
 export interface PatientOption {
   value: string;
@@ -29,12 +30,20 @@ const CACHE_TTL_MS = 60_000;
 const cacheStamp = new Map<string, number>();
 
 function toOption(p: Record<string, unknown>): PatientOption {
-  const id = String(p['patientId'] ?? p['id'] ?? p['empiId'] ?? '');
-  const name = String(p['name'] ?? p['patientName'] ?? '');
-  const gender = String(p['gender'] ?? '');
-  const age = p['age'] !== undefined && p['age'] !== null ? String(p['age']) : '';
-  const bits = [name, gender, age ? `${age}岁` : ''].filter(Boolean);
-  return { value: id, label: bits.length > 1 ? `${name} · ${[gender, age ? `${age}岁` : ''].filter(Boolean).join(' ')} (${id})` : `${name || id} (${id})`, raw: p };
+  const id = String(p["patientId"] ?? p["id"] ?? p["empiId"] ?? "");
+  const name = String(p["name"] ?? p["patientName"] ?? "");
+  const gender = String(p["gender"] ?? "");
+  const age =
+    p["age"] !== undefined && p["age"] !== null ? String(p["age"]) : "";
+  const bits = [name, gender, age ? `${age}岁` : ""].filter(Boolean);
+  return {
+    value: id,
+    label:
+      bits.length > 1
+        ? `${name} · ${[gender, age ? `${age}岁` : ""].filter(Boolean).join(" ")} (${id})`
+        : `${name || id} (${id})`,
+    raw: p,
+  };
 }
 
 /**
@@ -42,7 +51,11 @@ function toOption(p: Record<string, unknown>): PatientOption {
  * @param enabled 是否启用 (配合 Modal 打开时再加载)
  */
 export function usePatients(enabled = true) {
-  const [state, setState] = useState<PatientQueryState>({ options: [], loading: false, error: null });
+  const [state, setState] = useState<PatientQueryState>({
+    options: [],
+    loading: false,
+    error: null,
+  });
   const seq = useRef(0);
 
   const search = useMemo(
@@ -58,11 +71,11 @@ export function usePatients(enabled = true) {
       setState((s) => ({ ...s, loading: true }));
       try {
         const res = await patientApi.list({ search: q, pageSize: 30 });
-        const list = Array.isArray(res?.data) ? (res.data as Record<string, unknown>[]) : [];
+        const list = listItems<Record<string, unknown>>(res);
         const options = list.map(toOption).filter((o) => o.value);
         if (my !== seq.current) return; // 丢弃过期响应
         recentCache.set(q, options);
-      cacheStamp.set(q, Date.now());
+        cacheStamp.set(q, Date.now());
         if (recentCache.size > RECENT_LIMIT) {
           const oldest = recentCache.keys().next().value;
           if (oldest !== undefined) {
@@ -74,14 +87,18 @@ export function usePatients(enabled = true) {
       } catch (err) {
         if (my !== seq.current) return;
         // 失败时清空并暴露错误, 不保留上一次结果冒充"搜不到"
-        setState({ options: [], loading: false, error: (err as Error)?.message ?? 'unknown' });
+        setState({
+          options: [],
+          loading: false,
+          error: (err as Error)?.message ?? "unknown",
+        });
       }
     },
     [enabled],
   );
 
   useEffect(() => {
-    if (enabled) void search('');
+    if (enabled) void search("");
   }, [enabled, search]);
 
   return { ...state, search };

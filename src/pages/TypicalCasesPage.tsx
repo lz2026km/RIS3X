@@ -46,6 +46,7 @@ import {
   type TypicalCase,
 } from "../services/mockBackend/typicalCasesSeed";
 import { typicalCaseApi } from "../services/api/typicalCaseApi";
+import { listItems } from "../services/api/client";
 import { TeachingExamModal } from "./teach/TeachingExamModal";
 import { PageContainer } from "../components/common";
 import { AppSelectField } from "../components/common/AppSelectField";
@@ -2423,49 +2424,48 @@ export default function TypicalCasesPage() {
     setApiError("");
     try {
       const res = await typicalCaseApi.list();
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+      const rows = listItems<Partial<TypicalCase>>(res);
+      if (res.success && rows.length > 0) {
         const byId = new Map(mockTypicalCases.map((c) => [c.id, c]));
-        const merged: TypicalCase[] = (res.data as Partial<TypicalCase>[]).map(
-          (api) => {
-            const local = byId.get(api.id!);
-            if (!local) {
-              return {
-                id: String(api.id ?? ""),
-                patientName: api.patientName ?? "",
-                age: api.age ?? 0,
-                gender: api.gender ?? "男",
-                examType: api.examType ?? "CT",
-                examName: api.examName ?? "",
-                bodyPart: api.bodyPart ?? "头颅",
-                disease: api.disease ?? "",
-                diagnosis: api.diagnosis ?? "",
-                findings: api.findings ?? "",
-                impression: api.impression ?? "",
-                findingsList: api.findingsList ?? [],
-                tags: api.tags ?? [],
-                teaching: api.teaching ?? false,
-                images: api.images ?? [],
-                annotations: api.annotations ?? [],
-                discussions: api.discussions ?? [],
-                likeCount: api.likeCount ?? 0,
-                viewCount: api.viewCount ?? 0,
-                createdAt: api.createdAt ?? "",
-                createdBy: api.createdBy ?? "",
-                status: api.status ?? "待审核",
-                verified: api.verified ?? false,
-              };
-            }
+        const merged: TypicalCase[] = rows.map((api) => {
+          const local = byId.get(api.id!);
+          if (!local) {
             return {
-              ...local,
-              ...api,
-              images: local.images,
-              annotations: local.annotations,
-              discussions: local.discussions,
-              findings: local.findings,
-              impression: local.impression,
+              id: String(api.id ?? ""),
+              patientName: api.patientName ?? "",
+              age: api.age ?? 0,
+              gender: api.gender ?? "男",
+              examType: api.examType ?? "CT",
+              examName: api.examName ?? "",
+              bodyPart: api.bodyPart ?? "头颅",
+              disease: api.disease ?? "",
+              diagnosis: api.diagnosis ?? "",
+              findings: api.findings ?? "",
+              impression: api.impression ?? "",
+              findingsList: api.findingsList ?? [],
+              tags: api.tags ?? [],
+              teaching: api.teaching ?? false,
+              images: api.images ?? [],
+              annotations: api.annotations ?? [],
+              discussions: api.discussions ?? [],
+              likeCount: api.likeCount ?? 0,
+              viewCount: api.viewCount ?? 0,
+              createdAt: api.createdAt ?? "",
+              createdBy: api.createdBy ?? "",
+              status: api.status ?? "待审核",
+              verified: api.verified ?? false,
             };
-          },
-        );
+          }
+          return {
+            ...local,
+            ...api,
+            images: local.images,
+            annotations: local.annotations,
+            discussions: local.discussions,
+            findings: local.findings,
+            impression: local.impression,
+          };
+        });
         setCases(merged);
         setDataSource("live");
       } else {
