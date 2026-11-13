@@ -1,55 +1,58 @@
 export interface ApiResponse<T> {
-  success: boolean
-  data: T
-  error?: { code: string; message: string }
-  meta?: { total: number; page: number; pageSize: number; totalPages: number }
+  success: boolean;
+  data: T;
+  error?: { code: string; message: string };
+  meta?: { total: number; page: number; pageSize: number; totalPages: number };
 }
 
 export interface PageResult<T> {
-  data: T[]
-  meta: { page: number; pageSize: number; total: number; totalPages: number }
+  data: T[];
+  meta: { page: number; pageSize: number; total: number; totalPages: number };
 }
 
 export interface ApiError {
-  code: string
-  message: string
-  details?: Record<string, string[]>
+  code: string;
+  message: string;
+  details?: Record<string, string[]>;
 }
 
 export interface ExamQueryParams {
-  status?: string
-  modality?: string
-  priority?: string
-  patientId?: string
-  search?: string
-  page?: number
-  pageSize?: number
+  status?: string;
+  state?: string;
+  modality?: string;
+  priority?: string;
+  patientId?: string;
+  search?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface PatientQueryParams {
-  search?: string
-  birthDate?: string
-  page?: number
-  pageSize?: number
+  search?: string;
+  birthDate?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface ReportQueryParams {
-    status?: string
-    modality?: string
-    priority?: string
-    text?: string
-    q?: string
-    page?: number
-    pageSize?: number
-    sortBy?: string
-    sortDir?: 'asc' | 'desc'
-    // [v3.0.6.11-70] P0: 后端 reports list 支持 skip/take/state
-    take?: string
-    skip?: string
-    state?: string
-    // [W2-4] 按患者过滤 (患者详情报告列表)
-    patientId?: string
-    // [v3.0.6.11-95 Wave3B P1] 后端 reports list 筛选: 状态英文枚举(逗号分隔多值)/报告医生/关键字(患者名/检查号)
-    doctorId?: string
-    keyword?: string
-  }
+  status?: string;
+  modality?: string;
+  priority?: string;
+  text?: string;
+  q?: string;
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortDir?: "asc" | "desc";
+  // [v3.0.6.11-70] P0: 后端 reports list 支持 skip/take/state
+  take?: string;
+  skip?: string;
+  state?: string;
+  // [W2-4] 按患者过滤 (患者详情报告列表)
+  patientId?: string;
+  // [v3.0.6.11-95 Wave3B P1] 后端 reports list 筛选: 状态英文枚举(逗号分隔多值)/报告医生/关键字(患者名/检查号)
+  doctorId?: string;
+  keyword?: string;
+}

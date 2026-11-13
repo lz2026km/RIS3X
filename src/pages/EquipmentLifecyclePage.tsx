@@ -21,7 +21,7 @@ import {
 } from "../services/api/deviceMgmtApi";
 import { oeeApi, type OeeDeviceMetric } from "../services/api/oeeApi";
 import { listItems } from "../services/api/client";
-import { Card, message } from "antd";
+import { Card, message, Select } from "antd";
 import type { TableColumnsType } from "antd";
 import { PageHeader } from "../components/common/PageHeader";
 import { DataTable } from "../components/common";
@@ -784,6 +784,8 @@ export default function EquipmentLifecyclePage() {
   // [G005 Wave4A P1] 维保计划/记录真实化: deviceMgmtApi 优先, 失败回退 mock (演示徽标)
   const [maintPlans, setMaintPlans] = useState<any[]>([]);
   const [maintPlansReal, setMaintPlansReal] = useState(false);
+  // [v3.0.6.16-9] 维保计划按设备筛选: 后端 GET /device-mgmt/maintenance-plans 支持 deviceId, 此前从不发送
+  const [maintDeviceFilter, setMaintDeviceFilter] = useState<string>("");
   const [maintRecords, setMaintRecords] = useState<any[]>([]);
   const [maintRecordsReal, setMaintRecordsReal] = useState(false);
   const [maintEditForm, setMaintEditForm] = useState<{
@@ -797,7 +799,9 @@ export default function EquipmentLifecyclePage() {
 
   const loadMaintPlans = useCallback(async () => {
     try {
-      const res = await deviceMgmtApi.listMaintenancePlans();
+      const res = await deviceMgmtApi.listMaintenancePlans(
+        maintDeviceFilter ? { deviceId: maintDeviceFilter } : undefined,
+      );
       if (
         res.success &&
         res.data &&
@@ -814,7 +818,7 @@ export default function EquipmentLifecyclePage() {
       setMaintPlansReal(false);
       setMaintPlans([]);
     }
-  }, []);
+  }, [maintDeviceFilter]);
 
   // 维保记录 = 已完成(COMPLETED)的维保计划 + 兜底 mock 记录
   const loadMaintRecords = useCallback(async () => {
@@ -2130,6 +2134,21 @@ export default function EquipmentLifecyclePage() {
             >
               <Plus size={16} /> {t("equipLifecycle.newMaintPlan")}
             </button>
+            <Select
+              size="small"
+              allowClear
+              style={{
+                minWidth: 180,
+                marginInlineStart: "var(--space-2, 8px)",
+              }}
+              placeholder={t("equipLifecycle.filterByDevice")}
+              value={maintDeviceFilter || undefined}
+              onChange={(v) => setMaintDeviceFilter(v ? String(v) : "")}
+              options={mockDevices.map((d) => ({
+                value: String(d.id),
+                label: d.name,
+              }))}
+            />
             {!maintPlansReal && (
               <span style={{ ...s.badge, ...s.badgeOrange }}>
                 {t("equipLifecycle.demoMaintPlanBadge")}

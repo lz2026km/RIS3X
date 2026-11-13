@@ -2508,6 +2508,27 @@ function mapNotificationType(type: string): SystemNotification["type"] {
   }
 }
 
+function mapTabToNotificationDtoType(tab: string): string | undefined {
+  switch (tab) {
+    case "report_completed":
+      return "REPORT";
+    case "critical_value":
+      return "CRITICAL";
+    case "followup":
+      return "FOLLOWUP";
+    case "quality":
+      return "QUALITY";
+    case "system":
+      return "SYSTEM";
+    case "appointment":
+      return "APPOINTMENT";
+    case "consultation":
+      return "TASK";
+    default:
+      return undefined;
+  }
+}
+
 function mapSeverityToPriority(severity?: string): "high" | "normal" | "low" {
   switch (severity) {
     case "CRITICAL":
@@ -2651,6 +2672,9 @@ export default function NotificationCenter() {
   }, [userId, mapDto, realtimeConnected]);
 
   const [activeTab, setActiveTab] = useState("all");
+  const [historyItems, setHistoryItems] = useState<SystemNotification[] | null>(
+    null,
+  );
   const [searchText, setSearchText] = useState("");
   const [selectedNotification, setSelectedNotification] =
     useState<SystemNotification | null>(null);
@@ -2662,6 +2686,27 @@ export default function NotificationCenter() {
     "all",
   );
   const [groupByRead, setGroupByRead] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === "all") {
+      setHistoryItems(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const res = await notificationsApi.getHistory(
+        userId,
+        200,
+        mapTabToNotificationDtoType(activeTab),
+      );
+      if (!cancelled && res.success) {
+        setHistoryItems((res.data ?? []).map(mapDto));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, userId, mapDto]);
 
   const [settings, setSettings] = useState<NotificationSettings>({
     reportCompleted: true,
@@ -3691,7 +3736,7 @@ export default function NotificationCenter() {
             {/* 历史动态 */}
             {!showSettings && (
               <HistoryPanel
-                notifications={notifications}
+                notifications={historyItems ?? notifications}
                 onViewNotification={(n) => {
                   setSelectedNotification(n);
                   setShowDetailModal(true);

@@ -189,21 +189,33 @@ export default function DeviceOpsCenterPage() {
   >([]);
   // [v3.0.6.16] v3 设备管理 (DeviceManagement) 数据源: 同一 deviceApi.list 结果适配为 DeviceAccount
   const [deviceAccounts, setDeviceAccounts] = useState<DeviceAccount[]>([]);
+  // [v3.0.6.16-9] 设备台账筛选: 后端 GET /devices 支持 modality/state, 此前前端从不发送
+  const [deviceModalityFilter, setDeviceModalityFilter] =
+    useState<string>("ALL");
+  const [deviceStateFilter, setDeviceStateFilter] = useState<string>("ALL");
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       try {
-        const res = await deviceApi.list({ take: 300 });
+        const params: { take: number; modality?: string; state?: string } = {
+          take: 300,
+        };
+        if (deviceModalityFilter !== "ALL")
+          params.modality = deviceModalityFilter;
+        if (deviceStateFilter !== "ALL") params.state = deviceStateFilter;
+        const res = await deviceApi.list(params);
         const list = listItems<DeviceDto>(res);
         if (cancelled) return;
-        setDeviceOptions(
-          list
-            .filter((d) => d.status !== "SCRAPPED")
-            .map((d) => ({
-              value: d.id,
-              label: `${d.code ?? d.id}${d.name ? ` · ${d.name}` : ""}${d.modality ? ` (${d.modality})` : ""}`,
-            })),
-        );
+        if (deviceModalityFilter === "ALL" && deviceStateFilter === "ALL") {
+          setDeviceOptions(
+            list
+              .filter((d) => d.status !== "SCRAPPED")
+              .map((d) => ({
+                value: d.id,
+                label: `${d.code ?? d.id}${d.name ? ` · ${d.name}` : ""}${d.modality ? ` (${d.modality})` : ""}`,
+              })),
+          );
+        }
         setDeviceAccounts(
           list.map((d) => ({
             id: d.id,
@@ -237,7 +249,7 @@ export default function DeviceOpsCenterPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [deviceModalityFilter, deviceStateFilter]);
 
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [woStats, setWoStats] = useState<WorkOrderStats | null>(null);
@@ -1411,13 +1423,62 @@ export default function DeviceOpsCenterPage() {
 
   // [v3.0.6.16] v3 设备管理 Tab 内容 (DeviceAccount 台账 / 在线状态 / AE Title)
   const deviceManagementTab = (
-    <DeviceManagement
-      devices={deviceAccounts}
-      onCreate={handleDeviceCreate}
-      onUpdate={handleDeviceUpdate}
-      onDelete={handleDeviceDelete}
-      onToggle={handleDeviceToggle}
-    />
+    <div>
+      <Space wrap size={8} style={{ marginBottom: "var(--space-3, 12px)" }}>
+        <Select
+          size="small"
+          style={{ minWidth: 130 }}
+          value={deviceModalityFilter}
+          onChange={(v) => setDeviceModalityFilter(String(v))}
+          options={[
+            { value: "ALL", label: t("w11Device.filterAll") },
+            { value: "CT", label: "CT" },
+            { value: "MR", label: "MR" },
+            { value: "DR", label: "DR" },
+            { value: "US", label: "US" },
+            { value: "MG", label: "MG" },
+            { value: "DSA", label: "DSA" },
+            { value: "NM", label: "NM" },
+            { value: "PET", label: "PET" },
+          ]}
+        />
+        <Select
+          size="small"
+          style={{ minWidth: 130 }}
+          value={deviceStateFilter}
+          onChange={(v) => setDeviceStateFilter(String(v))}
+          options={[
+            { value: "ALL", label: t("w11Device.filterAll") },
+            { value: "IDLE", label: t("w9e.deviceManagement.stateIdle") },
+            { value: "IN_USE", label: t("w9e.deviceManagement.stateBusy") },
+            {
+              value: "MAINTENANCE",
+              label: t("w9e.deviceManagement.stateMaintenance"),
+            },
+            { value: "BROKEN", label: t("w9e.deviceManagement.stateBroken") },
+            { value: "OFFLINE", label: t("w9e.deviceManagement.stateOffline") },
+          ]}
+        />
+        {(deviceModalityFilter !== "ALL" || deviceStateFilter !== "ALL") && (
+          <Button
+            size="small"
+            onClick={() => {
+              setDeviceModalityFilter("ALL");
+              setDeviceStateFilter("ALL");
+            }}
+          >
+            {t("w11Device.filterReset")}
+          </Button>
+        )}
+      </Space>
+      <DeviceManagement
+        devices={deviceAccounts}
+        onCreate={handleDeviceCreate}
+        onUpdate={handleDeviceUpdate}
+        onDelete={handleDeviceDelete}
+        onToggle={handleDeviceToggle}
+      />
+    </div>
   );
 
   return (

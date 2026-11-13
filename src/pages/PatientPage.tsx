@@ -450,6 +450,7 @@ export default function PatientPage() {
   }, [toast.show]);
 
   const [search, setSearch] = useState("");
+  const [apiSearch, setApiSearch] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     gender: "全部",
@@ -639,6 +640,11 @@ export default function PatientPage() {
   const pinyinSearched = usePinyinSearch(patients, search);
 
   useEffect(() => {
+    const timer = setTimeout(() => setApiSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
@@ -655,23 +661,29 @@ export default function PatientPage() {
         }
         return;
       }
-      const res = await patientApi.list({});
+      const term = apiSearch.trim();
+      const res = await patientApi.list(
+        term ? (/^\d+$/.test(term) ? { phone: term } : { name: term }) : {},
+      );
       if (cancelled) return;
       // [W4] api.getList 已归一化为 { items, total }
       const list = res.data?.items ?? [];
-      if (res.success && Array.isArray(list) && list.length > 0) {
+      if (res.success && Array.isArray(list)) {
         setPatients(list as Patient[]);
         setLoadError(null);
-      } else {
+      } else if (!term) {
         setPatients(initialPatients as unknown as Patient[]);
         setLoadError(t("patientPage.apiUnavailable"));
+      } else {
+        setPatients([]);
+        setLoadError(res.error?.message ?? null);
       }
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [checkAccess, user?.department, reloadTick]);
+  }, [checkAccess, user?.department, reloadTick, apiSearch]);
 
   // ============================================================
   // [v3.0.6.11-104 Wave 2B] 患者统计: overview + age-distribution (真实 API, 失败回退演示)

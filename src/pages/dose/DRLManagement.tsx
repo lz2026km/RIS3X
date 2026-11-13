@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, ShieldAlert, CheckCircle, Zap, RefreshCw } from "lucide-react";
 import {
-  Button,
-  Input,
-  InputNumber,
-  Select,
-  Tag,
-  message,
-  Space,
-} from "antd";
-import { rdsrApi, type DrlEntry, type DoseAlert, type DrlCheckRecordInput, type DrlCheckResult } from "../../services/api/rdsrApi";
+  AlertTriangle,
+  ShieldAlert,
+  CheckCircle,
+  Zap,
+  RefreshCw,
+} from "lucide-react";
+import { Button, Input, InputNumber, Select, Tag, message, Space } from "antd";
+import {
+  rdsrApi,
+  type DrlEntry,
+  type DoseAlert,
+  type DrlCheckRecordInput,
+  type DrlCheckResult,
+} from "../../services/api/rdsrApi";
 import { criticalAlertApi } from "../../services/api/criticalAlertApi";
 import { DRL_MODALITY_OPTIONS } from "../../constants/drlModality";
 import { drlRecords } from "./mockData";
@@ -31,35 +35,56 @@ interface CheckDraft {
 }
 
 const BODY_PARTS = ["头部", "胸部", "腹部", "盆腔", "腰椎"];
-const BODY_PART_KEYS: Record<string, string> = { "头部": "drl.bodyHead", "胸部": "drl.bodyChest", "腹部": "drl.bodyAbdomen", "盆腔": "drl.bodyPelvis", "腰椎": "drl.bodyLumbar" };
+const BODY_PART_KEYS: Record<string, string> = {
+  头部: "drl.bodyHead",
+  胸部: "drl.bodyChest",
+  腹部: "drl.bodyAbdomen",
+  盆腔: "drl.bodyPelvis",
+  腰椎: "drl.bodyLumbar",
+};
 
 export default function DRLManagement() {
   const [rows, setRows] = useState<DrlEntry[]>([]);
   const [rowsLoading, setRowsLoading] = useState(true);
+  // [v3.0.6.16-9] DRL 阈值表筛选: 后端 GET /rdsr/drl 支持 modality/bodyPart/ageGroup, 此前从不发送
+  const [drlModalityFilter, setDrlModalityFilter] = useState<string>("");
+  const [drlBodyPartFilter, setDrlBodyPartFilter] = useState<string>("");
+  const [drlAgeGroupFilter, setDrlAgeGroupFilter] = useState<string>("");
   const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
   const [alerts, setAlerts] = useState<DoseAlert[]>([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [checkDrafts, setCheckDrafts] = useState<CheckDraft[]>([{ key: "d1", modality: "CT", bodyPart: "胸部" }]);
+  const [checkDrafts, setCheckDrafts] = useState<CheckDraft[]>([
+    { key: "d1", modality: "CT", bodyPart: "胸部" },
+  ]);
   const [checkResult, setCheckResult] = useState<DrlCheckResult[] | null>(null);
   const [checking, setChecking] = useState(false);
   const [reportingId, setReportingId] = useState<string | null>(null);
   const [acknowledgingId, setAcknowledgingId] = useState<string | null>(null);
   // [v3.0.6.11-99 Wave8A P1] 历史超限告警表分页受控化
-  const { pageData: alertPageData, pagination: alertPagination } = usePagination(alerts, 10);
+  const { pageData: alertPageData, pagination: alertPagination } =
+    usePagination(alerts, 10);
 
   const loadDrls = async () => {
     setRowsLoading(true);
     setLoadError(null);
     try {
-      const res = await rdsrApi.getDrls();
+      const res = await rdsrApi.getDrls(
+        drlModalityFilter || undefined,
+        drlBodyPartFilter || undefined,
+        drlAgeGroupFilter === "adult" || drlAgeGroupFilter === "child"
+          ? drlAgeGroupFilter
+          : undefined,
+      );
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setRows(res.data);
         setDataSource("api");
         return;
       }
-      if (!res.success) setLoadError(t('w9.states.error'));
-    } catch { setLoadError(t('w9.states.error')); }
+      if (!res.success) setLoadError(t("w9.states.error"));
+    } catch {
+      setLoadError(t("w9.states.error"));
+    }
     setDataSource("demo");
     const demoRows: DrlEntry[] = drlRecords.map((r: DRLRecord) => ({
       modality: r.modality,
@@ -76,13 +101,18 @@ export default function DRLManagement() {
     try {
       const res = await rdsrApi.getAlerts();
       if (res.success && Array.isArray(res.data)) setAlerts(res.data);
-    } catch { /* keep current */ } finally {
+    } catch {
+      /* keep current */
+    } finally {
       setAlertsLoading(false);
     }
   };
 
   useEffect(() => {
     void loadDrls();
+  }, [drlModalityFilter, drlBodyPartFilter, drlAgeGroupFilter]);
+
+  useEffect(() => {
     void loadAlerts();
   }, []);
 
@@ -96,19 +126,29 @@ export default function DRLManagement() {
       ageGroup: row.ageGroup,
     });
     if (!res.success) {
-      message.error(`${t('drl.thresholdSaveFailed')}: ${row.modality}/${row.bodyPart}`);
+      message.error(
+        `${t("drl.thresholdSaveFailed")}: ${row.modality}/${row.bodyPart}`,
+      );
       return;
     }
     setRows(res.data);
-    message.success(`${t('drl.thresholdSaved')}: ${row.modality}/${row.bodyPart} (CTDIvol ${row.ctdivolDrl} / DLP ${row.dlpDrl})`);
+    message.success(
+      `${t("drl.thresholdSaved")}: ${row.modality}/${row.bodyPart} (CTDIvol ${row.ctdivolDrl} / DLP ${row.dlpDrl})`,
+    );
   };
 
   const patchRow = (key: string, patch: Partial<DrlEntry>) => {
-    setRows((prev) => prev.map((r) => `${r.modality}:${r.bodyPart}` === key ? { ...r, ...patch } : r));
+    setRows((prev) =>
+      prev.map((r) =>
+        `${r.modality}:${r.bodyPart}` === key ? { ...r, ...patch } : r,
+      ),
+    );
   };
 
   const patchDraft = (key: string, patch: Partial<CheckDraft>) => {
-    setCheckDrafts((prev) => prev.map((d) => (d.key === key ? { ...d, ...patch } : d)));
+    setCheckDrafts((prev) =>
+      prev.map((d) => (d.key === key ? { ...d, ...patch } : d)),
+    );
   };
 
   const runCheck = async () => {
@@ -121,18 +161,23 @@ export default function DRLManagement() {
       age: d.age,
     }));
     if (records.some((r) => r.ctdivol === undefined && r.dlp === undefined)) {
-      message.warning(t('drl.fillDoseWarning'));
+      message.warning(t("drl.fillDoseWarning"));
       return;
     }
     setChecking(true);
     try {
       const res = await rdsrApi.check(records);
-      if (!res.success) throw new Error((res.error as { message?: string })?.message || t('drl.checkFailed'));
+      if (!res.success)
+        throw new Error(
+          (res.error as { message?: string })?.message || t("drl.checkFailed"),
+        );
       setCheckResult(res.data.overLimit);
-      message.success(`${t('drl.checkDone')}: ${res.data.checked} ${t('drl.instances')}, ${res.data.overLimitCount} ${t('drl.overLimitCount')} (${res.data.criticalCount} ${t('drl.criticalShort')} / ${res.data.warningCount} ${t('drl.warningShort')}), ${t('drl.autoGenerated')} ${res.data.generatedAlertCount} ${t('drl.records')}`);
+      message.success(
+        `${t("drl.checkDone")}: ${res.data.checked} ${t("drl.instances")}, ${res.data.overLimitCount} ${t("drl.overLimitCount")} (${res.data.criticalCount} ${t("drl.criticalShort")} / ${res.data.warningCount} ${t("drl.warningShort")}), ${t("drl.autoGenerated")} ${res.data.generatedAlertCount} ${t("drl.records")}`,
+      );
       void loadAlerts();
     } catch (e) {
-      message.error((e as Error)?.message || t('drl.checkFailed'));
+      message.error((e as Error)?.message || t("drl.checkFailed"));
     } finally {
       setChecking(false);
     }
@@ -144,19 +189,22 @@ export default function DRLManagement() {
       const res = await criticalAlertApi.create({
         level: item.level === "critical" ? "critical" : "warning",
         patientId: item.patientId ?? undefined,
-          patientName: item.patientName ?? t('drl.unknownPatient'),
+        patientName: item.patientName ?? t("drl.unknownPatient"),
         modality: item.modality,
         title: `辐射剂量超 DRL (${item.modality}/${item.bodyPart})`,
         description: `实测 CTDIvol ${item.ctdivol}mGy、DLP ${item.dlp}mGy·cm, ${item.reason}, 需剂量复核`,
       });
-      if (!res.success) throw new Error((res.error as { message?: string })?.message || t('drl.reportFailed'));
-      message.success(`${t('drl.alertReported')}: ${res.data.id}`);
+      if (!res.success)
+        throw new Error(
+          (res.error as { message?: string })?.message || t("drl.reportFailed"),
+        );
+      message.success(`${t("drl.alertReported")}: ${res.data.id}`);
       if (item.level === "critical") {
         const ok = await rdsrApi.ackAlert(item.id).catch(() => null);
         if (ok?.success) void loadAlerts();
       }
     } catch (e) {
-      message.error((e as Error)?.message || t('drl.reportFailed'));
+      message.error((e as Error)?.message || t("drl.reportFailed"));
     } finally {
       setReportingId(null);
     }
@@ -166,62 +214,143 @@ export default function DRLManagement() {
     setAcknowledgingId(id);
     try {
       const res = await rdsrApi.ackAlert(id);
-      if (!res.success) throw new Error((res.error as { message?: string })?.message || t('drl.ackFailed'));
-      message.success(`${t('drl.alert')} ${id} ${t('drl.alertAcknowledged')}`);
+      if (!res.success)
+        throw new Error(
+          (res.error as { message?: string })?.message || t("drl.ackFailed"),
+        );
+      message.success(`${t("drl.alert")} ${id} ${t("drl.alertAcknowledged")}`);
       void loadAlerts();
     } catch (e) {
-      message.error((e as Error)?.message || t('drl.ackFailed'));
+      message.error((e as Error)?.message || t("drl.ackFailed"));
     } finally {
       setAcknowledgingId(null);
     }
   };
 
   const thresholdColumns = [
-    { title: t('drl.colModality'), dataIndex: "modality", key: "modality", width: 70, render: (v: string) => <span style={modalityTag}>{v}</span> },
-    { title: t('drl.colBodyPart'), dataIndex: "bodyPart", key: "bodyPart", render: (v: string) => BODY_PART_KEYS[v] ? t(BODY_PART_KEYS[v]) : v },
-    { title: t('drl.colAgeGroup'), dataIndex: "ageGroup", key: "ageGroup", width: 90, render: (v?: string) => v === "child" ? <Tag color="orange">{t('drl.child')}</Tag> : <Tag color="blue">{t('drl.adult')}</Tag> },
     {
-      title: t('drl.colCtdivolThreshold'), key: "ctdivolDrl", width: 150,
+      title: t("drl.colModality"),
+      dataIndex: "modality",
+      key: "modality",
+      width: 70,
+      render: (v: string) => <span style={modalityTag}>{v}</span>,
+    },
+    {
+      title: t("drl.colBodyPart"),
+      dataIndex: "bodyPart",
+      key: "bodyPart",
+      render: (v: string) => (BODY_PART_KEYS[v] ? t(BODY_PART_KEYS[v]) : v),
+    },
+    {
+      title: t("drl.colAgeGroup"),
+      dataIndex: "ageGroup",
+      key: "ageGroup",
+      width: 90,
+      render: (v?: string) =>
+        v === "child" ? (
+          <Tag color="orange">{t("drl.child")}</Tag>
+        ) : (
+          <Tag color="blue">{t("drl.adult")}</Tag>
+        ),
+    },
+    {
+      title: t("drl.colCtdivolThreshold"),
+      key: "ctdivolDrl",
+      width: 150,
       render: (_: unknown, r: DrlEntry) => (
-        <InputNumber min={0} value={r.ctdivolDrl} onChange={(v) => patchRow(`${r.modality}:${r.bodyPart}`, { ctdivolDrl: v ?? 0 })} style={{ width: 110 }} />
+        <InputNumber
+          min={0}
+          value={r.ctdivolDrl}
+          onChange={(v) =>
+            patchRow(`${r.modality}:${r.bodyPart}`, { ctdivolDrl: v ?? 0 })
+          }
+          style={{ width: 110 }}
+        />
       ),
     },
     {
-      title: t('drl.colDlpThreshold'), key: "dlpDrl", width: 160,
+      title: t("drl.colDlpThreshold"),
+      key: "dlpDrl",
+      width: 160,
       render: (_: unknown, r: DrlEntry) => (
-        <InputNumber min={0} value={r.dlpDrl} onChange={(v) => patchRow(`${r.modality}:${r.bodyPart}`, { dlpDrl: v ?? 0 })} style={{ width: 120 }} />
+        <InputNumber
+          min={0}
+          value={r.dlpDrl}
+          onChange={(v) =>
+            patchRow(`${r.modality}:${r.bodyPart}`, { dlpDrl: v ?? 0 })
+          }
+          style={{ width: 120 }}
+        />
       ),
     },
-    { title: t('drl.colSource'), dataIndex: "source", key: "source" },
+    { title: t("drl.colSource"), dataIndex: "source", key: "source" },
     {
-      title: t('drl.colAction'), key: "action", width: 90,
-      render: (_: unknown, r: DrlEntry) => <Button size="small" type="primary" onClick={() => saveDrlRow(r)}>{t('drl.save')}</Button>,
+      title: t("drl.colAction"),
+      key: "action",
+      width: 90,
+      render: (_: unknown, r: DrlEntry) => (
+        <Button size="small" type="primary" onClick={() => saveDrlRow(r)}>
+          {t("drl.save")}
+        </Button>
+      ),
     },
   ];
 
   const checkColumns = [
-    { title: t('drl.colPatient'), dataIndex: "patientName", key: "patientName", render: (v?: string | null) => v ?? t('drl.unknownPatient') },
-    { title: t('drl.colModality'), dataIndex: "modality", key: "modality", width: 60 },
-    { title: t('drl.colBodyPart'), dataIndex: "bodyPart", key: "bodyPart", width: 70, render: (v: string) => BODY_PART_KEYS[v] ? t(BODY_PART_KEYS[v]) : v },
     {
-      title: t('drl.colDoseThreshold'), key: "dose",
+      title: t("drl.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
+      render: (v?: string | null) => v ?? t("drl.unknownPatient"),
+    },
+    {
+      title: t("drl.colModality"),
+      dataIndex: "modality",
+      key: "modality",
+      width: 60,
+    },
+    {
+      title: t("drl.colBodyPart"),
+      dataIndex: "bodyPart",
+      key: "bodyPart",
+      width: 70,
+      render: (v: string) => (BODY_PART_KEYS[v] ? t(BODY_PART_KEYS[v]) : v),
+    },
+    {
+      title: t("drl.colDoseThreshold"),
+      key: "dose",
       render: (_: unknown, r: DrlCheckResult) => (
         <span style={{ fontSize: 12 }}>
-          CTDIvol <b style={{ color: "var(--color-primary-800)" }}>{r.ctdivol}</b>/{r.ctdivolDrl} · DLP <b style={{ color: "var(--color-primary-800)" }}>{r.dlp}</b>/{r.dlpDrl}
+          CTDIvol{" "}
+          <b style={{ color: "var(--color-primary-800)" }}>{r.ctdivol}</b>/
+          {r.ctdivolDrl} · DLP{" "}
+          <b style={{ color: "var(--color-primary-800)" }}>{r.dlp}</b>/
+          {r.dlpDrl}
         </span>
       ),
     },
     {
-      title: t('drl.colExceeded'), key: "exceeded",
+      title: t("drl.colExceeded"),
+      key: "exceeded",
       render: (_: unknown, r: DrlCheckResult) => (
         <Tag color={r.level === "critical" ? "red" : "orange"}>
-          {r.level === "critical" ? t('drl.criticalShort') : t('drl.warningShort')} {t('drl.over')} {Math.max(r.exceededBy.ctdivol, r.exceededBy.dlp)}%
+          {r.level === "critical"
+            ? t("drl.criticalShort")
+            : t("drl.warningShort")}{" "}
+          {t("drl.over")} {Math.max(r.exceededBy.ctdivol, r.exceededBy.dlp)}%
         </Tag>
       ),
     },
-    { title: t('drl.colReason'), dataIndex: "reason", key: "reason", ellipsis: true },
     {
-      title: t('drl.colAction'), key: "action", width: 150,
+      title: t("drl.colReason"),
+      dataIndex: "reason",
+      key: "reason",
+      ellipsis: true,
+    },
+    {
+      title: t("drl.colAction"),
+      key: "action",
+      width: 150,
       render: (_: unknown, r: DrlCheckResult) => (
         <Button
           size="small"
@@ -230,59 +359,109 @@ export default function DRLManagement() {
           loading={reportingId === r.id}
           onClick={() => reportCritical(r)}
         >
-          {t('drl.reportCritical')}
+          {t("drl.reportCritical")}
         </Button>
       ),
     },
   ];
 
   const alertColumns = [
-    { title: t('drl.colPatient'), dataIndex: "patientName", key: "patientName" },
-    { title: t('drl.colBodyPart'), dataIndex: "bodyPart", key: "bodyPart", width: 80, render: (v: string) => BODY_PART_KEYS[v] ? t(BODY_PART_KEYS[v]) : v },
     {
-      title: t('drl.colDoseThreshold'), key: "dose",
-      render: (_: unknown, a: DoseAlert) => <span style={{ fontSize: 12 }}>{a.dlp}/{a.dlpDrl} mGy·cm</span>,
+      title: t("drl.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
     },
-    { title: t('drl.colDate'), dataIndex: "date", key: "date", width: 110 },
     {
-      title: t('drl.colLevel'), key: "level", width: 70,
+      title: t("drl.colBodyPart"),
+      dataIndex: "bodyPart",
+      key: "bodyPart",
+      width: 80,
+      render: (v: string) => (BODY_PART_KEYS[v] ? t(BODY_PART_KEYS[v]) : v),
+    },
+    {
+      title: t("drl.colDoseThreshold"),
+      key: "dose",
       render: (_: unknown, a: DoseAlert) => (
-        <Tag color={a.level === "critical" ? "red" : "orange"}>{a.level === "critical" ? t('drl.levelCritical') : t('drl.levelWarning')}</Tag>
+        <span style={{ fontSize: 12 }}>
+          {a.dlp}/{a.dlpDrl} mGy·cm
+        </span>
+      ),
+    },
+    { title: t("drl.colDate"), dataIndex: "date", key: "date", width: 110 },
+    {
+      title: t("drl.colLevel"),
+      key: "level",
+      width: 70,
+      render: (_: unknown, a: DoseAlert) => (
+        <Tag color={a.level === "critical" ? "red" : "orange"}>
+          {a.level === "critical"
+            ? t("drl.levelCritical")
+            : t("drl.levelWarning")}
+        </Tag>
       ),
     },
     {
-      title: t('drl.colStatus'), key: "status", width: 90,
-      render: (_: unknown, a: DoseAlert) => a.acknowledged ? <Tag color="green">{t('drl.acknowledged')}</Tag> : <Tag color="volcano">{t('drl.pending')}</Tag>,
+      title: t("drl.colStatus"),
+      key: "status",
+      width: 90,
+      render: (_: unknown, a: DoseAlert) =>
+        a.acknowledged ? (
+          <Tag color="green">{t("drl.acknowledged")}</Tag>
+        ) : (
+          <Tag color="volcano">{t("drl.pending")}</Tag>
+        ),
     },
     {
-      title: t('drl.colAction'), key: "action", width: 160,
+      title: t("drl.colAction"),
+      key: "action",
+      width: 160,
       render: (_: unknown, a: DoseAlert) => (
         <Space size={4}>
-          <Button size="small" type="primary" icon={<CheckCircle size={12} />} disabled={a.acknowledged} loading={acknowledgingId === a.id} onClick={() => acknowledge(a.id)}>{t('drl.acknowledge')}</Button>
+          <Button
+            size="small"
+            type="primary"
+            icon={<CheckCircle size={12} />}
+            disabled={a.acknowledged}
+            loading={acknowledgingId === a.id}
+            onClick={() => acknowledge(a.id)}
+          >
+            {t("drl.acknowledge")}
+          </Button>
           {a.level === "critical" && (
             <Button
               size="small"
               danger
               icon={<ShieldAlert size={12} />}
               loading={reportingId === a.id}
-              onClick={() => reportCritical({
-                id: a.id,
-                patientId: a.patientId,
-                patientName: a.patientName,
-                modality: a.modality,
-                bodyPart: a.bodyPart,
-                ctdivol: a.ctdivol,
-                dlp: a.dlp,
-                examDate: a.date,
-                ageGroup: "adult",
-                level: a.level,
-                ctdivolDrl: a.ctdivolDrl,
-                dlpDrl: a.dlpDrl,
-                exceededBy: { ctdivol: a.ctdivolDrl > 0 ? Math.round((a.ctdivol / a.ctdivolDrl - 1) * 100) : 0, dlp: a.dlpDrl > 0 ? Math.round((a.dlp / a.dlpDrl - 1) * 100) : 0 },
-                reason: `超过 DRL ${a.ctdivolDrl}/${a.dlpDrl}`,
-              })}
+              onClick={() =>
+                reportCritical({
+                  id: a.id,
+                  patientId: a.patientId,
+                  patientName: a.patientName,
+                  modality: a.modality,
+                  bodyPart: a.bodyPart,
+                  ctdivol: a.ctdivol,
+                  dlp: a.dlp,
+                  examDate: a.date,
+                  ageGroup: "adult",
+                  level: a.level,
+                  ctdivolDrl: a.ctdivolDrl,
+                  dlpDrl: a.dlpDrl,
+                  exceededBy: {
+                    ctdivol:
+                      a.ctdivolDrl > 0
+                        ? Math.round((a.ctdivol / a.ctdivolDrl - 1) * 100)
+                        : 0,
+                    dlp:
+                      a.dlpDrl > 0
+                        ? Math.round((a.dlp / a.dlpDrl - 1) * 100)
+                        : 0,
+                  },
+                  reason: `超过 DRL ${a.ctdivolDrl}/${a.dlpDrl}`,
+                })
+              }
             >
-              {t('drl.report')}
+              {t("drl.report")}
             </Button>
           )}
         </Space>
@@ -291,43 +470,214 @@ export default function DRLManagement() {
   ];
 
   return (
-    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
-      {loadError && !rowsLoading && <ErrorBanner message={loadError} onRetry={() => { void loadDrls(); void loadAlerts(); }} retryLabel={t('w9.states.retry')} />}
+    <PageContainer
+      background="none"
+      maxWidth="fluid"
+      padding={0}
+      minHeight="auto"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4, 16px)",
+      }}
+    >
+      {loadError && !rowsLoading && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => {
+            void loadDrls();
+            void loadAlerts();
+          }}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
       {dataSource === "demo" && !rowsLoading && (
-        <div style={{ padding: "8px 12px", background: "#fef3c7", color: "var(--color-warning-600)", borderRadius: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
-          <AlertTriangle size={14} /> {t('w8Dose.demoBadge')} · {t('w8Dose.sourceDemo')}
+        <div
+          style={{
+            padding: "8px 12px",
+            background: "#fef3c7",
+            color: "var(--color-warning-600)",
+            borderRadius: 8,
+            fontSize: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
+          <AlertTriangle size={14} /> {t("w8Dose.demoBadge")} ·{" "}
+          {t("w8Dose.sourceDemo")}
         </div>
       )}
       <style>{`.drl-row-critical td { background: #fef2f2 !important; } .drl-row-warning td { background: var(--color-warning-bg, #fffbeb) !important; }`}</style>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 'var(--space-3, 12px)' }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "var(--space-3, 12px)",
+        }}
+      >
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('drl.kpiThresholds')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 'var(--space-1, 4px)' }}>{rows.length}</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+            {t("drl.kpiThresholds")}
+          </div>
+          <div
+            style={{
+              fontSize: 24,
+              fontWeight: 800,
+              color: "var(--color-primary-800)",
+              marginTop: "var(--space-1, 4px)",
+            }}
+          >
+            {rows.length}
+          </div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('drl.kpiOverLimitAlerts')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: alerts.length > 0 ? "var(--color-error-600)" : "var(--color-success-600)", marginTop: 'var(--space-1, 4px)' }}>{alerts.length}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{t('drl.records')}</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+            {t("drl.kpiOverLimitAlerts")}
+          </div>
+          <div
+            style={{
+              fontSize: 24,
+              fontWeight: 800,
+              color:
+                alerts.length > 0
+                  ? "var(--color-error-600)"
+                  : "var(--color-success-600)",
+              marginTop: "var(--space-1, 4px)",
+            }}
+          >
+            {alerts.length}
+          </div>
+          <div
+            style={{
+              fontSize: 12,
+              color: "var(--text-muted, #94a3b8)",
+              marginTop: 2,
+            }}
+          >
+            {t("drl.records")}
+          </div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('drl.kpiCriticalAlerts')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>{alerts.filter((a) => a.level === "critical" && !a.acknowledged).length}</div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{t('drl.notClosed')}</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+            {t("drl.kpiCriticalAlerts")}
+          </div>
+          <div
+            style={{
+              fontSize: 24,
+              fontWeight: 800,
+              color: "var(--color-error-600)",
+              marginTop: "var(--space-1, 4px)",
+            }}
+          >
+            {
+              alerts.filter((a) => a.level === "critical" && !a.acknowledged)
+                .length
+            }
+          </div>
+          <div
+            style={{
+              fontSize: 12,
+              color: "var(--text-muted, #94a3b8)",
+              marginTop: 2,
+            }}
+          >
+            {t("drl.notClosed")}
+          </div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('drl.kpiChildThreshold')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-warning-600)", marginTop: 'var(--space-1, 4px)' }}>{rows.filter((r) => r.ageGroup === "child").length}</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted, #64748b)" }}>
+            {t("drl.kpiChildThreshold")}
+          </div>
+          <div
+            style={{
+              fontSize: 24,
+              fontWeight: 800,
+              color: "var(--color-warning-600)",
+              marginTop: "var(--space-1, 4px)",
+            }}
+          >
+            {rows.filter((r) => r.ageGroup === "child").length}
+          </div>
         </div>
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-4, 16px)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+      <div
+        style={{
+          background: "var(--bg-card)",
+          borderRadius: 12,
+          padding: "var(--space-5, 20px)",
+          border: "1px solid var(--border-color, #e2e8f0)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "var(--space-4, 16px)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--color-primary-800)",
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2, 8px)",
+            }}
+          >
             <Zap size={16} color="var(--color-primary-600)" />
-            {t('drl.thresholdConfigTitle')}
+            {t("drl.thresholdConfigTitle")}
           </div>
-          <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void loadDrls(); void loadAlerts(); }}>{t('drl.refresh')}</Button>
+          <Button
+            size="small"
+            icon={<RefreshCw size={13} />}
+            onClick={() => {
+              void loadDrls();
+              void loadAlerts();
+            }}
+          >
+            {t("drl.refresh")}
+          </Button>
         </div>
+        <Space wrap size={8} style={{ marginBottom: "var(--space-3, 12px)" }}>
+          <Select
+            size="small"
+            style={{ minWidth: 110 }}
+            value={drlModalityFilter}
+            onChange={(v) => setDrlModalityFilter(String(v))}
+            options={[
+              { value: "", label: t("drl.filterAllModality") },
+              ...DRL_MODALITY_OPTIONS,
+            ]}
+          />
+          <Select
+            size="small"
+            style={{ minWidth: 110 }}
+            value={drlBodyPartFilter}
+            onChange={(v) => setDrlBodyPartFilter(String(v))}
+            options={[
+              { value: "", label: t("drl.filterAllBodyPart") },
+              ...BODY_PARTS.map((b) => ({
+                value: b,
+                label: t(BODY_PART_KEYS[b] ?? b),
+              })),
+            ]}
+          />
+          <Select
+            size="small"
+            style={{ minWidth: 110 }}
+            value={drlAgeGroupFilter}
+            onChange={(v) => setDrlAgeGroupFilter(String(v))}
+            options={[
+              { value: "", label: t("drl.filterAllAge") },
+              { value: "adult", label: t("drl.adult") },
+              { value: "child", label: t("drl.child") },
+            ]}
+          />
+        </Space>
         <DataTable
           rowKey={(r) => `${r.modality}:${r.bodyPart}:${r.ageGroup ?? "adult"}`}
           columns={thresholdColumns}
@@ -338,14 +688,47 @@ export default function DRLManagement() {
         />
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)', display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+      <div
+        style={{
+          background: "var(--bg-card)",
+          borderRadius: 12,
+          padding: "var(--space-5, 20px)",
+          border: "1px solid var(--border-color, #e2e8f0)",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: "var(--color-primary-800)",
+            marginBottom: "var(--space-4, 16px)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
           <AlertTriangle size={16} color="var(--color-error-600)" />
-          {t('drl.loopCheckTitle')}
+          {t("drl.loopCheckTitle")}
         </div>
         {checkDrafts.map((d) => (
-          <div key={d.key} style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)', flexWrap: "wrap", alignItems: "center" }}>
-            <Input placeholder={t('drl.patientNamePlaceholder')} value={d.patientName} onChange={(e) => patchDraft(d.key, { patientName: e.target.value })} style={{ width: 120 }} />
+          <div
+            key={d.key}
+            style={{
+              display: "flex",
+              gap: "var(--space-2, 8px)",
+              marginBottom: "var(--space-2, 8px)",
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            <Input
+              placeholder={t("drl.patientNamePlaceholder")}
+              value={d.patientName}
+              onChange={(e) =>
+                patchDraft(d.key, { patientName: e.target.value })
+              }
+              style={{ width: 120 }}
+            />
             {/* [v3.0.6.16-0] 原实现仅支持 CT/MR, 而诊断参考水平(DRL)本身正是为
                 X 线建立的 —— DR/MG/US/DSA 患者无法录入。改用统一模态单一口径。 */}
             <Select
@@ -356,43 +739,111 @@ export default function DRLManagement() {
               options={DRL_MODALITY_OPTIONS}
               style={{ width: 110 }}
             />
-            <Select value={d.bodyPart} onChange={(v) => patchDraft(d.key, { bodyPart: v })} options={BODY_PARTS.map((b) => ({ value: b, label: BODY_PART_KEYS[b] ? t(BODY_PART_KEYS[b]) : b }))} style={{ width: 90 }} />
-            <InputNumber addonBefore="CTDIvol" placeholder="mGy" value={d.ctdivol} onChange={(v) => patchDraft(d.key, { ctdivol: v ?? undefined })} style={{ width: 160 }} />
-            <InputNumber addonBefore="DLP" placeholder="mGy·cm" value={d.dlp} onChange={(v) => patchDraft(d.key, { dlp: v ?? undefined })} style={{ width: 180 }} />
-            <InputNumber addonBefore={t('drl.age')} value={d.age} onChange={(v) => patchDraft(d.key, { age: v ?? undefined })} style={{ width: 110 }} />
+            <Select
+              value={d.bodyPart}
+              onChange={(v) => patchDraft(d.key, { bodyPart: v })}
+              options={BODY_PARTS.map((b) => ({
+                value: b,
+                label: BODY_PART_KEYS[b] ? t(BODY_PART_KEYS[b]) : b,
+              }))}
+              style={{ width: 90 }}
+            />
+            <InputNumber
+              addonBefore="CTDIvol"
+              placeholder="mGy"
+              value={d.ctdivol}
+              onChange={(v) => patchDraft(d.key, { ctdivol: v ?? undefined })}
+              style={{ width: 160 }}
+            />
+            <InputNumber
+              addonBefore="DLP"
+              placeholder="mGy·cm"
+              value={d.dlp}
+              onChange={(v) => patchDraft(d.key, { dlp: v ?? undefined })}
+              style={{ width: 180 }}
+            />
+            <InputNumber
+              addonBefore={t("drl.age")}
+              value={d.age}
+              onChange={(v) => patchDraft(d.key, { age: v ?? undefined })}
+              style={{ width: 110 }}
+            />
             {checkDrafts.length > 1 && (
-              <Button size="small" onClick={() => setCheckDrafts((prev) => prev.filter((x) => x.key !== d.key))}>{t('drl.delete')}</Button>
+              <Button
+                size="small"
+                onClick={() =>
+                  setCheckDrafts((prev) => prev.filter((x) => x.key !== d.key))
+                }
+              >
+                {t("drl.delete")}
+              </Button>
             )}
           </div>
         ))}
-        <Space style={{ marginTop: 'var(--space-2, 8px)' }}>
-          <Button size="small" onClick={() => setCheckDrafts((prev) => [...prev, { key: `d${Date.now()}`, modality: "CT", bodyPart: "胸部" }])}>{t('drl.addInstance')}</Button>
-          <Button type="primary" icon={<Zap size={13} />} loading={checking} onClick={runCheck}>{t('drl.startCheck')}</Button>
+        <Space style={{ marginTop: "var(--space-2, 8px)" }}>
+          <Button
+            size="small"
+            onClick={() =>
+              setCheckDrafts((prev) => [
+                ...prev,
+                { key: `d${Date.now()}`, modality: "CT", bodyPart: "胸部" },
+              ])
+            }
+          >
+            {t("drl.addInstance")}
+          </Button>
+          <Button
+            type="primary"
+            icon={<Zap size={13} />}
+            loading={checking}
+            onClick={runCheck}
+          >
+            {t("drl.startCheck")}
+          </Button>
         </Space>
         {checkResult && (
-          <DataTable scroll={{ x: 'max-content' }}
+          <DataTable
+            scroll={{ x: "max-content" }}
             rowKey="id"
             columns={checkColumns}
             dataSource={checkResult}
-            style={{ marginTop: 'var(--space-4, 16px)' }}
+            style={{ marginTop: "var(--space-4, 16px)" }}
             pagination={false}
-            locale={{ emptyText: t('drl.noOverLimit') }}
+            locale={{ emptyText: t("drl.noOverLimit") }}
           />
         )}
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)', display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
+      <div
+        style={{
+          background: "var(--bg-card)",
+          borderRadius: 12,
+          padding: "var(--space-5, 20px)",
+          border: "1px solid var(--border-color, #e2e8f0)",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: "var(--color-primary-800)",
+            marginBottom: "var(--space-4, 16px)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2, 8px)",
+          }}
+        >
           <ShieldAlert size={16} color="var(--color-success-600)" />
-          {t('drl.alertHistoryTitle')}
+          {t("drl.alertHistoryTitle")}
         </div>
-        <DataTable scroll={{ x: 'max-content' }}
+        <DataTable
+          scroll={{ x: "max-content" }}
           rowKey="id"
           columns={alertColumns}
           dataSource={alertPageData}
           loading={alertsLoading}
           pagination={alertPagination}
-          locale={{ emptyText: t('drl.noAlerts') }}
+          locale={{ emptyText: t("drl.noAlerts") }}
         />
       </div>
     </PageContainer>

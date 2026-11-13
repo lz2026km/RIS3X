@@ -40,6 +40,7 @@ import {
   Empty,
   Tabs,
   Radio,
+  Select,
   Progress,
   Tooltip as ATooltip,
 } from "antd";
@@ -174,6 +175,8 @@ export default function QcAnalyticsPage() {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [period, setPeriod] = useState<"week" | "month">("month");
+  // [v3.0.6.16-9] 闭环状态筛选: 后端 /qc-analytics/loop/defects|items 支持 status, 此前从不发送
+  const [loopStatusFilter, setLoopStatusFilter] = useState<string>("");
 
   // 闭环操作
   const [createDefect, setCreateDefect] = useState<LoopDefect | null>(null);
@@ -216,9 +219,11 @@ export default function QcAnalyticsPage() {
         .getDepartments()
         .catch(() => ({ success: false as const })),
       qcAnalyticsApi
-        .listLoopDefects()
+        .listLoopDefects(loopStatusFilter || undefined)
         .catch(() => ({ success: false as const })),
-      qcAnalyticsApi.listLoopItems().catch(() => ({ success: false as const })),
+      qcAnalyticsApi
+        .listLoopItems(loopStatusFilter || undefined)
+        .catch(() => ({ success: false as const })),
       qcAnalyticsApi.getLoopStats().catch(() => ({ success: false as const })),
     ]);
     if (!dashRes.success && !trendRes.success && !itemRes.success) {
@@ -262,7 +267,7 @@ export default function QcAnalyticsPage() {
     if (statsRes.success && statsRes.data?.data)
       setLoopStats(statsRes.data.data);
     setLoading(false);
-  }, [period]);
+  }, [period, loopStatusFilter]);
 
   useEffect(() => {
     void load();
@@ -1226,6 +1231,19 @@ export default function QcAnalyticsPage() {
                 rounds: loopStats?.avgRecheckRounds ?? 0,
               })}
             </span>
+            <Select
+              size="small"
+              style={{ minWidth: 130, marginInlineStart: "auto" }}
+              value={loopStatusFilter}
+              onChange={(v) => setLoopStatusFilter(String(v))}
+              options={[
+                { value: "", label: t("qcAnalytics.loopFilterAll") },
+                ...(Object.keys(LOOP_STATUS_META) as LoopStatus[]).map((s) => ({
+                  value: s,
+                  label: loopStatusLabel(s),
+                })),
+              ]}
+            />
           </Space>
           <Tabs
             defaultActiveKey="defects"

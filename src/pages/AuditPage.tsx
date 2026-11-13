@@ -37,7 +37,9 @@ import {
   List,
   Alert,
   Checkbox,
+  DatePicker,
 } from "antd";
+import dayjs from "dayjs";
 import { ProTable, type ProColumn } from "../components/data/ProTable";
 import {
   StatCard,
@@ -80,6 +82,8 @@ export default function AuditPage() {
     action?: string;
     resource?: string;
     userId?: string;
+    startDate?: string;
+    endDate?: string;
   }>({});
   // [W2-C] 审计详情 Drawer
   const [detail, setDetail] = useState<AuditLogDto | null>(null);
@@ -1143,6 +1147,33 @@ export default function AuditPage() {
                 children: (
                   <>
                     <Space style={{ marginBottom: "var(--space-4, 16px)" }}>
+                      <DatePicker.RangePicker
+                        size="small"
+                        value={
+                          (params.startDate
+                            ? [
+                                dayjs(params.startDate),
+                                params.endDate ? dayjs(params.endDate) : null,
+                              ]
+                            : null) as
+                            [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
+                        }
+                        onChange={(range) =>
+                          setParams((p) => ({
+                            ...p,
+                            startDate: range?.[0]
+                              ? range[0].startOf("day").toISOString()
+                              : undefined,
+                            endDate: range?.[1]
+                              ? range[1].endOf("day").toISOString()
+                              : undefined,
+                          }))
+                        }
+                        placeholder={[
+                          t("auditPage.dateFrom"),
+                          t("auditPage.dateTo"),
+                        ]}
+                      />
                       <Select
                         allowClear
                         placeholder={t("auditPage.filterAction")}

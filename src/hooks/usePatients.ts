@@ -70,7 +70,10 @@ export function usePatients(enabled = true) {
       const my = ++seq.current;
       setState((s) => ({ ...s, loading: true }));
       try {
-        const res = await patientApi.list({ search: q, pageSize: 30 });
+        const res = await patientApi.list({
+          ...(/^\d+$/.test(q) ? { phone: q } : { name: q }),
+          pageSize: 30,
+        });
         const list = listItems<Record<string, unknown>>(res);
         const options = list.map(toOption).filter((o) => o.value);
         if (my !== seq.current) return; // 丢弃过期响应

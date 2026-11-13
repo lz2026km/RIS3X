@@ -232,6 +232,9 @@ export default {
     "multiSite.avgLatency": "平均时延",
     "multiSite.avgUptime": "平均可用率",
     "multiSite.byRegion": "按区域分布",
+    "w11Device.filterAll": "全部",
+    "w11Device.filterReset": "重置",
+    "w9e.deviceManagement.stateBroken": "故障",
   },
   en: {
     "w11Device.title": "Device Operations Center",
@@ -466,5 +469,8 @@ export default {
     "multiSite.avgLatency": "Avg Latency",
     "multiSite.avgUptime": "Avg Uptime",
     "multiSite.byRegion": "By Region",
+    "w11Device.filterAll": "All",
+    "w11Device.filterReset": "Reset",
+    "w9e.deviceManagement.stateBroken": "Fault",
   },
 };

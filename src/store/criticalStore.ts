@@ -45,7 +45,13 @@ interface CriticalState {
   loading: boolean;
   error: string | null;
   actors: Map<string, Actor<CriticalMachine>>;
-  load: () => Promise<void>;
+  load: (params?: {
+    take?: number;
+    state?: string;
+    severity?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => Promise<void>;
   voiceCall: (id: string, phoneNumber: string) => Promise<void>;
   acknowledge: (id: string) => Promise<void>;
   clinicalReceipt: (
@@ -170,10 +176,10 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
   error: null,
   actors: actorsMap,
 
-  load: async () => {
+  load: async (params) => {
     set({ loading: true, error: null });
     try {
-      const res = await criticalApi.list();
+      const res = await criticalApi.list(params);
       // [W2-107] 兼容两种返回: 归一化后的 { items, total } 与旧数组 (测试/旧 mock)
       const payload = res.data as unknown;
       const items: CriticalValueDto[] = Array.isArray(payload)

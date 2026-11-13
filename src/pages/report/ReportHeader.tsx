@@ -12,6 +12,12 @@ const GRAY = "#64748b";
 const ACCENT = "#3182ce";
 
 const MODALITIES = ["全部", "CT", "MR", "DR", "DSA", "MG"];
+const PRIORITIES = [
+  { value: "全部", label: "全部" },
+  { value: "ROUTINE", label: "普通" },
+  { value: "URGENT", label: "紧急" },
+  { value: "STAT", label: "危重" },
+];
 const STATUSES = [
   "全部",
   "待分配",
@@ -49,6 +55,8 @@ export interface ReportHeaderProps {
   setModalityFilter: (v: string) => void;
   reportDoctorFilter: string;
   setReportDoctorFilter: (v: string) => void;
+  priorityFilter: string;
+  setPriorityFilter: (v: string) => void;
   auditorFilter: string;
   setAuditorFilter: (v: string) => void;
   dateFrom: string;
@@ -73,6 +81,8 @@ export default function ReportHeader({
   setModalityFilter,
   reportDoctorFilter,
   setReportDoctorFilter,
+  priorityFilter,
+  setPriorityFilter,
   auditorFilter,
   setAuditorFilter,
   dateFrom,
@@ -290,6 +300,30 @@ export default function ReportHeader({
             onChange={(v) => setStatusFilter(String(v ?? ""))}
             style={dropStyle}
             options={STATUSES.map((s) => ({ value: s, label: s }))}
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-1, 4px)",
+          }}
+        >
+          <span
+            style={{
+              fontSize: 12,
+              color: GRAY,
+              fontWeight: 600,
+              marginRight: 2,
+            }}
+          >
+            优先级:
+          </span>
+          <AppSelectField
+            value={priorityFilter}
+            onChange={(v) => setPriorityFilter(String(v ?? ""))}
+            style={dropStyle}
+            options={PRIORITIES}
           />
         </div>
         <div

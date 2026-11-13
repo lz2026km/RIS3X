@@ -1,12 +1,32 @@
-﻿import { Card, message, Button, Modal, Tabs, Input, Select, Empty, Tooltip, Tag, Space, Spin, DatePicker } from 'antd'
-import type { TableColumnsType } from 'antd'
-import dayjs from 'dayjs'
+﻿import {
+  Card,
+  message,
+  Button,
+  Modal,
+  Tabs,
+  Input,
+  Select,
+  Empty,
+  Tooltip,
+  Tag,
+  Space,
+  Spin,
+  DatePicker,
+} from "antd";
+import type { TableColumnsType } from "antd";
+import dayjs from "dayjs";
 import { PageHeader } from "../components/common/PageHeader";
 import { StatCard } from "../components/common/StatCard";
 import { AppText } from "../components/common/AppText";
 // G005 放射科RIS系统 - 检查预约管理 v2.1.0
 // 完整模拟放射科检查预约流程：日历/列表视图 + 新建预约表单 + 规则设置 + 预约提醒管理
-import { useState, useMemo, useEffect, useCallback, type CSSProperties } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  type CSSProperties,
+} from "react";
 import {
   CalendarClock,
   Plus,
@@ -35,10 +55,15 @@ import {
   Building2,
   Zap,
 } from "lucide-react";
+import { initialModalityDevices } from "../data/initialData";
 import {
-  initialModalityDevices,
-} from "../data/initialData";
-import { appointmentApi, type AppointmentDto, type RoomDto, type WaitlistEntryDto, type ReminderPlanDto, type GreenChannelReservationDto } from "../services/api";
+  appointmentApi,
+  type AppointmentDto,
+  type RoomDto,
+  type WaitlistEntryDto,
+  type ReminderPlanDto,
+  type GreenChannelReservationDto,
+} from "../services/api";
 import { notificationsApi } from "../services/api/notificationsApi";
 import { invalidateApiCacheByPrefix } from "../services/api/client";
 import { getCurrentUser } from "../utils/auth";
@@ -55,12 +80,12 @@ import ResourceGantt from "../components/appointments/ResourceGantt";
 import AppointmentOpsPanels from "../components/appointments/AppointmentOpsPanels";
 // [v3.0.6.11-103 Wave 10] 重复页合并: AppointmentManagementPage (冲突检测/统计/管理) 嵌入为 AppointmentPage "预约管理" 视图, 旧路由 /appointment-management redirect → /appointments
 import AppointmentManagementPage from "./AppointmentManagementPage";
-import { formatDateObj } from '../utils/date';
+import { formatDateObj } from "../utils/date";
 import { ActionButton } from "../components/common/ActionButton";
 import { InlineEditCell } from "../components/common/InlineEditCell";
 import { DataTable } from "../components/common";
 import { useUndoActions } from "../components/UndoToast";
-import { t } from '../i18n/appI18n';
+import { t } from "../i18n/appI18n";
 import { PageContainer } from "../components/common";
 // [W-D8] 诊室/候补/提醒/绿色通道 面板: 状态色统一走 @/theme/statusTokens (单一来源)
 import { toneToAntd, statusColor } from "../theme/statusTokens";
@@ -167,14 +192,18 @@ function parseCsv(text: string): Record<string, unknown>[] {
   for (let i = 1; i < lines.length; i++) {
     const cells = lines[i]!.split(/[,，\t]/).map((c) => c.trim());
     const row: Record<string, unknown> = {};
-    headers.forEach((h, idx) => { row[h] = cells[idx] ?? ""; });
+    headers.forEach((h, idx) => {
+      row[h] = cells[idx] ?? "";
+    });
     if (Object.values(row).some((v) => String(v) !== "")) rows.push(row);
   }
   return rows;
 }
 
 // 导入行 → AppointmentDto 载荷 (字段宽松匹配: 中文/英文表头)
-function rowToAppointment(row: Record<string, unknown>): Omit<AppointmentDto, "id" | "state" | "createdAt" | "updatedAt"> | null {
+function rowToAppointment(
+  row: Record<string, unknown>,
+): Omit<AppointmentDto, "id" | "state" | "createdAt" | "updatedAt"> | null {
   const get = (...keys: string[]) => {
     for (const k of keys) {
       const v = row[k] ?? row[k.toLowerCase()] ?? row[k.toUpperCase()];
@@ -197,7 +226,10 @@ function rowToAppointment(row: Record<string, unknown>): Omit<AppointmentDto, "i
   return {
     patientName,
     patientId: get("患者ID", "patientId", "idCard") || uniqueId("P"),
-    modality: (device?.modality ?? get("检查项目", "检查类型", "modality", "examItemName")) || "CT",
+    modality:
+      (device?.modality ??
+        get("检查项目", "检查类型", "modality", "examItemName")) ||
+      "CT",
     bodyPart: get("部位", "bodyPart", "检查项目", "examItemName") || "",
     startAt: start.toISOString(),
     endAt: end.toISOString(),
@@ -222,8 +254,6 @@ const getWeekDates = (baseDate: Date): Date[] => {
     return d;
   });
 };
-
-
 
 const formatDateCht = (d: Date): string => {
   const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
@@ -280,25 +310,34 @@ const STATUS_CONFIG: Record<
   },
   "checked-in": {
     label: t("apptPage.status.checkedIn"),
-    bg: "#3b82f622", color: "var(--color-primary-500)",
+    bg: "#3b82f622",
+    color: "var(--color-primary-500)",
     border: "#93c5fd",
   },
   checkedIn: {
     label: t("apptPage.status.checkedIn"),
-    bg: "#3b82f622", color: "var(--color-primary-500)",
+    bg: "#3b82f622",
+    color: "var(--color-primary-500)",
     border: "#93c5fd",
   },
   cancelled: {
     label: t("apptPage.status.cancelled"),
-    bg: "var(--bg-deep)", color: "var(--text-secondary)",
+    bg: "var(--bg-deep)",
+    color: "var(--text-secondary)",
     border: "var(--border-color)",
   },
   "no-show": {
     label: t("apptPage.status.noShow"),
-    bg: "#ef444422", color: "var(--color-error-500)",
+    bg: "#ef444422",
+    color: "var(--color-error-500)",
     border: "#fca5a5",
   },
-  noShow: { label: t("apptPage.status.noShow"), bg: "#ef444422", color: "var(--color-error-500)", border: "#fca5a5" },
+  noShow: {
+    label: t("apptPage.status.noShow"),
+    bg: "#ef444422",
+    color: "var(--color-error-500)",
+    border: "#fca5a5",
+  },
   completed: {
     label: t("apptPage.status.completed"),
     bg: "#8b5cf622",
@@ -307,7 +346,8 @@ const STATUS_CONFIG: Record<
   },
   "in-progress": {
     label: t("apptPage.status.inProgress"),
-    bg: "#f59e0b22", color: "var(--color-warning-500)",
+    bg: "#f59e0b22",
+    color: "var(--color-warning-500)",
     border: "var(--color-warning-300, #fcd34d)",
   },
   rescheduled: {
@@ -318,7 +358,8 @@ const STATUS_CONFIG: Record<
   },
   default: {
     label: t("apptPage.status.unknown"),
-    bg: "var(--bg-deep)", color: "var(--text-secondary)",
+    bg: "var(--bg-deep)",
+    color: "var(--text-secondary)",
     border: "var(--border-color)",
   },
 };
@@ -329,10 +370,26 @@ const PRIORITY_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  critical: { label: t("apptPage.priority.critical"), bg: "#ef444422", color: "var(--color-error-500)" },
-  urgent: { label: t("apptPage.priority.urgent"), bg: "#f59e0b22", color: "var(--color-warning-500)" },
-  normal: { label: t("apptPage.priority.normal"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
-  default: { label: t("apptPage.priority.normal"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  critical: {
+    label: t("apptPage.priority.critical"),
+    bg: "#ef444422",
+    color: "var(--color-error-500)",
+  },
+  urgent: {
+    label: t("apptPage.priority.urgent"),
+    bg: "#f59e0b22",
+    color: "var(--color-warning-500)",
+  },
+  normal: {
+    label: t("apptPage.priority.normal"),
+    bg: "var(--bg-deep)",
+    color: "var(--text-secondary)",
+  },
+  default: {
+    label: t("apptPage.priority.normal"),
+    bg: "var(--bg-deep)",
+    color: "var(--text-secondary)",
+  },
 };
 const getPriorityConfig = (priority: string) =>
   PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.default!;
@@ -349,11 +406,31 @@ const REMINDER_STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  已发送: { label: t("apptPage.reminderStatus.sent"), bg: "#3b82f622", color: "var(--color-primary-700)" },
-  已确认: { label: t("apptPage.reminderStatus.confirmed"), bg: "#22c55e22", color: "#059669" },
-  已改期: { label: t("apptPage.reminderStatus.rescheduled"), bg: "#f59e0b22", color: "var(--color-warning-500)" },
-  已取消: { label: t("apptPage.reminderStatus.cancelled"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
-  default: { label: t("apptPage.reminderStatus.unknown"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  已发送: {
+    label: t("apptPage.reminderStatus.sent"),
+    bg: "#3b82f622",
+    color: "var(--color-primary-700)",
+  },
+  已确认: {
+    label: t("apptPage.reminderStatus.confirmed"),
+    bg: "#22c55e22",
+    color: "#059669",
+  },
+  已改期: {
+    label: t("apptPage.reminderStatus.rescheduled"),
+    bg: "#f59e0b22",
+    color: "var(--color-warning-500)",
+  },
+  已取消: {
+    label: t("apptPage.reminderStatus.cancelled"),
+    bg: "var(--bg-deep)",
+    color: "var(--text-secondary)",
+  },
+  default: {
+    label: t("apptPage.reminderStatus.unknown"),
+    bg: "var(--bg-deep)",
+    color: "var(--text-secondary)",
+  },
 };
 const getReminderStatusConfig = (status: string) =>
   REMINDER_STATUS_CONFIG[status] || REMINDER_STATUS_CONFIG.default!;
@@ -362,10 +439,26 @@ const RESCHEDULE_REASON_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  patient: { label: t("apptPage.rescheduleReason.patient"), bg: "#3b82f622", color: "var(--color-primary-700)" },
-  doctor: { label: t("apptPage.rescheduleReason.doctor"), bg: "#f59e0b22", color: "var(--color-warning-500)" },
-  device: { label: t("apptPage.rescheduleReason.device"), bg: "#ef444422", color: "var(--color-error-500)" },
-  default: { label: t("apptPage.rescheduleReason.other"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
+  patient: {
+    label: t("apptPage.rescheduleReason.patient"),
+    bg: "#3b82f622",
+    color: "var(--color-primary-700)",
+  },
+  doctor: {
+    label: t("apptPage.rescheduleReason.doctor"),
+    bg: "#f59e0b22",
+    color: "var(--color-warning-500)",
+  },
+  device: {
+    label: t("apptPage.rescheduleReason.device"),
+    bg: "#ef444422",
+    color: "var(--color-error-500)",
+  },
+  default: {
+    label: t("apptPage.rescheduleReason.other"),
+    bg: "var(--bg-deep)",
+    color: "var(--text-secondary)",
+  },
 };
 const getRescheduleReasonConfig = (reason: string) =>
   RESCHEDULE_REASON_CONFIG[reason] || RESCHEDULE_REASON_CONFIG.default!;
@@ -418,7 +511,6 @@ interface WaitlistPatient {
   notified: boolean;
 }
 
-
 // ==================== 模拟预约数据 ====================
 
 // ==================== 模拟设备规则 ====================
@@ -460,12 +552,17 @@ export default function AppointmentPage() {
       setLoading(true);
       try {
         const [aptRes, rulesRes] = await Promise.all([
-          appointmentApi.list(),
+          appointmentApi.list({
+            deviceId: selectedDevice !== "all" ? selectedDevice : undefined,
+            dateFrom: listFilterDate || undefined,
+            dateTo: listFilterDate ? `${listFilterDate}T23:59:59` : undefined,
+          }),
           appointmentApi.getRules(),
         ]);
         if (cancelled) return;
         // [W4] api.getList 已归一化为 { items, total }
-        const aptItems = (aptRes.data as { items?: unknown[] } | null)?.items ?? [];
+        const aptItems =
+          (aptRes.data as { items?: unknown[] } | null)?.items ?? [];
         if (aptRes.success && Array.isArray(aptItems)) {
           setAppointments(aptItems as unknown as Appointment[]);
           setLoadError(null);
@@ -477,9 +574,14 @@ export default function AppointmentPage() {
           setRules(rulesRes.data as unknown as AppointmentRules[]);
           // [v3.0.6.11-99 Wave8A P1] 本地持久化规则优先 (后端无规则保存端点, 标注: 待后端规则 CRUD)
           try {
-            const saved = JSON.parse(localStorage.getItem("g005_appointment_rules") || "null");
-            if (Array.isArray(saved) && saved.length > 0) setRules(saved as AppointmentRules[]);
-          } catch { /* ignore */ }
+            const saved = JSON.parse(
+              localStorage.getItem("g005_appointment_rules") || "null",
+            );
+            if (Array.isArray(saved) && saved.length > 0)
+              setRules(saved as AppointmentRules[]);
+          } catch {
+            /* ignore */
+          }
         }
       } catch {
         if (!cancelled) setLoadError(t("apptPage.loadFailed"));
@@ -489,7 +591,7 @@ export default function AppointmentPage() {
     return () => {
       cancelled = true;
     };
-  }, [reloadTick]);
+  }, [reloadTick, selectedDevice, listFilterDate]);
   const [rules, setRules] = useState<AppointmentRules[]>([]);
 
   // [W2-4] 一键预约: 支持 /appointments?patientId=xxx 从患者详情直达预约表单
@@ -508,7 +610,9 @@ export default function AppointmentPage() {
     if (!pid) return;
     void (async () => {
       try {
-        const res = await (await import("../services/api")).patientApi.getById(pid);
+        const res = await (
+          await import("../services/api")
+        ).patientApi.getById(pid);
         if (cancelled || !res.success || !res.data) return;
         const p = res.data as unknown as Record<string, unknown>;
         const name = String(p.name ?? p.patientName ?? "");
@@ -516,7 +620,11 @@ export default function AppointmentPage() {
         setPatientPreset({
           patientId: pid,
           patientName: name,
-          gender: gender.includes("女") ? "女" : gender.includes("男") ? "男" : "男",
+          gender: gender.includes("女")
+            ? "女"
+            : gender.includes("男")
+              ? "男"
+              : "男",
           age: String(p.age ?? ""),
           phone: String(p.phone ?? ""),
           idCard: String(p.idCard ?? ""),
@@ -532,12 +640,21 @@ export default function AppointmentPage() {
         setShowForm(true);
         setSearchKeyword(pid);
       } catch {
-        setPatientPreset({ patientId: pid, patientName: "", gender: "男", age: "", phone: "", idCard: "" });
+        setPatientPreset({
+          patientId: pid,
+          patientName: "",
+          gender: "男",
+          age: "",
+          phone: "",
+          idCard: "",
+        });
         setSearchKeyword(pid);
         setShowForm(true);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // 加载辅助数据 (等候名单/提醒/改期/取消) - P0: 接真实端点, 失败显式提示
@@ -552,10 +669,14 @@ export default function AppointmentPage() {
         appointmentApi.getCancellationRecords(),
       ]);
       if (cancelled) return;
-      if (wlRes.success && Array.isArray(wlRes.data)) setWaitlist(wlRes.data as unknown as WaitlistPatient[]);
-      if (remRes.success && Array.isArray(remRes.data)) setReminderRecords(remRes.data as unknown as ReminderRecord[]);
-      if (rsRes.success && Array.isArray(rsRes.data)) setRescheduleRecords(rsRes.data as unknown as RescheduleRecord[]);
-      if (cxRes.success && Array.isArray(cxRes.data)) setCancellationRecords(cxRes.data as unknown as CancellationRecord[]);
+      if (wlRes.success && Array.isArray(wlRes.data))
+        setWaitlist(wlRes.data as unknown as WaitlistPatient[]);
+      if (remRes.success && Array.isArray(remRes.data))
+        setReminderRecords(remRes.data as unknown as ReminderRecord[]);
+      if (rsRes.success && Array.isArray(rsRes.data))
+        setRescheduleRecords(rsRes.data as unknown as RescheduleRecord[]);
+      if (cxRes.success && Array.isArray(cxRes.data))
+        setCancellationRecords(cxRes.data as unknown as CancellationRecord[]);
       const failures = [wlRes, remRes, rsRes, cxRes].filter((r) => !r.success);
       if (failures.length > 0) {
         setTabError(
@@ -570,7 +691,9 @@ export default function AppointmentPage() {
           `${t("apptPage.auxLoadFailed")}: ${(e as Error)?.message || String(e)}`,
         );
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [reloadTick]);
 
   // 右侧面板
@@ -658,16 +781,18 @@ export default function AppointmentPage() {
 
   // 提醒相关状态
   const [reminderRecords, setReminderRecords] = useState<ReminderRecord[]>([]);
-  const [rescheduleRecords, setRescheduleRecords] = useState<RescheduleRecord[]>([]);
-  const [cancellationRecords, setCancellationRecords] = useState<CancellationRecord[]>([]);
+  const [rescheduleRecords, setRescheduleRecords] = useState<
+    RescheduleRecord[]
+  >([]);
+  const [cancellationRecords, setCancellationRecords] = useState<
+    CancellationRecord[]
+  >([]);
   const [tabError, setTabError] = useState<string | null>(null);
   const [reminderTab, setReminderTab] = useState<
     "reminders" | "reschedules" | "cancellations"
   >("reminders");
-  const [reminderFilterStatus] =
-    useState<string>("all");
-  const [reminderFilterChannel] =
-    useState<string>("all");
+  const [reminderFilterStatus] = useState<string>("all");
+  const [reminderFilterChannel] = useState<string>("all");
 
   // 新建预约表单状态
   const [formData, setFormData] = useState({
@@ -803,7 +928,7 @@ export default function AppointmentPage() {
   // 日历视图使用今日预约
   const filteredAppointments = useMemo(() => {
     const today = formatDateObj(new Date());
-    return appointments.filter(a => a.examDate === today);
+    return appointments.filter((a) => a.examDate === today);
   }, [appointments]);
 
   // 过滤后的提醒记录
@@ -819,31 +944,137 @@ export default function AppointmentPage() {
   }, [reminderRecords, reminderFilterStatus, reminderFilterChannel]);
 
   const reminderColumns: TableColumnsType<ReminderRecord> = [
-    { title: t("apptPage.colPatient"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 700, color: primaryBlue }}>{v}</span> },
-    { title: t("apptPage.colPhone"), dataIndex: "phone", key: "phone", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-    { title: t("apptPage.colExamItem"), dataIndex: "examType", key: "examType", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-    { title: t("apptPage.colExamTime"), key: "examTime", render: (_v, r) => <span style={{ color: textGray }}>{r.examDate} {r.examTime}</span> },
-    { title: t("apptPage.colReminderTime"), dataIndex: "reminderTime", key: "reminderTime", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-    { title: t("apptPage.colChannel"), dataIndex: "channel", key: "channel", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-    { title: t("apptPage.colStatus"), dataIndex: "status", key: "status", render: (v: string) => <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, ...getReminderStatusConfig(v) }}>{v}</span> },
-    { title: t("apptPage.colResponseTime"), dataIndex: "responseTime", key: "responseTime", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-  ]
+    {
+      title: t("apptPage.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
+      render: (v: string) => (
+        <span style={{ fontWeight: 700, color: primaryBlue }}>{v}</span>
+      ),
+    },
+    {
+      title: t("apptPage.colPhone"),
+      dataIndex: "phone",
+      key: "phone",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colExamItem"),
+      dataIndex: "examType",
+      key: "examType",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colExamTime"),
+      key: "examTime",
+      render: (_v, r) => (
+        <span style={{ color: textGray }}>
+          {r.examDate} {r.examTime}
+        </span>
+      ),
+    },
+    {
+      title: t("apptPage.colReminderTime"),
+      dataIndex: "reminderTime",
+      key: "reminderTime",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colChannel"),
+      dataIndex: "channel",
+      key: "channel",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colStatus"),
+      dataIndex: "status",
+      key: "status",
+      render: (v: string) => (
+        <span
+          style={{
+            padding: "2px 8px",
+            borderRadius: 10,
+            fontSize: 12,
+            fontWeight: 700,
+            ...getReminderStatusConfig(v),
+          }}
+        >
+          {v}
+        </span>
+      ),
+    },
+    {
+      title: t("apptPage.colResponseTime"),
+      dataIndex: "responseTime",
+      key: "responseTime",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+  ];
 
   const rescheduleColumns: TableColumnsType<RescheduleRecord> = [
-    { title: t("apptPage.colPatient"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 700, color: primaryBlue }}>{v}</span> },
-    { title: t("apptPage.colPhone"), dataIndex: "phone", key: "phone", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-    { title: t("apptPage.colExamItem"), dataIndex: "examType", key: "examType", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-    { title: t("apptPage.colOriginalTime"), key: "originalTime", render: (_v, r) => <span style={{ color: textGray }}>{r.originalDate} {r.originalTime}</span> },
-    { title: t("apptPage.colNewTime"), key: "newTime", render: (_v, r) => <span style={{ fontWeight: 600, color: primaryBlue }}>{r.newDate} {r.newTime}</span> },
     {
-      title: t("apptPage.colReason"), dataIndex: "reason", key: "reason",
+      title: t("apptPage.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
+      render: (v: string) => (
+        <span style={{ fontWeight: 700, color: primaryBlue }}>{v}</span>
+      ),
+    },
+    {
+      title: t("apptPage.colPhone"),
+      dataIndex: "phone",
+      key: "phone",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colExamItem"),
+      dataIndex: "examType",
+      key: "examType",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colOriginalTime"),
+      key: "originalTime",
+      render: (_v, r) => (
+        <span style={{ color: textGray }}>
+          {r.originalDate} {r.originalTime}
+        </span>
+      ),
+    },
+    {
+      title: t("apptPage.colNewTime"),
+      key: "newTime",
+      render: (_v, r) => (
+        <span style={{ fontWeight: 600, color: primaryBlue }}>
+          {r.newDate} {r.newTime}
+        </span>
+      ),
+    },
+    {
+      title: t("apptPage.colReason"),
+      dataIndex: "reason",
+      key: "reason",
       render: (v: RescheduleRecord["reason"]) => {
-        const cfg = getRescheduleReasonConfig(v)
-        return <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, ...cfg }}>{cfg.label}</span>
+        const cfg = getRescheduleReasonConfig(v);
+        return (
+          <span
+            style={{
+              padding: "2px 8px",
+              borderRadius: 10,
+              fontSize: 12,
+              fontWeight: 700,
+              ...cfg,
+            }}
+          >
+            {cfg.label}
+          </span>
+        );
       },
     },
     {
-      title: t("w14Ux.inline.save"), key: "note", width: 120,
+      title: t("w14Ux.inline.save"),
+      key: "note",
+      width: 120,
       render: (_v, r) => (
         <InlineEditCell
           value={r.note ?? ""}
@@ -852,28 +1083,87 @@ export default function AppointmentPage() {
           ariaLabel={t("w14Ux.inline.save")}
           onSave={(next) => {
             const snapshot = rescheduleRecords;
-            setRescheduleRecords((prev) => prev.map((x) => (x.id === r.id ? { ...x, note: next } : x)));
-            showUndo(t("w14Ux.undo.updated", { name: r.patientName }), () => setRescheduleRecords(snapshot));
+            setRescheduleRecords((prev) =>
+              prev.map((x) => (x.id === r.id ? { ...x, note: next } : x)),
+            );
+            showUndo(t("w14Ux.undo.updated", { name: r.patientName }), () =>
+              setRescheduleRecords(snapshot),
+            );
           }}
         />
       ),
     },
-    { title: t("apptPage.colOperateTime"), dataIndex: "operateTime", key: "operateTime", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-  ]
+    {
+      title: t("apptPage.colOperateTime"),
+      dataIndex: "operateTime",
+      key: "operateTime",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+  ];
 
   const cancellationColumns: TableColumnsType<CancellationRecord> = [
-    { title: t("apptPage.colPatient"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 700, color: primaryBlue }}>{v}</span> },
-    { title: t("apptPage.colPhone"), dataIndex: "phone", key: "phone", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-    { title: t("apptPage.colExamItem"), dataIndex: "examType", key: "examType", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-    { title: t("apptPage.colCancelTime"), dataIndex: "cancelTime", key: "cancelTime", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
-    { title: t("apptPage.colReason"), dataIndex: "reason", key: "reason", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
     {
-      title: t("apptPage.colRebooked"), dataIndex: "rebooked", key: "rebooked",
+      title: t("apptPage.colPatient"),
+      dataIndex: "patientName",
+      key: "patientName",
       render: (v: string) => (
-        <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: v === "是" ? "var(--color-success-bg)" : v === "否" ? "var(--bg-primary)" : "var(--color-warning-bg)", color: v === "是" ? "#059669" : v === "否" ? "#64748b" : "var(--color-warning-600)" }}>{v}</span>
+        <span style={{ fontWeight: 700, color: primaryBlue }}>{v}</span>
       ),
     },
-  ]
+    {
+      title: t("apptPage.colPhone"),
+      dataIndex: "phone",
+      key: "phone",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colExamItem"),
+      dataIndex: "examType",
+      key: "examType",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colCancelTime"),
+      dataIndex: "cancelTime",
+      key: "cancelTime",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colReason"),
+      dataIndex: "reason",
+      key: "reason",
+      render: (v: string) => <span style={{ color: textGray }}>{v}</span>,
+    },
+    {
+      title: t("apptPage.colRebooked"),
+      dataIndex: "rebooked",
+      key: "rebooked",
+      render: (v: string) => (
+        <span
+          style={{
+            padding: "2px 8px",
+            borderRadius: 10,
+            fontSize: 12,
+            fontWeight: 700,
+            background:
+              v === "是"
+                ? "var(--color-success-bg)"
+                : v === "否"
+                  ? "var(--bg-primary)"
+                  : "var(--color-warning-bg)",
+            color:
+              v === "是"
+                ? "#059669"
+                : v === "否"
+                  ? "#64748b"
+                  : "var(--color-warning-600)",
+          }}
+        >
+          {v}
+        </span>
+      ),
+    },
+  ];
 
   // 统计某日某设备的预约数
   const getDeviceDayStats = (date: Date, deviceId: string) => {
@@ -888,9 +1178,16 @@ export default function AppointmentPage() {
   };
 
   // 新建预约提交 (P0): 参数与后端 schema 对齐, 以服务端返回对象更新列表
-  const buildCreatePayload = (): Omit<AppointmentDto, "id" | "state" | "createdAt" | "updatedAt"> | null => {
-    const device = initialModalityDevices.find((d) => d.id === formData.deviceId);
-    const startAt = new Date(`${formData.examDate}T${formData.examTime || "08:00"}:00`);
+  const buildCreatePayload = (): Omit<
+    AppointmentDto,
+    "id" | "state" | "createdAt" | "updatedAt"
+  > | null => {
+    const device = initialModalityDevices.find(
+      (d) => d.id === formData.deviceId,
+    );
+    const startAt = new Date(
+      `${formData.examDate}T${formData.examTime || "08:00"}:00`,
+    );
     if (Number.isNaN(startAt.getTime())) return null;
     const endAt = new Date(startAt.getTime() + 30 * 60 * 1000);
     const priority: AppointmentDto["priority"] =
@@ -926,8 +1223,10 @@ export default function AppointmentPage() {
       insuranceType: formData.insuranceType || undefined,
       insurancePreAuthNo: formData.insurancePreAuthNo || undefined,
       greenChannel: !!formData.greenChannel,
-      weightKg: formData.weightKg === "" ? undefined : Number(formData.weightKg),
-      heightCm: formData.heightCm === "" ? undefined : Number(formData.heightCm),
+      weightKg:
+        formData.weightKg === "" ? undefined : Number(formData.weightKg),
+      heightCm:
+        formData.heightCm === "" ? undefined : Number(formData.heightCm),
       allergyHistory: formData.allergyHistory || undefined,
       pregnant: !!formData.pregnant,
       renalFunction: formData.renalFunction || undefined,
@@ -952,7 +1251,11 @@ export default function AppointmentPage() {
       NO_SHOW: "no-show",
     };
     const priority: Appointment["priority"] =
-      dto.priority === "STAT" ? "critical" : dto.priority === "URGENT" ? "urgent" : "normal";
+      dto.priority === "STAT"
+        ? "critical"
+        : dto.priority === "URGENT"
+          ? "urgent"
+          : "normal";
     return {
       id: dto.id,
       patientId: dto.patientId,
@@ -963,7 +1266,9 @@ export default function AppointmentPage() {
       idCard: formData.idCard,
       phone: formData.phone,
       examItemId: "",
-      examItemName: dto.bodyPart ? `${dto.modality} ${dto.bodyPart}` : dto.modality,
+      examItemName: dto.bodyPart
+        ? `${dto.modality} ${dto.bodyPart}`
+        : dto.modality,
       modality: dto.modality,
       bodyPart: dto.bodyPart || "",
       examDate: date,
@@ -1028,7 +1333,8 @@ export default function AppointmentPage() {
     setCreatingAppt(true);
     try {
       const errs: Record<string, string> = {};
-      if (!formData.patientName.trim()) errs.patientName = t("apptPage.errPatientName");
+      if (!formData.patientName.trim())
+        errs.patientName = t("apptPage.errPatientName");
       if (
         formData.idCard &&
         formData.idCard.length > 0 &&
@@ -1127,9 +1433,19 @@ export default function AppointmentPage() {
   // ====== [W14-UX] 右键上下文操作 + 批量操作 ======
   const checkInAppointment = async (apt: { id: string }) => {
     setAppointments((prev) =>
-      prev.map((a) => (a.id === apt.id ? { ...a, status: "checked-in", updatedAt: new Date().toLocaleString("zh-CN") } : a)),
+      prev.map((a) =>
+        a.id === apt.id
+          ? {
+              ...a,
+              status: "checked-in",
+              updatedAt: new Date().toLocaleString("zh-CN"),
+            }
+          : a,
+      ),
     );
-    await appointmentApi.update(apt.id, { state: "CHECKED_IN" }).catch(() => null);
+    await appointmentApi
+      .update(apt.id, { state: "CHECKED_IN" })
+      .catch(() => null);
     message.success(t("apptPage.status.checkedIn"));
   };
 
@@ -1138,9 +1454,19 @@ export default function AppointmentPage() {
     if (!Number.isNaN(d.getTime())) d.setDate(d.getDate() + 1);
     const newDate = Number.isNaN(d.getTime()) ? apt.examDate : formatDateObj(d);
     setAppointments((prev) =>
-      prev.map((a) => (a.id === apt.id ? { ...a, examDate: newDate, updatedAt: new Date().toLocaleString("zh-CN") } : a)),
+      prev.map((a) =>
+        a.id === apt.id
+          ? {
+              ...a,
+              examDate: newDate,
+              updatedAt: new Date().toLocaleString("zh-CN"),
+            }
+          : a,
+      ),
     );
-    message.success(t("w14Ux.batch.done", { count: 1, action: t("w14Ux.batch.reschedule") }));
+    message.success(
+      t("w14Ux.batch.done", { count: 1, action: t("w14Ux.batch.reschedule") }),
+    );
   };
 
   const cancelAppointmentDirect = (apt: Appointment) => {
@@ -1156,34 +1482,62 @@ export default function AppointmentPage() {
     const targets = appointments.filter((a) => ids.includes(a.id));
     if (action === "checkin") {
       for (const apt of targets) {
-        await appointmentApi.update(apt.id, { state: "CHECKED_IN" }).catch(() => null);
+        await appointmentApi
+          .update(apt.id, { state: "CHECKED_IN" })
+          .catch(() => null);
       }
-      setAppointments((prev) => prev.map((a) => (ids.includes(a.id) ? { ...a, status: "checked-in" } : a)));
-      message.success(t("w14Ux.batch.done", { count: targets.length, action: t("w14Ux.batch.checkIn") }));
+      setAppointments((prev) =>
+        prev.map((a) =>
+          ids.includes(a.id) ? { ...a, status: "checked-in" } : a,
+        ),
+      );
+      message.success(
+        t("w14Ux.batch.done", {
+          count: targets.length,
+          action: t("w14Ux.batch.checkIn"),
+        }),
+      );
     } else if (action === "cancel") {
       for (const apt of targets) {
         await appointmentApi.cancel(apt.id).catch(() => null);
       }
-      setAppointments((prev) => prev.map((a) => (ids.includes(a.id) ? { ...a, status: "cancelled" } : a)));
-      message.success(t("w14Ux.batch.done", { count: targets.length, action: t("w14Ux.batch.cancel") }));
+      setAppointments((prev) =>
+        prev.map((a) =>
+          ids.includes(a.id) ? { ...a, status: "cancelled" } : a,
+        ),
+      );
+      message.success(
+        t("w14Ux.batch.done", {
+          count: targets.length,
+          action: t("w14Ux.batch.cancel"),
+        }),
+      );
     } else if (action === "reschedule") {
       setAppointments((prev) =>
         prev.map((a) => {
           if (!ids.includes(a.id)) return a;
           const d = new Date(a.examDate);
           if (!Number.isNaN(d.getTime())) d.setDate(d.getDate() + 1);
-          return { ...a, examDate: Number.isNaN(d.getTime()) ? a.examDate : formatDateObj(d) };
+          return {
+            ...a,
+            examDate: Number.isNaN(d.getTime()) ? a.examDate : formatDateObj(d),
+          };
         }),
       );
-      message.success(t("w14Ux.batch.done", { count: targets.length, action: t("w14Ux.batch.reschedule") }));
+      message.success(
+        t("w14Ux.batch.done", {
+          count: targets.length,
+          action: t("w14Ux.batch.reschedule"),
+        }),
+      );
     }
     setSelectedAptIds(new Set());
   };
 
   // 颜色定义
   const primaryBlue = "var(--color-primary-800)";
-const lightBlue = "var(--color-info-bg)";
-const borderGray = "var(--border-color)";
+  const lightBlue = "var(--color-info-bg)";
+  const borderGray = "var(--border-color)";
   const textGray = "#64748b";
   const whiteBg = "var(--bg-card)";
 
@@ -1202,15 +1556,53 @@ const borderGray = "var(--border-color)";
       }}
     >
       {loading && <LoadingBanner message={t("apptPage.loadingData")} />}
-      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
-      {tabError && <ErrorBanner message={tabError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
+      {loadError && !loading && (
+        <ErrorBanner
+          message={loadError}
+          onRetry={() => setReloadTick((n) => n + 1)}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
+      {tabError && (
+        <ErrorBanner
+          message={tabError}
+          onRetry={() => setReloadTick((n) => n + 1)}
+          retryLabel={t("w9.states.retry")}
+        />
+      )}
 
       {/* [W2-4] 一键预约横幅: 从患者详情跳转时展示 */}
       {patientPreset && (
-        <div style={{ background: 'var(--color-info-bg)', borderBottom: '1px solid #bfdbfe', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: 'var(--color-primary-800)' }}>
+        <div
+          style={{
+            background: "var(--color-info-bg)",
+            borderBottom: "1px solid #bfdbfe",
+            padding: "10px 24px",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            fontSize: 12,
+            color: "var(--color-primary-800)",
+          }}
+        >
           <CalendarPlus size={16} />
-          <span>{t("apptPage.presetPrefix")}<b>{patientPreset.patientName || patientPreset.patientId}</b>（{patientPreset.patientId}）{t("apptPage.presetSuffix")}</span>
-          <button onClick={() => setPatientPreset(null)} style={{ marginLeft: 'auto', border: 'none', background: 'transparent', color: 'var(--color-primary-800)', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+          <span>
+            {t("apptPage.presetPrefix")}
+            <b>{patientPreset.patientName || patientPreset.patientId}</b>（
+            {patientPreset.patientId}）{t("apptPage.presetSuffix")}
+          </span>
+          <button
+            onClick={() => setPatientPreset(null)}
+            style={{
+              marginLeft: "auto",
+              border: "none",
+              background: "transparent",
+              color: "var(--color-primary-800)",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
             {t("apptPage.close")}
           </button>
         </div>
@@ -1236,12 +1628,23 @@ const borderGray = "var(--border-color)";
         >
           <PageHeader
             variant="flex"
-            icon={<CalendarClock size={22} style={{ color: "var(--color-warning-600)" }} />}
+            icon={
+              <CalendarClock
+                size={22}
+                style={{ color: "var(--color-warning-600)" }}
+              />
+            }
             title={t("apptPage.title")}
             subtitle={t("apptPage.subtitle")}
             style={{ marginBottom: 0 }}
           />
-          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "var(--space-2, 8px)",
+              alignItems: "center",
+            }}
+          >
             <button
               onClick={() => {
                 setShowBatchImport(true);
@@ -1286,7 +1689,9 @@ const borderGray = "var(--border-color)";
             {/* [v3.0.6.11-103 Wave 10] 重复页合并: 预约管理视图 (嵌入 AppointmentManagementPage) */}
             <button
               onClick={() => {
-                setViewMode(viewMode === "management" ? "calendar" : "management");
+                setViewMode(
+                  viewMode === "management" ? "calendar" : "management",
+                );
                 setShowForm(false);
                 setShowRules(false);
               }}
@@ -1309,7 +1714,11 @@ const borderGray = "var(--border-color)";
             {/* [W5] 资源甘特视图开关 */}
             <button
               data-testid="toggle-gantt"
-              onClick={() => { setShowGantt(!showGantt); setShowForm(false); setShowRules(false); }}
+              onClick={() => {
+                setShowGantt(!showGantt);
+                setShowForm(false);
+                setShowRules(false);
+              }}
               style={{
                 padding: "7px 14px",
                 background: showGantt ? primaryBlue : whiteBg,
@@ -1329,7 +1738,11 @@ const borderGray = "var(--border-color)";
             {/* [W5] 运营面板开关 */}
             <button
               data-testid="toggle-ops"
-              onClick={() => { setShowOps(!showOps); setShowForm(false); setShowRules(false); }}
+              onClick={() => {
+                setShowOps(!showOps);
+                setShowForm(false);
+                setShowRules(false);
+              }}
               style={{
                 padding: "7px 14px",
                 background: showOps ? primaryBlue : whiteBg,
@@ -1349,7 +1762,11 @@ const borderGray = "var(--border-color)";
             {/* [W-D8] 诊室 / 候补 / 提醒 / 绿色通道 资源面板 */}
             <button
               data-testid="toggle-resource-ops"
-              onClick={() => { setShowResourceOps(!showResourceOps); setShowForm(false); setShowRules(false); }}
+              onClick={() => {
+                setShowResourceOps(!showResourceOps);
+                setShowForm(false);
+                setShowRules(false);
+              }}
               style={{
                 padding: "7px 14px",
                 background: showResourceOps ? primaryBlue : whiteBg,
@@ -1378,7 +1795,9 @@ const borderGray = "var(--border-color)";
                 boxShadow: "0 2px 4px rgba(217,119,6,0.3)",
               }}
             >
-              {showForm ? t("apptPage.cancelNew") : t("apptPage.newAppointment")}
+              {showForm
+                ? t("apptPage.cancelNew")
+                : t("apptPage.newAppointment")}
             </ActionButton>
           </div>
         </div>
@@ -1391,373 +1810,1139 @@ const borderGray = "var(--border-color)";
           <AppointmentManagementPage />
         ) : (
           <>
-        {/* 统计卡片 */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(6, 1fr)",
-            gap: 'var(--space-3, 12px)',
-            marginBottom: 'var(--space-4, 16px)',
-          }}
-        >
-          <StatCard
-            title={t("apptPage.todayAppointments")}
-            value={todayStats.total}
-            icon={<CalendarClock size={20} />}
-            color="primary"
-          />
-          <StatCard
-            title={t("apptPage.pendingConfirm")}
-            value={todayStats.pending}
-            icon={<Clock size={20} />}
-            color="warning"
-          />
-          <StatCard
-            title={t("apptPage.confirmed")}
-            value={todayStats.confirmed}
-            icon={<CheckCircle size={20} />}
-            color="success"
-          />
-          <StatCard
-            title={t("apptPage.noShow")}
-            value={todayStats.noShow}
-            icon={<XCircle size={20} />}
-            color="error"
-          />
-          <StatCard
-            title={t("apptPage.avgWait")}
-            value={todayStats.avgWaitTime}
-            icon={<Clock size={20} />}
-            color="info"
-          />
-          <StatCard
-            title={t("apptPage.utilization")}
-            value={todayStats.utilizationRate}
-            suffix="%"
-            icon={<BarChart3 size={20} />}
-            color="info"
-          />
-        </div>
-
-        {/* [W5] 资源排班甘特 (设备/机房/技师) */}
-        {showGantt && (
-          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
-            <ResourceGantt
-              appointments={appointments as unknown as Array<Record<string, unknown>>}
-              onCreate={({ rowId, dimension, startMin, date }) => {
-                const hh = String(Math.floor(startMin / 60)).padStart(2, "0");
-                const mm = String(startMin % 60).padStart(2, "0");
-                setFormData((prev) => ({
-                  ...prev,
-                  examDate: date,
-                  examTime: `${hh}:${mm}`,
-                  ...(dimension === "ROOM" ? { roomId: rowId } : {}),
-                  ...(dimension === "DEVICE" ? { deviceId: rowId } : {}),
-                  ...(dimension === "TECH" ? { technicianId: rowId } : {}),
-                }));
-                setShowForm(true);
-                setShowGantt(false);
+            {/* 统计卡片 */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(6, 1fr)",
+                gap: "var(--space-3, 12px)",
+                marginBottom: "var(--space-4, 16px)",
               }}
-            />
-          </div>
-        )}
+            >
+              <StatCard
+                title={t("apptPage.todayAppointments")}
+                value={todayStats.total}
+                icon={<CalendarClock size={20} />}
+                color="primary"
+              />
+              <StatCard
+                title={t("apptPage.pendingConfirm")}
+                value={todayStats.pending}
+                icon={<Clock size={20} />}
+                color="warning"
+              />
+              <StatCard
+                title={t("apptPage.confirmed")}
+                value={todayStats.confirmed}
+                icon={<CheckCircle size={20} />}
+                color="success"
+              />
+              <StatCard
+                title={t("apptPage.noShow")}
+                value={todayStats.noShow}
+                icon={<XCircle size={20} />}
+                color="error"
+              />
+              <StatCard
+                title={t("apptPage.avgWait")}
+                value={todayStats.avgWaitTime}
+                icon={<Clock size={20} />}
+                color="info"
+              />
+              <StatCard
+                title={t("apptPage.utilization")}
+                value={todayStats.utilizationRate}
+                suffix="%"
+                icon={<BarChart3 size={20} />}
+                color="info"
+              />
+            </div>
 
-        {/* [W5] 预约运营面板 (等候队列/提醒计划/失约清单) */}
-        {showOps && (
-          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
-            <AppointmentOpsPanels />
-          </div>
-        )}
-
-        {/* [W-D8] 诊室 / 候补 / 提醒 / 绿色通道 资源面板 */}
-        {showResourceOps && (
-          <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
-            <AppointmentResourcePanel />
-          </div>
-        )}
-
-        <div style={{ display: "flex", gap: 'var(--space-4, 16px)', alignItems: "flex-start" }}>
-          {/* ====== 左侧面板 (60%) ====== */}
-          <div style={{ flex: "0 0 60%" }}>
-            <AppointmentCalendar
-              viewMode={viewMode}
-              setViewMode={setViewMode}
-              calendarSubView={calendarSubView}
-              setCalendarSubView={setCalendarSubView}
-              weekDates={weekDates}
-              setCurrentWeekStart={setCurrentWeekStart}
-              currentWeekStart={currentWeekStart}
-              selectedDevice={selectedDevice}
-              setSelectedDevice={setSelectedDevice}
-              searchKeyword={searchKeyword}
-              setSearchKeyword={setSearchKeyword}
-              appointments={appointments}
-              getStatusConfig={getStatusConfig}
-              formatDate={formatDate}
-              formatDateCht={formatDateCht}
-              timeSlots={timeSlots}
-              openDetail={openDetail}
-              showWaitlist={showWaitlist}
-              setShowWaitlist={setShowWaitlist}
-              filteredAppointments={filteredAppointments}
-              filteredListAppointments={filteredListAppointments}
-              selectedIds={selectedAptIds}
-              onToggleSelect={(id) =>
-                setSelectedAptIds((prev) => {
-                  const next = new Set(prev);
-                  if (next.has(id)) next.delete(id);
-                  else next.add(id);
-                  return next;
-                })
-              }
-              onToggleSelectAll={(checked) =>
-                setSelectedAptIds(checked ? new Set(filteredListAppointments.map((a) => a.id)) : new Set())
-              }
-              onBatchAction={(action, ids) => void handleAppointmentBatch(action, ids)}
-              contextActions={{
-                onView: openDetail,
-                onCheckIn: (apt) => void checkInAppointment(apt),
-                onCancel: cancelAppointmentDirect,
-                onReschedule: rescheduleAppointment,
-                onPrint: printAppointment,
-              }}
-              statsData={[
-                { label: t("apptPage.todayAppointments"), value: appointments.filter(a => a.examDate === formatDateObj(new Date())).length, color: primaryBlue, bg: lightBlue },
-                { label: t("apptPage.status.checkedIn"), value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status === "checked-in").length, color: "#059669", bg: "#22c55e22" },
-                { label: t("apptPage.pendingConfirm"), value: appointments.filter(a => a.status === "pending").length, color: "var(--color-warning-500)", bg: "#f59e0b22" },
-                { label: t("apptPage.noShow"), value: appointments.filter(a => a.status === "no-show").length, color: "var(--color-error-500)", bg: "#ef444422" },
-                { label: t("apptPage.todayBooked"), value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status !== "cancelled").length, color: "#7c3aed", bg: "#8b5cf622" },
-              ]}
-            />
-            {viewMode === "reminders" && (
-              <div
-                style={{
-                  background: whiteBg,
-                  borderRadius: 10,
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-                  border: `1px solid ${borderGray}`,
-                  overflow: "hidden",
-                  marginTop: 'var(--space-3, 12px)',
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 'var(--space-1, 4px)',
-                    padding: "10px 12px",
-                    borderBottom: `1px solid ${borderGray}`,
-                    background: "var(--bg-card)",
-                    flexWrap: "wrap",
+            {/* [W5] 资源排班甘特 (设备/机房/技师) */}
+            {showGantt && (
+              <div style={{ marginBottom: "var(--space-4, 16px)" }}>
+                <ResourceGantt
+                  appointments={
+                    appointments as unknown as Array<Record<string, unknown>>
+                  }
+                  onCreate={({ rowId, dimension, startMin, date }) => {
+                    const hh = String(Math.floor(startMin / 60)).padStart(
+                      2,
+                      "0",
+                    );
+                    const mm = String(startMin % 60).padStart(2, "0");
+                    setFormData((prev) => ({
+                      ...prev,
+                      examDate: date,
+                      examTime: `${hh}:${mm}`,
+                      ...(dimension === "ROOM" ? { roomId: rowId } : {}),
+                      ...(dimension === "DEVICE" ? { deviceId: rowId } : {}),
+                      ...(dimension === "TECH" ? { technicianId: rowId } : {}),
+                    }));
+                    setShowForm(true);
+                    setShowGantt(false);
                   }}
-                >
-                  {(
-                    [
-                      ["reminders", t("apptPage.reminderRecords")],
-                      ["reschedules", t("apptPage.rescheduleRecords")],
-                      ["cancellations", t("apptPage.cancellationRecords")],
-                    ] as const
-                  ).map(([key, label]) => (
-                    <button
-                      key={key}
-                      onClick={() => setReminderTab(key)}
+                />
+              </div>
+            )}
+
+            {/* [W5] 预约运营面板 (等候队列/提醒计划/失约清单) */}
+            {showOps && (
+              <div style={{ marginBottom: "var(--space-4, 16px)" }}>
+                <AppointmentOpsPanels />
+              </div>
+            )}
+
+            {/* [W-D8] 诊室 / 候补 / 提醒 / 绿色通道 资源面板 */}
+            {showResourceOps && (
+              <div style={{ marginBottom: "var(--space-4, 16px)" }}>
+                <AppointmentResourcePanel />
+              </div>
+            )}
+
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-4, 16px)",
+                alignItems: "flex-start",
+              }}
+            >
+              {/* ====== 左侧面板 (60%) ====== */}
+              <div style={{ flex: "0 0 60%" }}>
+                <AppointmentCalendar
+                  viewMode={viewMode}
+                  setViewMode={setViewMode}
+                  calendarSubView={calendarSubView}
+                  setCalendarSubView={setCalendarSubView}
+                  weekDates={weekDates}
+                  setCurrentWeekStart={setCurrentWeekStart}
+                  currentWeekStart={currentWeekStart}
+                  selectedDevice={selectedDevice}
+                  setSelectedDevice={setSelectedDevice}
+                  searchKeyword={searchKeyword}
+                  setSearchKeyword={setSearchKeyword}
+                  appointments={appointments}
+                  getStatusConfig={getStatusConfig}
+                  formatDate={formatDate}
+                  formatDateCht={formatDateCht}
+                  timeSlots={timeSlots}
+                  openDetail={openDetail}
+                  showWaitlist={showWaitlist}
+                  setShowWaitlist={setShowWaitlist}
+                  filteredAppointments={filteredAppointments}
+                  filteredListAppointments={filteredListAppointments}
+                  selectedIds={selectedAptIds}
+                  onToggleSelect={(id) =>
+                    setSelectedAptIds((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(id)) next.delete(id);
+                      else next.add(id);
+                      return next;
+                    })
+                  }
+                  onToggleSelectAll={(checked) =>
+                    setSelectedAptIds(
+                      checked
+                        ? new Set(filteredListAppointments.map((a) => a.id))
+                        : new Set(),
+                    )
+                  }
+                  onBatchAction={(action, ids) =>
+                    void handleAppointmentBatch(action, ids)
+                  }
+                  contextActions={{
+                    onView: openDetail,
+                    onCheckIn: (apt) => void checkInAppointment(apt),
+                    onCancel: cancelAppointmentDirect,
+                    onReschedule: rescheduleAppointment,
+                    onPrint: printAppointment,
+                  }}
+                  statsData={[
+                    {
+                      label: t("apptPage.todayAppointments"),
+                      value: appointments.filter(
+                        (a) => a.examDate === formatDateObj(new Date()),
+                      ).length,
+                      color: primaryBlue,
+                      bg: lightBlue,
+                    },
+                    {
+                      label: t("apptPage.status.checkedIn"),
+                      value: appointments.filter(
+                        (a) =>
+                          a.examDate === formatDateObj(new Date()) &&
+                          a.status === "checked-in",
+                      ).length,
+                      color: "#059669",
+                      bg: "#22c55e22",
+                    },
+                    {
+                      label: t("apptPage.pendingConfirm"),
+                      value: appointments.filter((a) => a.status === "pending")
+                        .length,
+                      color: "var(--color-warning-500)",
+                      bg: "#f59e0b22",
+                    },
+                    {
+                      label: t("apptPage.noShow"),
+                      value: appointments.filter((a) => a.status === "no-show")
+                        .length,
+                      color: "var(--color-error-500)",
+                      bg: "#ef444422",
+                    },
+                    {
+                      label: t("apptPage.todayBooked"),
+                      value: appointments.filter(
+                        (a) =>
+                          a.examDate === formatDateObj(new Date()) &&
+                          a.status !== "cancelled",
+                      ).length,
+                      color: "#7c3aed",
+                      bg: "#8b5cf622",
+                    },
+                  ]}
+                />
+                {viewMode === "reminders" && (
+                  <div
+                    style={{
+                      background: whiteBg,
+                      borderRadius: 10,
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                      border: `1px solid ${borderGray}`,
+                      overflow: "hidden",
+                      marginTop: "var(--space-3, 12px)",
+                    }}
+                  >
+                    <div
                       style={{
-                        padding: "6px 14px",
-                        borderRadius: 6,
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        background: reminderTab === key ? primaryBlue : lightBlue,
-                        color: reminderTab === key ? "#fff" : primaryBlue,
+                        display: "flex",
+                        gap: "var(--space-1, 4px)",
+                        padding: "10px 12px",
+                        borderBottom: `1px solid ${borderGray}`,
+                        background: "var(--bg-card)",
+                        flexWrap: "wrap",
                       }}
                     >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                {reminderTab === "reminders" && (
-                  <div style={{ overflowX: "auto" }}>
-                    <DataTable<ReminderRecord>
-                      columns={reminderColumns}
-                      dataSource={filteredReminderRecords}
-                      rowKey="id"
-                      emptyText={t("apptPage.noReminders")}
-                    />
-                  </div>
-                )}
-                {reminderTab === "reschedules" && (
-                  <div style={{ overflowX: "auto" }}>
-                    <DataTable<RescheduleRecord>
-                      columns={rescheduleColumns}
-                      dataSource={rescheduleRecords}
-                      rowKey="id"
-                      emptyText={t("apptPage.noReschedules")}
-                    />
-                  </div>
-                )}
-                {reminderTab === "cancellations" && (
-                  <div style={{ overflowX: "auto" }}>
-                    <DataTable<CancellationRecord>
-                      columns={cancellationColumns}
-                      dataSource={cancellationRecords}
-                      rowKey="id"
-                      emptyText={t("apptPage.noCancellations")}
-                    />
+                      {(
+                        [
+                          ["reminders", t("apptPage.reminderRecords")],
+                          ["reschedules", t("apptPage.rescheduleRecords")],
+                          ["cancellations", t("apptPage.cancellationRecords")],
+                        ] as const
+                      ).map(([key, label]) => (
+                        <button
+                          key={key}
+                          onClick={() => setReminderTab(key)}
+                          style={{
+                            padding: "6px 14px",
+                            borderRadius: 6,
+                            border: "none",
+                            cursor: "pointer",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            background:
+                              reminderTab === key ? primaryBlue : lightBlue,
+                            color: reminderTab === key ? "#fff" : primaryBlue,
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    {reminderTab === "reminders" && (
+                      <div style={{ overflowX: "auto" }}>
+                        <DataTable<ReminderRecord>
+                          columns={reminderColumns}
+                          dataSource={filteredReminderRecords}
+                          rowKey="id"
+                          emptyText={t("apptPage.noReminders")}
+                        />
+                      </div>
+                    )}
+                    {reminderTab === "reschedules" && (
+                      <div style={{ overflowX: "auto" }}>
+                        <DataTable<RescheduleRecord>
+                          columns={rescheduleColumns}
+                          dataSource={rescheduleRecords}
+                          rowKey="id"
+                          emptyText={t("apptPage.noReschedules")}
+                        />
+                      </div>
+                    )}
+                    {reminderTab === "cancellations" && (
+                      <div style={{ overflowX: "auto" }}>
+                        <DataTable<CancellationRecord>
+                          columns={cancellationColumns}
+                          dataSource={cancellationRecords}
+                          rowKey="id"
+                          emptyText={t("apptPage.noCancellations")}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
-          </div>{/* ====== 右侧面板 (40%) ====== */}          <div
-            style={{
-              flex: "0 0 40%",
-              display: "flex",
-              flexDirection: "column",
-              gap: 'var(--space-3, 12px)',
-            }}
-          >
-            <AppointmentForm
-              showForm={showForm}
-              setShowForm={setShowForm}
-              formData={formData}
-              setFormData={setFormData}
-              validationError={validationError}
-              formErrors={formErrors}
-              setFormErrors={setFormErrors}
-              setValidationError={setValidationError}
-              handleSubmit={handleCreateAppointment}
-              submitting={creatingAppt}
-              timeSlots={timeSlots}
-            />{/* ====== 预约规则设置 ====== */}
-            {showRules && (
+              {/* ====== 右侧面板 (40%) ====== */}{" "}
               <div
                 style={{
-                  background: whiteBg,
-                  borderRadius: 10,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  border: `1px solid ${borderGray}`,
-                  overflow: "hidden",
+                  flex: "0 0 40%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--space-3, 12px)",
                 }}
               >
-                <div
-                  style={{
-                    padding: "12px 16px",
-                    background: primaryBlue,
-                    color: "#fff",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
+                <AppointmentForm
+                  showForm={showForm}
+                  setShowForm={setShowForm}
+                  formData={formData}
+                  setFormData={setFormData}
+                  validationError={validationError}
+                  formErrors={formErrors}
+                  setFormErrors={setFormErrors}
+                  setValidationError={setValidationError}
+                  handleSubmit={handleCreateAppointment}
+                  submitting={creatingAppt}
+                  timeSlots={timeSlots}
+                />
+                {/* ====== 预约规则设置 ====== */}
+                {showRules && (
                   <div
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      fontSize: 14,
-                      fontWeight: 700,
+                      background: whiteBg,
+                      borderRadius: 10,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      border: `1px solid ${borderGray}`,
+                      overflow: "hidden",
                     }}
                   >
-                    <Settings size={15} /> {t("apptPage.rulesTitle")}
-                  </div>
-                  <button aria-label="关闭"
-                    onClick={() => setShowRules(false)}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      color: "#fff",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div
-                  style={{
-                    padding: 'var(--space-3, 12px)',
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                    maxHeight: 600,
-                    overflowY: "auto",
-                  }}
-                >
-                  {/* 全局说明 */}
-                  <div
-                    style={{
-                      background: "var(--color-warning-bg)",
-                      borderRadius: 6,
-                      padding: "8px 10px",
-                      fontSize: 12,
-                      color: "#92400e",
-                      border: "1px solid var(--color-warning-border)",
-                    }}
-                  >
-                    <AlertTriangle
-                      size={12}
-                      style={{ display: "inline", marginRight: 'var(--space-1, 4px)' }}
-                    />
-                    {t("apptPage.rulesNote")}
-                  </div>
-                  {/* 搜索 */}
-                  <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
-                    <input
-                      placeholder={t("apptPage.searchDevice")}
-                      value={ruleSearch}
-                      onChange={(e) => setRuleSearch(e.target.value)}
+                    <div
                       style={{
-                        flex: 1,
-                        padding: "5px 8px",
-                        border: `1px solid ${borderGray}`,
-                        borderRadius: 6,
-                        fontSize: 12, color: primaryBlue,
+                        padding: "12px 16px",
+                        background: primaryBlue,
+                        color: "#fff",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
-                    />
-                  </div>
-                  {rules
-                    .filter((rule) => {
-                      const kw = ruleSearch.trim().toLowerCase();
-                      if (!kw) return true;
-                      const device = initialModalityDevices.find(
-                        (d) => d.id === rule.deviceId,
-                      );
-                      return (
-                        (rule.deviceName ?? "").toLowerCase().includes(kw) ||
-                        (rule.deviceId ?? "").toLowerCase().includes(kw) ||
-                        (device?.modality ?? "").toLowerCase().includes(kw)
-                      );
-                    })
-                    .map((rule) => {
-                    const device = initialModalityDevices.find(
-                      (d) => d.id === rule.deviceId,
-                    );
-                    return (
+                    >
                       <div
-                        key={rule.deviceId}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          fontSize: 14,
+                          fontWeight: 700,
+                        }}
+                      >
+                        <Settings size={15} /> {t("apptPage.rulesTitle")}
+                      </div>
+                      <button
+                        aria-label="关闭"
+                        onClick={() => setShowRules(false)}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: "#fff",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div
+                      style={{
+                        padding: "var(--space-3, 12px)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 10,
+                        maxHeight: 600,
+                        overflowY: "auto",
+                      }}
+                    >
+                      {/* 全局说明 */}
+                      <div
+                        style={{
+                          background: "var(--color-warning-bg)",
+                          borderRadius: 6,
+                          padding: "8px 10px",
+                          fontSize: 12,
+                          color: "#92400e",
+                          border: "1px solid var(--color-warning-border)",
+                        }}
+                      >
+                        <AlertTriangle
+                          size={12}
+                          style={{
+                            display: "inline",
+                            marginRight: "var(--space-1, 4px)",
+                          }}
+                        />
+                        {t("apptPage.rulesNote")}
+                      </div>
+                      {/* 搜索 */}
+                      <div
+                        style={{ display: "flex", gap: "var(--space-2, 8px)" }}
+                      >
+                        <input
+                          placeholder={t("apptPage.searchDevice")}
+                          value={ruleSearch}
+                          onChange={(e) => setRuleSearch(e.target.value)}
+                          style={{
+                            flex: 1,
+                            padding: "5px 8px",
+                            border: `1px solid ${borderGray}`,
+                            borderRadius: 6,
+                            fontSize: 12,
+                            color: primaryBlue,
+                          }}
+                        />
+                      </div>
+                      {rules
+                        .filter((rule) => {
+                          const kw = ruleSearch.trim().toLowerCase();
+                          if (!kw) return true;
+                          const device = initialModalityDevices.find(
+                            (d) => d.id === rule.deviceId,
+                          );
+                          return (
+                            (rule.deviceName ?? "")
+                              .toLowerCase()
+                              .includes(kw) ||
+                            (rule.deviceId ?? "").toLowerCase().includes(kw) ||
+                            (device?.modality ?? "").toLowerCase().includes(kw)
+                          );
+                        })
+                        .map((rule) => {
+                          const device = initialModalityDevices.find(
+                            (d) => d.id === rule.deviceId,
+                          );
+                          return (
+                            <div
+                              key={rule.deviceId}
+                              style={{
+                                background: "var(--bg-card)",
+                                borderRadius: 8,
+                                padding: 10,
+                                border: `1px solid ${borderGray}`,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  marginBottom: "var(--space-2, 8px)",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 6,
+                                  }}
+                                >
+                                  <Monitor
+                                    size={12}
+                                    style={{ color: primaryBlue }}
+                                  />
+                                  <span
+                                    style={{
+                                      fontSize: 12,
+                                      fontWeight: 700,
+                                      color: primaryBlue,
+                                    }}
+                                  >
+                                    {rule.deviceName.split("（")[0]}
+                                  </span>
+                                  <AppText
+                                    size="xs"
+                                    color="secondary"
+                                    as="span"
+                                  >
+                                    {device?.modality || ""}
+                                  </AppText>
+                                </div>
+                                <label
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "var(--space-1, 4px)",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={rule.enabled}
+                                    onChange={(e) => {
+                                      setRules((prev) =>
+                                        prev.map((r) =>
+                                          r.deviceId === rule.deviceId
+                                            ? {
+                                                ...r,
+                                                enabled: e.target.checked,
+                                              }
+                                            : r,
+                                        ),
+                                      );
+                                    }}
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                  <AppText
+                                    size="xs"
+                                    as="span"
+                                    style={{
+                                      color: rule.enabled
+                                        ? "#059669"
+                                        : "#94a3b8",
+                                    }}
+                                  >
+                                    {rule.enabled
+                                      ? t("apptPage.enabled")
+                                      : t("apptPage.disabled")}
+                                  </AppText>
+                                </label>
+                              </div>
+                              <div
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "1fr 1fr",
+                                  gap: 6,
+                                }}
+                              >
+                                <div>
+                                  <label
+                                    style={{
+                                      fontSize: 12,
+                                      color: textGray,
+                                      display: "block",
+                                      marginBottom: 2,
+                                    }}
+                                  >
+                                    {t("apptPage.maxDaily")}
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={rule.maxDailyAppointments}
+                                    disabled={!rule.enabled}
+                                    onChange={(e) =>
+                                      setRules((prev) =>
+                                        prev.map((r) =>
+                                          r.deviceId === rule.deviceId
+                                            ? {
+                                                ...r,
+                                                maxDailyAppointments:
+                                                  parseInt(e.target.value) || 0,
+                                              }
+                                            : r,
+                                        ),
+                                      )
+                                    }
+                                    style={{
+                                      width: "100%",
+                                      padding: "4px 6px",
+                                      border: `1px solid ${borderGray}`,
+                                      borderRadius: 4,
+                                      fontSize: 12,
+                                      color: primaryBlue,
+                                      background: rule.enabled
+                                        ? whiteBg
+                                        : "var(--bg-primary)",
+                                      boxSizing: "border-box",
+                                    }}
+                                  />
+                                </div>
+                                <div>
+                                  <label
+                                    style={{
+                                      fontSize: 12,
+                                      color: textGray,
+                                      display: "block",
+                                      marginBottom: 2,
+                                    }}
+                                  >
+                                    {t("apptPage.maxPerSlot")}
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={rule.maxPerTimeSlot}
+                                    disabled={!rule.enabled}
+                                    onChange={(e) =>
+                                      setRules((prev) =>
+                                        prev.map((r) =>
+                                          r.deviceId === rule.deviceId
+                                            ? {
+                                                ...r,
+                                                maxPerTimeSlot:
+                                                  parseInt(e.target.value) || 0,
+                                              }
+                                            : r,
+                                        ),
+                                      )
+                                    }
+                                    style={{
+                                      width: "100%",
+                                      padding: "4px 6px",
+                                      border: `1px solid ${borderGray}`,
+                                      borderRadius: 4,
+                                      fontSize: 12,
+                                      color: primaryBlue,
+                                      background: rule.enabled
+                                        ? whiteBg
+                                        : "var(--bg-primary)",
+                                      boxSizing: "border-box",
+                                    }}
+                                  />
+                                </div>
+                                <div>
+                                  <label
+                                    style={{
+                                      fontSize: 12,
+                                      color: textGray,
+                                      display: "block",
+                                      marginBottom: 2,
+                                    }}
+                                  >
+                                    {t("apptPage.minAdvance")}
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={rule.minAdvanceDays}
+                                    disabled={!rule.enabled}
+                                    onChange={(e) =>
+                                      setRules((prev) =>
+                                        prev.map((r) =>
+                                          r.deviceId === rule.deviceId
+                                            ? {
+                                                ...r,
+                                                minAdvanceDays:
+                                                  parseInt(e.target.value) || 0,
+                                              }
+                                            : r,
+                                        ),
+                                      )
+                                    }
+                                    style={{
+                                      width: "100%",
+                                      padding: "4px 6px",
+                                      border: `1px solid ${borderGray}`,
+                                      borderRadius: 4,
+                                      fontSize: 12,
+                                      color: primaryBlue,
+                                      background: rule.enabled
+                                        ? whiteBg
+                                        : "var(--bg-primary)",
+                                      boxSizing: "border-box",
+                                    }}
+                                  />
+                                </div>
+                                <div>
+                                  <label
+                                    style={{
+                                      fontSize: 12,
+                                      color: textGray,
+                                      display: "block",
+                                      marginBottom: 2,
+                                    }}
+                                  >
+                                    {t("apptPage.maxAdvance")}
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={rule.maxAdvanceDays}
+                                    disabled={!rule.enabled}
+                                    onChange={(e) =>
+                                      setRules((prev) =>
+                                        prev.map((r) =>
+                                          r.deviceId === rule.deviceId
+                                            ? {
+                                                ...r,
+                                                maxAdvanceDays:
+                                                  parseInt(e.target.value) || 0,
+                                              }
+                                            : r,
+                                        ),
+                                      )
+                                    }
+                                    style={{
+                                      width: "100%",
+                                      padding: "4px 6px",
+                                      border: `1px solid ${borderGray}`,
+                                      borderRadius: 4,
+                                      fontSize: 12,
+                                      color: primaryBlue,
+                                      background: rule.enabled
+                                        ? whiteBg
+                                        : "var(--bg-primary)",
+                                      boxSizing: "border-box",
+                                    }}
+                                  />
+                                </div>
+                                <div style={{ gridColumn: "1 / -1" }}>
+                                  <label
+                                    style={{
+                                      fontSize: 12,
+                                      color: textGray,
+                                      display: "block",
+                                      marginBottom: 2,
+                                    }}
+                                  >
+                                    {t("apptPage.noShowPenalty")}
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={rule.noShowPenalty}
+                                    disabled={!rule.enabled}
+                                    onChange={(e) =>
+                                      setRules((prev) =>
+                                        prev.map((r) =>
+                                          r.deviceId === rule.deviceId
+                                            ? {
+                                                ...r,
+                                                noShowPenalty:
+                                                  parseInt(e.target.value) || 0,
+                                              }
+                                            : r,
+                                        ),
+                                      )
+                                    }
+                                    style={{
+                                      width: "100%",
+                                      padding: "4px 6px",
+                                      border: `1px solid ${borderGray}`,
+                                      borderRadius: 4,
+                                      fontSize: 12,
+                                      color: primaryBlue,
+                                      background: rule.enabled
+                                        ? whiteBg
+                                        : "var(--bg-primary)",
+                                      boxSizing: "border-box",
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      <button
+                        onClick={() => {
+                          // [v3.0.6.11-99 Wave8A P1] 规则受控表单已就绪: localStorage 持久化 + toast (后端无规则保存端点, 标注)
+                          try {
+                            localStorage.setItem(
+                              "g005_appointment_rules",
+                              JSON.stringify(rules),
+                            );
+                          } catch {
+                            /* ignore */
+                          }
+                          message.success(t("apptPage.rulesSaved"));
+                          setShowRules(false);
+                        }}
+                        style={{
+                          padding: "8px",
+                          background: primaryBlue,
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <Save size={13} /> {t("apptPage.saveRules")}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ====== 批量导入 ====== */}
+                {showBatchImport && (
+                  <div
+                    style={{
+                      background: whiteBg,
+                      borderRadius: 10,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      border: `1px solid ${borderGray}`,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: "12px 16px",
+                        background: primaryBlue,
+                        color: "#fff",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          fontSize: 14,
+                          fontWeight: 700,
+                        }}
+                      >
+                        <Upload size={15} /> {t("apptPage.batchImportTitle")}
+                      </div>
+                      <button
+                        aria-label="关闭"
+                        onClick={() => setShowBatchImport(false)}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: "#fff",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div
+                      style={{
+                        padding: "var(--space-5, 20px)",
+                        textAlign: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          border: `2px dashed ${borderGray}`,
+                          borderRadius: 10,
+                          padding: "30px 20px",
+                          marginBottom: "var(--space-4, 16px)",
+                          cursor: "pointer",
+                          transition: "border-color 0.2s",
+                        }}
+                        onMouseEnter={(e) =>
+                          ((
+                            e.currentTarget as HTMLDivElement
+                          ).style.borderColor = "var(--color-primary-500)")
+                        }
+                        onMouseLeave={(e) =>
+                          ((
+                            e.currentTarget as HTMLDivElement
+                          ).style.borderColor = borderGray)
+                        }
+                      >
+                        <Upload
+                          size={32}
+                          style={{
+                            color: textGray,
+                            margin: "0 auto 10px",
+                            display: "block",
+                          }}
+                        />
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: primaryBlue,
+                            marginBottom: "var(--space-1, 4px)",
+                          }}
+                        >
+                          {t("apptPage.clickUpload")}
+                        </div>
+                        <AppText size="xs" color="secondary" as="div">
+                          {t("apptPage.uploadHint")}
+                        </AppText>
+                        <button
+                          style={{
+                            marginTop: "var(--space-3, 12px)",
+                            padding: "6px 16px",
+                            background: lightBlue,
+                            color: primaryBlue,
+                            border: "none",
+                            borderRadius: 6,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            const input = document.createElement("input");
+                            input.type = "file";
+                            input.accept = ".csv,.json,.xlsx,.xls";
+                            // [v3.0.6.11-99 Wave8A P1] 真实导入: CSV/JSON 解析 → appointmentApi.create 逐条 (xlsx 二进制不支持, 提示)
+                            input.onchange = async (e) => {
+                              const file = (e.target as HTMLInputElement)
+                                .files?.[0];
+                              if (!file) return;
+                              if (/\.(xlsx|xls)$/i.test(file.name)) {
+                                message.warning(t("apptPage.importXlsxWarn"));
+                                return;
+                              }
+                              let rows: Record<string, unknown>[] = [];
+                              try {
+                                const text = await file.text();
+                                if (file.name.toLowerCase().endsWith(".json")) {
+                                  const parsed = JSON.parse(text);
+                                  rows = Array.isArray(parsed)
+                                    ? parsed
+                                    : Array.isArray((parsed as any)?.rows)
+                                      ? (parsed as any).rows
+                                      : [];
+                                } else {
+                                  rows = parseCsv(text);
+                                }
+                              } catch {
+                                message.error(t("apptPage.parseFailed"));
+                                return;
+                              }
+                              if (rows.length === 0) {
+                                message.warning(t("apptPage.noImportRows"));
+                                return;
+                              }
+                              let ok = 0;
+                              let fail = 0;
+                              const errors: string[] = [];
+                              for (const row of rows) {
+                                const payload = rowToAppointment(row);
+                                if (!payload) {
+                                  fail++;
+                                  errors.push(t("apptPage.missingFields"));
+                                  continue;
+                                }
+                                try {
+                                  const res =
+                                    await appointmentApi.create(payload);
+                                  if (res.success) ok++;
+                                  else {
+                                    fail++;
+                                    errors.push(
+                                      res.error?.message ??
+                                        t("apptPage.createFailed2"),
+                                    );
+                                  }
+                                } catch {
+                                  fail++;
+                                  errors.push(t("apptPage.apiError"));
+                                }
+                              }
+                              message.success(
+                                t("apptPage.importDone", { ok, fail }),
+                              );
+                              if (fail > 0) {
+                                message.warning(
+                                  errors.slice(0, 3).join("；") +
+                                    (errors.length > 3
+                                      ? ` 等 ${errors.length} 条错误`
+                                      : ""),
+                                );
+                              }
+                              if (ok > 0) {
+                                try {
+                                  const reloadRes = await appointmentApi.list();
+                                  const items =
+                                    (
+                                      reloadRes.data as {
+                                        items?: unknown[];
+                                      } | null
+                                    )?.items ?? [];
+                                  if (reloadRes.success && Array.isArray(items))
+                                    setAppointments(
+                                      items as unknown as Appointment[],
+                                    );
+                                } catch {
+                                  /* 列表刷新失败不阻断 */
+                                }
+                                setShowBatchImport(false);
+                              }
+                            };
+                            input.click();
+                          }}
+                        >
+                          {t("apptPage.selectFile")}
+                        </button>
+                      </div>
+                      <div
                         style={{
                           background: "var(--bg-card)",
-                          borderRadius: 8,
-                          padding: 10,
+                          borderRadius: 6,
+                          padding: "10px 12px",
+                          textAlign: "left",
                           border: `1px solid ${borderGray}`,
                         }}
                       >
                         <div
                           style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: primaryBlue,
+                            marginBottom: 6,
+                          }}
+                        >
+                          {t("apptPage.importGuide")}
+                        </div>
+                        <AppText
+                          size="xs"
+                          color="secondary"
+                          as="div"
+                          style={{ lineHeight: 1.8 }}
+                        >
+                          {t("apptPage.importStep1")}
+                          <br />
+                          {t("apptPage.importStep2")}
+                          <br />
+                          {t("apptPage.importStep3")}
+                          <br />
+                          {t("apptPage.importStep4")}
+                          <br />
+                          {t("apptPage.importStep5")}
+                        </AppText>
+                      </div>
+                      <div
+                        style={{
+                          marginTop: "var(--space-3, 12px)",
+                          display: "flex",
+                          gap: "var(--space-2, 8px)",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <button
+                          style={{
+                            padding: "6px 14px",
+                            background: whiteBg,
+                            color: primaryBlue,
+                            border: `1px solid ${borderGray}`,
+                            borderRadius: 6,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
                             display: "flex",
-                            justifyContent: "space-between",
                             alignItems: "center",
-                            marginBottom: 'var(--space-2, 8px)',
+                            gap: "var(--space-1, 4px)",
+                          }}
+                          onClick={async (evt) => {
+                            const btn = (evt?.target ||
+                              evt?.currentTarget) as HTMLButtonElement;
+                            btn.disabled = true;
+                            const orig = btn.innerHTML;
+                            btn.innerHTML = t("apptPage.generating");
+                            await new Promise((r) => setTimeout(r, 1500));
+                            const template =
+                              "姓名,性别,年龄,检查项目,设备,日期,时段,电话\n张三,男,45,CT增强,CT-1,2026-05-10,上午,13800001234";
+                            const blob = new Blob(["\ufeff" + template], {
+                              type: "text/csv;charset=utf-8",
+                            });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = t("apptPage.templateFilename");
+                            a.click();
+                            URL.revokeObjectURL(url);
+                            btn.innerHTML = t("apptPage.downloaded");
+                            setTimeout(() => {
+                              btn.innerHTML = orig;
+                              btn.disabled = false;
+                            }, 2000);
+                          }}
+                        >
+                          <Download size={12} />{" "}
+                          {t("apptPage.downloadTemplate")}
+                        </button>
+                        <button
+                          onClick={() => setShowBatchImport(false)}
+                          style={{
+                            padding: "6px 14px",
+                            background: "var(--color-warning-600)",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 6,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "var(--space-1, 4px)",
+                          }}
+                        >
+                          <Check size={12} /> {t("apptPage.startImport")}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ====== 等候名单面板 ====== */}
+                {showWaitlist && (
+                  <div
+                    style={{
+                      background: whiteBg,
+                      borderRadius: 10,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      border: `1px solid ${borderGray}`,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: "12px 16px",
+                        background: "#7c3aed",
+                        color: "#fff",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <User size={15} /> {t("apptPage.waitlist")} (
+                        {waitlist.length})
+                      </div>
+                      <button
+                        aria-label="关闭"
+                        onClick={() => setShowWaitlist(false)}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: "#fff",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div
+                      style={{
+                        padding: "var(--space-3, 12px)",
+                        maxHeight: 400,
+                        overflowY: "auto",
+                      }}
+                    >
+                      {waitlist.map((w) => (
+                        <div
+                          key={w.id}
+                          style={{
+                            padding: "8px 10px",
+                            borderRadius: 8,
+                            border: `1px solid ${borderGray}`,
+                            marginBottom: 6,
+                            background: "var(--bg-card)",
                           }}
                         >
                           <div
                             style={{
                               display: "flex",
+                              justifyContent: "space-between",
                               alignItems: "center",
-                              gap: 6,
+                              marginBottom: "var(--space-1, 4px)",
                             }}
                           >
-                            <Monitor size={12} style={{ color: primaryBlue }} />
                             <span
                               style={{
                                 fontSize: 12,
@@ -1765,897 +2950,321 @@ const borderGray = "var(--border-color)";
                                 color: primaryBlue,
                               }}
                             >
-                              {rule.deviceName.split("（")[0]}
+                              {w.patientName}
                             </span>
-                            <AppText size="xs" color="secondary" as="span">
-                              {device?.modality || ""}
-                            </AppText>
+                            <span
+                              style={{
+                                padding: "1px 6px",
+                                borderRadius: 8,
+                                fontSize: 12,
+                                fontWeight: 700,
+                                background:
+                                  w.priority === "critical"
+                                    ? "var(--color-error-bg)"
+                                    : w.priority === "urgent"
+                                      ? "var(--color-warning-bg)"
+                                      : "var(--bg-primary)",
+                                color:
+                                  w.priority === "critical"
+                                    ? "var(--color-error-600)"
+                                    : w.priority === "urgent"
+                                      ? "var(--color-warning-600)"
+                                      : "#64748b",
+                              }}
+                            >
+                              {w.priority === "critical"
+                                ? t("apptPage.priority.critical")
+                                : w.priority === "urgent"
+                                  ? t("apptPage.priority.urgent")
+                                  : t("apptPage.priority.normal")}
+                            </span>
                           </div>
-                          <label
+                          <AppText size="xs" color="secondary" as="div">
+                            {w.examItemName} · {w.modality}
+                          </AppText>
+                          <AppText
+                            size="xs"
+                            color="secondary"
+                            as="div"
+                            style={{ marginBottom: "var(--space-1, 4px)" }}
+                          >
+                            {t("apptPage.expect")} {w.preferredDate}{" "}
+                            {w.preferredTime}
+                          </AppText>
+                          <div
                             style={{
                               display: "flex",
-                              alignItems: "center",
-                              gap: 'var(--space-1, 4px)',
-                              cursor: "pointer",
+                              gap: "var(--space-1, 4px)",
                             }}
                           >
-                            <input
-                              type="checkbox"
-                              checked={rule.enabled}
-                              onChange={(e) => {
-                                setRules((prev) =>
-                                  prev.map((r) =>
-                                    r.deviceId === rule.deviceId
-                                      ? { ...r, enabled: e.target.checked }
-                                      : r,
-                                  ),
-                                );
-                              }}
-                              style={{ cursor: "pointer" }}
-                            />
-                            <AppText size="xs" as="span" style={{ color: rule.enabled ? "#059669" : "#94a3b8" }}>
-                              {rule.enabled ? t("apptPage.enabled") : t("apptPage.disabled")}
-                            </AppText>
-                          </label>
-                        </div>
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr 1fr",
-                            gap: 6,
-                          }}
-                        >
-                          <div>
-                            <label
+                            <button
+                              onClick={() => void handleWaitlistNotify(w)}
                               style={{
+                                padding: "3px 10px",
+                                borderRadius: 4,
+                                border: "none",
+                                background:
+                                  waitlistNotifyLoading === w.id
+                                    ? "var(--color-warning-bg)"
+                                    : "var(--color-info-bg)",
+                                color:
+                                  waitlistNotifyLoading === w.id
+                                    ? "var(--color-warning-600)"
+                                    : "var(--color-primary-600)",
                                 fontSize: 12,
-                                color: textGray,
-                                display: "block",
-                                marginBottom: 2,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 3,
                               }}
                             >
-                              {t("apptPage.maxDaily")}
-                            </label>
-                            <input
-                              type="number"
-                              value={rule.maxDailyAppointments}
-                              disabled={!rule.enabled}
-                              onChange={(e) =>
-                                setRules((prev) =>
-                                  prev.map((r) =>
-                                    r.deviceId === rule.deviceId
-                                      ? {
-                                          ...r,
-                                          maxDailyAppointments:
-                                            parseInt(e.target.value) || 0,
-                                        }
-                                      : r,
-                                  ),
-                                )
-                              }
+                              {waitlistNotifyLoading === w.id ? (
+                                ""
+                              ) : (
+                                <Bell size={10} />
+                              )}{" "}
+                              {t("apptPage.notify")}
+                            </button>
+                            <button
+                              onClick={handleWaitlistAutoSort}
                               style={{
-                                width: "100%",
-                                padding: "4px 6px",
-                                border: `1px solid ${borderGray}`,
+                                padding: "3px 10px",
                                 borderRadius: 4,
-                                fontSize: 12, color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
-                                boxSizing: "border-box",
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <label
-                              style={{
+                                border: "1px solid var(--border-color)",
+                                background: "var(--bg-card)",
+                                color: "#059669",
                                 fontSize: 12,
-                                color: textGray,
-                                display: "block",
-                                marginBottom: 2,
+                                fontWeight: 600,
+                                cursor: "pointer",
                               }}
                             >
-                              {t("apptPage.maxPerSlot")}
-                            </label>
-                            <input
-                              type="number"
-                              value={rule.maxPerTimeSlot}
-                              disabled={!rule.enabled}
-                              onChange={(e) =>
-                                setRules((prev) =>
-                                  prev.map((r) =>
-                                    r.deviceId === rule.deviceId
-                                      ? {
-                                          ...r,
-                                          maxPerTimeSlot:
-                                            parseInt(e.target.value) || 0,
-                                        }
-                                      : r,
-                                  ),
-                                )
-                              }
-                              style={{
-                                width: "100%",
-                                padding: "4px 6px",
-                                border: `1px solid ${borderGray}`,
-                                borderRadius: 4,
-                                fontSize: 12, color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
-                                boxSizing: "border-box",
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <label
-                              style={{
-                                fontSize: 12,
-                                color: textGray,
-                                display: "block",
-                                marginBottom: 2,
-                              }}
-                            >
-                              {t("apptPage.minAdvance")}
-                            </label>
-                            <input
-                              type="number"
-                              value={rule.minAdvanceDays}
-                              disabled={!rule.enabled}
-                              onChange={(e) =>
-                                setRules((prev) =>
-                                  prev.map((r) =>
-                                    r.deviceId === rule.deviceId
-                                      ? {
-                                          ...r,
-                                          minAdvanceDays:
-                                            parseInt(e.target.value) || 0,
-                                        }
-                                      : r,
-                                  ),
-                                )
-                              }
-                              style={{
-                                width: "100%",
-                                padding: "4px 6px",
-                                border: `1px solid ${borderGray}`,
-                                borderRadius: 4,
-                                fontSize: 12, color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
-                                boxSizing: "border-box",
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <label
-                              style={{
-                                fontSize: 12,
-                                color: textGray,
-                                display: "block",
-                                marginBottom: 2,
-                              }}
-                            >
-                              {t("apptPage.maxAdvance")}
-                            </label>
-                            <input
-                              type="number"
-                              value={rule.maxAdvanceDays}
-                              disabled={!rule.enabled}
-                              onChange={(e) =>
-                                setRules((prev) =>
-                                  prev.map((r) =>
-                                    r.deviceId === rule.deviceId
-                                      ? {
-                                          ...r,
-                                          maxAdvanceDays:
-                                            parseInt(e.target.value) || 0,
-                                        }
-                                      : r,
-                                  ),
-                                )
-                              }
-                              style={{
-                                width: "100%",
-                                padding: "4px 6px",
-                                border: `1px solid ${borderGray}`,
-                                borderRadius: 4,
-                                fontSize: 12, color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
-                                boxSizing: "border-box",
-                              }}
-                            />
-                          </div>
-                          <div style={{ gridColumn: "1 / -1" }}>
-                            <label
-                              style={{
-                                fontSize: 12,
-                                color: textGray,
-                                display: "block",
-                                marginBottom: 2,
-                              }}
-                            >
-                              {t("apptPage.noShowPenalty")}
-                            </label>
-                            <input
-                              type="number"
-                              value={rule.noShowPenalty}
-                              disabled={!rule.enabled}
-                              onChange={(e) =>
-                                setRules((prev) =>
-                                  prev.map((r) =>
-                                    r.deviceId === rule.deviceId
-                                      ? {
-                                          ...r,
-                                          noShowPenalty:
-                                            parseInt(e.target.value) || 0,
-                                        }
-                                      : r,
-                                  ),
-                                )
-                              }
-                              style={{
-                                width: "100%",
-                                padding: "4px 6px",
-                                border: `1px solid ${borderGray}`,
-                                borderRadius: 4,
-                                fontSize: 12, color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
-                                boxSizing: "border-box",
-                              }}
-                            />
+                              {t("apptPage.autoAssign")}
+                            </button>
                           </div>
                         </div>
+                      ))}
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-secondary)",
+                          textAlign: "center",
+                          marginTop: 6,
+                        }}
+                      >
+                        {t("apptPage.waitlistHint")}
                       </div>
-                    );
-                  })}
-                  <button
-                    onClick={() => {
-                      // [v3.0.6.11-99 Wave8A P1] 规则受控表单已就绪: localStorage 持久化 + toast (后端无规则保存端点, 标注)
-                      try {
-                        localStorage.setItem("g005_appointment_rules", JSON.stringify(rules));
-                      } catch { /* ignore */ }
-                      message.success(t("apptPage.rulesSaved"));
-                      setShowRules(false);
-                    }}
-                    style={{
-                      padding: "8px",
-                      background: primaryBlue,
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: 8,
-                      fontSize: 12,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <Save size={13} /> {t("apptPage.saveRules")}
-                  </button>
-                </div>
-              </div>
-            )}
+                    </div>
+                  </div>
+                )}
 
-            {/* ====== 批量导入 ====== */}
-            {showBatchImport && (
-              <div
-                style={{
-                  background: whiteBg,
-                  borderRadius: 10,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  border: `1px solid ${borderGray}`,
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    padding: "12px 16px",
-                    background: primaryBlue,
-                    color: "#fff",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      fontSize: 14,
-                      fontWeight: 700,
-                    }}
-                  >
-                    <Upload size={15} /> {t("apptPage.batchImportTitle")}
-                  </div>
-                  <button aria-label="关闭"
-                    onClick={() => setShowBatchImport(false)}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      color: "#fff",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div style={{ padding: 'var(--space-5, 20px)', textAlign: "center" }}>
-                  <div
-                    style={{
-                      border: `2px dashed ${borderGray}`,
-                      borderRadius: 10,
-                      padding: "30px 20px",
-                      marginBottom: 'var(--space-4, 16px)',
-                      cursor: "pointer",
-                      transition: "border-color 0.2s",
-                    }}
-                    onMouseEnter={(e) =>
-                      ((e.currentTarget as HTMLDivElement).style.borderColor =
-                        "var(--color-primary-500)")
-                    }
-                    onMouseLeave={(e) =>
-                      ((e.currentTarget as HTMLDivElement).style.borderColor =
-                        borderGray)
-                    }
-                  >
-                    <Upload
-                      size={32}
-                      style={{
-                        color: textGray,
-                        margin: "0 auto 10px",
-                        display: "block",
-                      }}
-                    />
+                {/* ====== 今日概览卡片（非表单/规则时显示） ====== */}
+                {!showForm &&
+                  !showRules &&
+                  !showBatchImport &&
+                  !showWaitlist && (
                     <div
                       style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: primaryBlue,
-                        marginBottom: 'var(--space-1, 4px)',
-                      }}
-                    >
-                      {t("apptPage.clickUpload")}
-                    </div>
-                    <AppText size="xs" color="secondary" as="div">
-                      {t("apptPage.uploadHint")}
-                    </AppText>
-                    <button
-                      style={{
-                        marginTop: 'var(--space-3, 12px)',
-                        padding: "6px 16px",
-                        background: lightBlue,
-                        color: primaryBlue,
-                        border: "none",
-                        borderRadius: 6,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        const input = document.createElement("input");
-                        input.type = "file";
-                        input.accept = ".csv,.json,.xlsx,.xls";
-                        // [v3.0.6.11-99 Wave8A P1] 真实导入: CSV/JSON 解析 → appointmentApi.create 逐条 (xlsx 二进制不支持, 提示)
-                        input.onchange = async (e) => {
-                          const file = (e.target as HTMLInputElement)
-                            .files?.[0];
-                          if (!file) return;
-                          if (/\.(xlsx|xls)$/i.test(file.name)) {
-                            message.warning(t("apptPage.importXlsxWarn"));
-                            return;
-                          }
-                          let rows: Record<string, unknown>[] = [];
-                          try {
-                            const text = await file.text();
-                            if (file.name.toLowerCase().endsWith(".json")) {
-                              const parsed = JSON.parse(text);
-                              rows = Array.isArray(parsed)
-                                ? parsed
-                                : Array.isArray((parsed as any)?.rows)
-                                  ? (parsed as any).rows
-                                  : [];
-                            } else {
-                              rows = parseCsv(text);
-                            }
-                          } catch {
-                            message.error(t("apptPage.parseFailed"));
-                            return;
-                          }
-                          if (rows.length === 0) {
-                            message.warning(t("apptPage.noImportRows"));
-                            return;
-                          }
-                          let ok = 0;
-                          let fail = 0;
-                          const errors: string[] = [];
-                          for (const row of rows) {
-                            const payload = rowToAppointment(row);
-                            if (!payload) { fail++; errors.push(t("apptPage.missingFields")); continue; }
-                            try {
-                              const res = await appointmentApi.create(payload);
-                              if (res.success) ok++;
-                              else { fail++; errors.push(res.error?.message ?? t("apptPage.createFailed2")); }
-                            } catch {
-                              fail++;
-                              errors.push(t("apptPage.apiError"));
-                            }
-                          }
-                          message.success(t("apptPage.importDone", { ok, fail }));
-                          if (fail > 0) {
-                            message.warning(errors.slice(0, 3).join("；") + (errors.length > 3 ? ` 等 ${errors.length} 条错误` : ""));
-                          }
-                          if (ok > 0) {
-                            try {
-                              const reloadRes = await appointmentApi.list();
-                              const items = (reloadRes.data as { items?: unknown[] } | null)?.items ?? [];
-                              if (reloadRes.success && Array.isArray(items)) setAppointments(items as unknown as Appointment[]);
-                            } catch { /* 列表刷新失败不阻断 */ }
-                            setShowBatchImport(false);
-                          }
-                        };
-                        input.click();
-                      }}
-                    >
-                      {t("apptPage.selectFile")}
-                    </button>
-                  </div>
-                  <div
-                    style={{
-                      background: "var(--bg-card)",
-                      borderRadius: 6,
-                      padding: "10px 12px",
-                      textAlign: "left",
-                      border: `1px solid ${borderGray}`,
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: primaryBlue,
-                        marginBottom: 6,
-                      }}
-                    >
-                      {t("apptPage.importGuide")}
-                    </div>
-                    <AppText size="xs" color="secondary" as="div" style={{ lineHeight: 1.8 }}>
-                      {t("apptPage.importStep1")}
-                      <br />
-                      {t("apptPage.importStep2")}
-                      <br />
-                      {t("apptPage.importStep3")}
-                      <br />
-                      {t("apptPage.importStep4")}
-                      <br />
-                      {t("apptPage.importStep5")}
-                    </AppText>
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 'var(--space-3, 12px)',
-                      display: "flex",
-                      gap: 'var(--space-2, 8px)',
-                      justifyContent: "center",
-                    }}
-                  >
-                    <button
-                      style={{
-                        padding: "6px 14px",
                         background: whiteBg,
-                        color: primaryBlue,
+                        borderRadius: 10,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                         border: `1px solid ${borderGray}`,
-                        borderRadius: 6,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 'var(--space-1, 4px)',
-                      }}
-                      onClick={async (evt) => {
-                        const btn = (evt?.target ||
-                          evt?.currentTarget) as HTMLButtonElement;
-                        btn.disabled = true;
-                        const orig = btn.innerHTML;
-                        btn.innerHTML = t("apptPage.generating");
-                        await new Promise((r) => setTimeout(r, 1500));
-                        const template =
-                          "姓名,性别,年龄,检查项目,设备,日期,时段,电话\n张三,男,45,CT增强,CT-1,2026-05-10,上午,13800001234";
-                        const blob = new Blob(["\ufeff" + template], {
-                          type: "text/csv;charset=utf-8",
-                        });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = t("apptPage.templateFilename");
-                        a.click();
-                        URL.revokeObjectURL(url);
-                        btn.innerHTML = t("apptPage.downloaded");
-                        setTimeout(() => {
-                          btn.innerHTML = orig;
-                          btn.disabled = false;
-                        }, 2000);
-                      }}
-                    >
-                      <Download size={12} /> {t("apptPage.downloadTemplate")}
-                    </button>
-                    <button
-                      onClick={() => setShowBatchImport(false)}
-                      style={{
-                        padding: "6px 14px",
-                        background: "var(--color-warning-600)",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: 6,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 'var(--space-1, 4px)',
-                      }}
-                    >
-                      <Check size={12} /> {t("apptPage.startImport")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ====== 等候名单面板 ====== */}
-            {showWaitlist && (
-              <div
-                style={{
-                  background: whiteBg,
-                  borderRadius: 10,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  border: `1px solid ${borderGray}`,
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    padding: "12px 16px",
-                    background: "#7c3aed",
-                    color: "#fff",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <User size={15} /> {t("apptPage.waitlist")} ({waitlist.length})
-                  </div>
-                  <button aria-label="关闭"
-                    onClick={() => setShowWaitlist(false)}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      color: "#fff",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div style={{ padding: 'var(--space-3, 12px)', maxHeight: 400, overflowY: "auto" }}>
-                  {waitlist.map((w) => (
-                    <div
-                      key={w.id}
-                      style={{
-                        padding: "8px 10px",
-                        borderRadius: 8,
-                        border: `1px solid ${borderGray}`,
-                        marginBottom: 6,
-                        background: "var(--bg-card)",
+                        overflow: "hidden",
                       }}
                     >
                       <div
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          marginBottom: 'var(--space-1, 4px)',
+                          padding: "12px 16px",
+                          background: primaryBlue,
+                          color: "#fff",
                         }}
                       >
-                        <span
+                        <div
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 700,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                          }}
+                        >
+                          <CalendarClock size={15} /> {t("apptPage.overview")}
+                        </div>
+                      </div>
+                      <div style={{ padding: "var(--space-3, 12px)" }}>
+                        {/* 设备占用 */}
+                        <div
                           style={{
                             fontSize: 12,
                             fontWeight: 700,
                             color: primaryBlue,
+                            marginBottom: "var(--space-2, 8px)",
                           }}
                         >
-                          {w.patientName}
-                        </span>
-                        <span
-                          style={{
-                            padding: "1px 6px",
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            background:
-                              w.priority === "critical"
-                                ? "var(--color-error-bg)"
-                                : w.priority === "urgent"
-                                  ? "var(--color-warning-bg)"
-                                  : "var(--bg-primary)",
-                            color:
-                              w.priority === "critical"
-                                ? "var(--color-error-600)"
-                                : w.priority === "urgent"
-                                  ? "var(--color-warning-600)"
-                                  : "#64748b",
-                          }}
-                        >
-                          {w.priority === "critical"
-                            ? t("apptPage.priority.critical")
-                            : w.priority === "urgent"
-                              ? t("apptPage.priority.urgent")
-                              : t("apptPage.priority.normal")}
-                        </span>
-                      </div>
-                      <AppText size="xs" color="secondary" as="div">
-                        {w.examItemName} · {w.modality}
-                      </AppText>
-                      <AppText size="xs" color="secondary" as="div" style={{ marginBottom: 'var(--space-1, 4px)' }}>
-                        {t("apptPage.expect")} {w.preferredDate} {w.preferredTime}
-                      </AppText>
-                      <div style={{ display: "flex", gap: 'var(--space-1, 4px)' }}>
-                        <button
-                          onClick={() => void handleWaitlistNotify(w)}
-                          style={{
-                            padding: "3px 10px",
-                            borderRadius: 4,
-                            border: "none",
-                            background:
-                              waitlistNotifyLoading === w.id
-                                ? "var(--color-warning-bg)"
-                                : "var(--color-info-bg)",
-                            color:
-                              waitlistNotifyLoading === w.id
-                                ? "var(--color-warning-600)"
-                                : "var(--color-primary-600)",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 3,
-                          }}
-                        >
-                          {waitlistNotifyLoading === w.id ? (
-                            ""
-                          ) : (
-                            <Bell size={10} />
-                          )}{" "}
-                          {t("apptPage.notify")}
-                        </button>
-                        <button
-                          onClick={handleWaitlistAutoSort}
-                          style={{
-                            padding: "3px 10px",
-                            borderRadius: 4,
-                            border: "1px solid var(--border-color)",
-                            background: "var(--bg-card)",
-                            color: "#059669",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          {t("apptPage.autoAssign")}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: "var(--text-secondary)",
-                      textAlign: "center",
-                      marginTop: 6,
-                    }}
-                  >
-                    {t("apptPage.waitlistHint")}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ====== 今日概览卡片（非表单/规则时显示） ====== */}
-            {!showForm && !showRules && !showBatchImport && !showWaitlist && (
-              <div
-                style={{
-                  background: whiteBg,
-                  borderRadius: 10,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  border: `1px solid ${borderGray}`,
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    padding: "12px 16px",
-                    background: primaryBlue,
-                    color: "#fff",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <CalendarClock size={15} /> {t("apptPage.overview")}
-                  </div>
-                </div>
-                <div style={{ padding: 'var(--space-3, 12px)' }}>
-                  {/* 设备占用 */}
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: primaryBlue,
-                      marginBottom: 'var(--space-2, 8px)',
-                    }}
-                  >
-                    {t("apptPage.deviceToday")}
-                  </div>
-                  {filteredDevices.map((device) => {
-                    const stats = getDeviceDayStats(new Date(), device.id);
-                    const rule = rules.find((r) => r.deviceId === device.id);
-                    return (
-                      <div key={device.id} style={{ marginBottom: 'var(--space-2, 8px)' }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            marginBottom: 3,
-                          }}
-                        >
-                          <span
+                          {t("apptPage.deviceToday")}
+                        </div>
+                        {filteredDevices.map((device) => {
+                          const stats = getDeviceDayStats(
+                            new Date(),
+                            device.id,
+                          );
+                          const rule = rules.find(
+                            (r) => r.deviceId === device.id,
+                          );
+                          return (
+                            <div
+                              key={device.id}
+                              style={{ marginBottom: "var(--space-2, 8px)" }}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  marginBottom: 3,
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    color: "var(--text-primary)",
+                                  }}
+                                >
+                                  {device.name.split("（")[0]}
+                                </span>
+                                <span style={{ fontSize: 12, color: textGray }}>
+                                  {stats.total} /{" "}
+                                  {rule?.maxDailyAppointments || 60}{" "}
+                                  {t("apptPage.personTimes")}
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  height: 6,
+                                  background: "var(--border-color)",
+                                  borderRadius: 3,
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    height: "100%",
+                                    width: `${stats.occupancy}%`,
+                                    background:
+                                      stats.occupancy > 85
+                                        ? "var(--color-error-600)"
+                                        : stats.occupancy > 60
+                                          ? "var(--color-warning-600)"
+                                          : "var(--color-primary-500)",
+                                    borderRadius: 3,
+                                    transition: "width 0.3s",
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {/* 快捷操作 */}
+                        <div style={{ marginTop: "var(--space-4, 16px)" }}>
+                          <AppText
+                            size="xs"
+                            weight={700}
+                            as="div"
                             style={{
-                              fontSize: 12,
-                              fontWeight: 600,
-                              color: "var(--text-primary)",
+                              color: primaryBlue,
+                              marginBottom: "var(--space-2, 8px)",
                             }}
                           >
-                            {device.name.split("（")[0]}
-                          </span>
-                          <span style={{ fontSize: 12, color: textGray }}>
-                            {stats.total} / {rule?.maxDailyAppointments || 60}{" "}
-                            {t("apptPage.personTimes")}
-                          </span>
-                        </div>
-                        <div
-                          style={{
-                            height: 6,
-                            background: "var(--border-color)",
-                            borderRadius: 3,
-                            overflow: "hidden",
-                          }}
-                        >
+                            {t("apptPage.quickActions")}
+                          </AppText>
                           <div
                             style={{
-                              height: "100%",
-                              width: `${stats.occupancy}%`,
-                              background:
-                                stats.occupancy > 85
-                                  ? "var(--color-error-600)"
-                                  : stats.occupancy > 60
-                                    ? "var(--color-warning-600)"
-                                    : "var(--color-primary-500)",
-                              borderRadius: 3,
-                              transition: "width 0.3s",
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: 6,
                             }}
-                          />
+                          >
+                            {[
+                              {
+                                label: t("apptPage.newAppointment"),
+                                icon: Plus,
+                                action: () => setShowForm(true),
+                                color: "var(--color-warning-500)",
+                                bg: "#f59e0b22",
+                              },
+                              {
+                                label: t("apptPage.batchImport"),
+                                icon: Upload,
+                                action: () => setShowBatchImport(true),
+                                color: "var(--color-primary-500)",
+                                bg: "#3b82f622",
+                              },
+                              {
+                                label: t("apptPage.rules"),
+                                icon: Settings,
+                                action: () => {
+                                  setShowRules(true);
+                                  setShowForm(false);
+                                },
+                                color: "var(--color-primary-800)",
+                                bg: lightBlue,
+                              },
+                              {
+                                label: t("apptPage.exportData"),
+                                icon: Download,
+                                action: async () => {
+                                  const btn =
+                                    document.activeElement as HTMLButtonElement;
+                                  btn.disabled = true;
+                                  const orig = btn.innerHTML;
+                                  btn.innerHTML = t("apptPage.exporting");
+                                  await new Promise((r) => setTimeout(r, 1500));
+                                  localStorage.setItem(
+                                    "g005_appointment_export",
+                                    JSON.stringify({
+                                      timestamp: new Date().toISOString(),
+                                    }),
+                                  );
+                                  btn.innerHTML = t("apptPage.exportSuccess");
+                                  setTimeout(() => {
+                                    btn.innerHTML = orig;
+                                    btn.disabled = false;
+                                  }, 2000);
+                                },
+                                color: "#059669",
+                                bg: "#22c55e22",
+                              },
+                            ].map((item, i) => (
+                              <button
+                                key={i}
+                                onClick={item.action}
+                                style={{
+                                  padding: "8px 6px",
+                                  background: item.bg,
+                                  color: item.color,
+                                  border: "none",
+                                  borderRadius: 6,
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                  gap: 3,
+                                }}
+                              >
+                                <item.icon size={15} />
+                                {item.label}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    );
-                  })}
-                  {/* 快捷操作 */}
-                  <div style={{ marginTop: 'var(--space-4, 16px)' }}>
-                    <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 'var(--space-2, 8px)' }}>
-                      {t("apptPage.quickActions")}
-                    </AppText>
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 6,
-                      }}
-                    >
-                      {[
-                        {
-                          label: t("apptPage.newAppointment"),
-                          icon: Plus,
-                          action: () => setShowForm(true),
-                          color: "var(--color-warning-500)", bg: "#f59e0b22",
-                        },
-                        {
-                          label: t("apptPage.batchImport"),
-                          icon: Upload,
-                          action: () => setShowBatchImport(true),
-                          color: "var(--color-primary-500)", bg: "#3b82f622",
-                        },
-                        {
-                          label: t("apptPage.rules"),
-                          icon: Settings,
-                          action: () => {
-                            setShowRules(true);
-                            setShowForm(false);
-                          },
-                          color: "var(--color-primary-800)",
-                          bg: lightBlue,
-                        },
-                        {
-                          label: t("apptPage.exportData"),
-                          icon: Download,
-                          action: async () => {
-                            const btn =
-                              document.activeElement as HTMLButtonElement;
-                            btn.disabled = true;
-                            const orig = btn.innerHTML;
-                            btn.innerHTML = t("apptPage.exporting");
-                            await new Promise((r) => setTimeout(r, 1500));
-                            localStorage.setItem(
-                              "g005_appointment_export",
-                              JSON.stringify({
-                                timestamp: new Date().toISOString(),
-                              }),
-                            );
-                            btn.innerHTML = t("apptPage.exportSuccess");
-                            setTimeout(() => {
-                              btn.innerHTML = orig;
-                              btn.disabled = false;
-                            }, 2000);
-                          },
-                          color: "#059669",
-                          bg: "#22c55e22",
-                        },
-                      ].map((item, i) => (
-                        <button
-                          key={i}
-                          onClick={item.action}
-                          style={{
-                            padding: "8px 6px",
-                            background: item.bg,
-                            color: item.color,
-                            border: "none",
-                            borderRadius: 6,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            cursor: "pointer",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            gap: 3,
-                          }}
-                        >
-                          <item.icon size={15} />
-                          {item.label}
-                        </button>
-                      ))}
                     </div>
-                  </div>
-                </div>
+                  )}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
           </>
         )}
       </div>
@@ -2677,7 +3286,8 @@ const borderGray = "var(--border-color)";
           }}
           onClick={() => setShowDetailModal(false)}
         >
-          <Card bordered={false}
+          <Card
+            bordered={false}
             style={{
               background: whiteBg,
               borderRadius: 12,
@@ -2688,7 +3298,8 @@ const borderGray = "var(--border-color)";
               border: `1px solid ${borderGray}`,
             }}
             onClick={(e) => e.stopPropagation()}
-           styles={{ body: { padding: 0 } }}>
+            styles={{ body: { padding: 0 } }}
+          >
             <div
               style={{
                 padding: "14px 18px",
@@ -2711,7 +3322,8 @@ const borderGray = "var(--border-color)";
               >
                 <Eye size={15} /> {t("apptPage.detailTitle")}
               </div>
-              <button aria-label="关闭"
+              <button
+                aria-label="关闭"
                 onClick={() => setShowDetailModal(false)}
                 style={{
                   background: "transparent",
@@ -2741,7 +3353,7 @@ const borderGray = "var(--border-color)";
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    marginBottom: 'var(--space-2, 8px)',
+                    marginBottom: "var(--space-2, 8px)",
                   }}
                 >
                   <div
@@ -2791,14 +3403,18 @@ const borderGray = "var(--border-color)";
                     color: textGray,
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr 1fr",
-                    gap: 'var(--space-1, 4px)',
+                    gap: "var(--space-1, 4px)",
                   }}
                 >
                   <span>
-                    {selectedAppointment.gender} / {selectedAppointment.age}{t("apptPage.ageSuffix")}
+                    {selectedAppointment.gender} / {selectedAppointment.age}
+                    {t("apptPage.ageSuffix")}
                   </span>
                   <span>ID: {selectedAppointment.patientId}</span>
-                  <span>{t("apptPage.apptNo")}{selectedAppointment.id}</span>
+                  <span>
+                    {t("apptPage.apptNo")}
+                    {selectedAppointment.id}
+                  </span>
                 </div>
               </div>
 
@@ -2812,7 +3428,7 @@ const borderGray = "var(--border-color)";
                     marginBottom: 6,
                     display: "flex",
                     alignItems: "center",
-                    gap: 'var(--space-1, 4px)',
+                    gap: "var(--space-1, 4px)",
                   }}
                 >
                   <Scan size={13} /> {t("apptPage.examInfo")}
@@ -2826,10 +3442,16 @@ const borderGray = "var(--border-color)";
                   }}
                 >
                   {[
-                    [t("apptPage.labelExamItem"), selectedAppointment.examItemName],
+                    [
+                      t("apptPage.labelExamItem"),
+                      selectedAppointment.examItemName,
+                    ],
                     [t("apptPage.labelModality"), selectedAppointment.modality],
                     [t("apptPage.labelBodyPart"), selectedAppointment.bodyPart],
-                    [t("apptPage.labelDevice"), selectedAppointment.deviceName?.split("（")[0]],
+                    [
+                      t("apptPage.labelDevice"),
+                      selectedAppointment.deviceName?.split("（")[0],
+                    ],
                     [t("apptPage.labelApptDate"), selectedAppointment.examDate],
                     [t("apptPage.labelApptTime"), selectedAppointment.examTime],
                     [t("apptPage.labelRoom"), selectedAppointment.roomName],
@@ -2867,7 +3489,18 @@ const borderGray = "var(--border-color)";
               {/* 临床诊断 */}
               {selectedAppointment.clinicalDiagnosis && (
                 <div style={{ marginBottom: 14 }}>
-                  <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 6, display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
+                  <AppText
+                    size="xs"
+                    weight={700}
+                    as="div"
+                    style={{
+                      color: primaryBlue,
+                      marginBottom: 6,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-1, 4px)",
+                    }}
+                  >
                     <AlertCircle size={13} /> {t("apptPage.clinicalDiagnosis")}
                   </AppText>
                   <div
@@ -2896,7 +3529,7 @@ const borderGray = "var(--border-color)";
                       marginBottom: 6,
                       display: "flex",
                       alignItems: "center",
-                      gap: 'var(--space-1, 4px)',
+                      gap: "var(--space-1, 4px)",
                     }}
                   >
                     <Bell size={13} /> {t("apptPage.notes")}
@@ -2928,7 +3561,7 @@ const borderGray = "var(--border-color)";
                         marginBottom: 6,
                         display: "flex",
                         alignItems: "center",
-                        gap: 'var(--space-1, 4px)',
+                        gap: "var(--space-1, 4px)",
                       }}
                     >
                       <XCircle size={13} /> {t("apptPage.cancelReasonLabel")}
@@ -2960,14 +3593,20 @@ const borderGray = "var(--border-color)";
                     marginBottom: 6,
                     display: "flex",
                     alignItems: "center",
-                    gap: 'var(--space-1, 4px)',
+                    gap: "var(--space-1, 4px)",
                   }}
                 >
                   <Clock size={13} /> {t("apptPage.recordTime")}
                 </div>
                 <div style={{ fontSize: 12, color: textGray }}>
-                  <div>{t("apptPage.createdAt")}{selectedAppointment.createdAt}</div>
-                  <div>{t("apptPage.updatedAt")}{selectedAppointment.updatedAt}</div>
+                  <div>
+                    {t("apptPage.createdAt")}
+                    {selectedAppointment.createdAt}
+                  </div>
+                  <div>
+                    {t("apptPage.updatedAt")}
+                    {selectedAppointment.updatedAt}
+                  </div>
                 </div>
               </div>
 
@@ -2977,7 +3616,7 @@ const borderGray = "var(--border-color)";
                   <div
                     style={{
                       display: "flex",
-                      gap: 'var(--space-2, 8px)',
+                      gap: "var(--space-2, 8px)",
                       borderTop: `1px solid ${borderGray}`,
                       paddingTop: 14,
                     }}
@@ -3000,7 +3639,7 @@ const borderGray = "var(--border-color)";
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: 'var(--space-1, 4px)',
+                        gap: "var(--space-1, 4px)",
                       }}
                     >
                       <XCircle size={13} /> {t("apptPage.cancelAppointment")}
@@ -3042,7 +3681,7 @@ const borderGray = "var(--border-color)";
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: 'var(--space-1, 4px)',
+                        gap: "var(--space-1, 4px)",
                       }}
                     >
                       <Edit2 size={13} /> {t("apptPage.editAppointment")}
@@ -3074,7 +3713,8 @@ const borderGray = "var(--border-color)";
             setCancelReason("");
           }}
         >
-          <Card bordered={false}
+          <Card
+            bordered={false}
             style={{
               background: whiteBg,
               borderRadius: 12,
@@ -3083,7 +3723,8 @@ const borderGray = "var(--border-color)";
               border: `1px solid ${borderGray}`,
             }}
             onClick={(e) => e.stopPropagation()}
-           styles={{ body: { padding: 0 } }}>
+            styles={{ body: { padding: 0 } }}
+          >
             <div
               style={{
                 padding: "14px 18px",
@@ -3101,7 +3742,13 @@ const borderGray = "var(--border-color)";
             </div>
             <div style={{ padding: 18 }}>
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 12, color: textGray, marginBottom: 'var(--space-1, 4px)' }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: textGray,
+                    marginBottom: "var(--space-1, 4px)",
+                  }}
+                >
                   {t("apptPage.apptInfo")}
                 </div>
                 <div
@@ -3129,11 +3776,24 @@ const borderGray = "var(--border-color)";
                 </div>
               </div>
               <div style={{ marginBottom: 14 }}>
-                <AppText size="xs" weight={700} as="div" style={{ color: primaryBlue, marginBottom: 'var(--space-2, 8px)' }}>
+                <AppText
+                  size="xs"
+                  weight={700}
+                  as="div"
+                  style={{
+                    color: primaryBlue,
+                    marginBottom: "var(--space-2, 8px)",
+                  }}
+                >
                   {t("apptPage.cancelReasonRequired")}
                 </AppText>
                 {cancelReasonError && (
-                  <AppText size="xs" color="error" as="div" style={{ marginBottom: 'var(--space-2, 8px)' }}>
+                  <AppText
+                    size="xs"
+                    color="error"
+                    as="div"
+                    style={{ marginBottom: "var(--space-2, 8px)" }}
+                  >
                     {cancelReasonError}
                   </AppText>
                 )}
@@ -3146,10 +3806,12 @@ const borderGray = "var(--border-color)";
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 'var(--space-2, 8px)',
+                        gap: "var(--space-2, 8px)",
                         padding: "6px 10px",
                         background:
-                          cancelReason === reason.value ? "var(--color-warning-bg)" : "var(--bg-primary)",
+                          cancelReason === reason.value
+                            ? "var(--color-warning-bg)"
+                            : "var(--bg-primary)",
                         borderRadius: 6,
                         border: `1px solid ${cancelReason === reason.value ? "var(--color-warning-border)" : borderGray}`,
                         cursor: "pointer",
@@ -3170,7 +3832,7 @@ const borderGray = "var(--border-color)";
                   ))}
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+              <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
                 <button
                   onClick={() => {
                     setShowCancelModal(false);
@@ -3196,7 +3858,9 @@ const borderGray = "var(--border-color)";
                   style={{
                     flex: 1,
                     padding: "8px",
-                    background: cancelReason ? "var(--color-error-600)" : "var(--bg-primary)",
+                    background: cancelReason
+                      ? "var(--color-error-600)"
+                      : "var(--bg-primary)",
                     color: cancelReason ? "#fff" : "#94a3b8",
                     border: "none",
                     borderRadius: 8,
@@ -3230,7 +3894,8 @@ const borderGray = "var(--border-color)";
           }}
           onClick={() => setConflictModal({ show: false, result: null })}
         >
-          <Card bordered={false}
+          <Card
+            bordered={false}
             style={{
               background: whiteBg,
               borderRadius: 12,
@@ -3238,7 +3903,8 @@ const borderGray = "var(--border-color)";
               boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
             }}
             onClick={(e) => e.stopPropagation()}
-           styles={{ body: { padding: 0 } }}>
+            styles={{ body: { padding: 0 } }}
+          >
             <div
               style={{
                 padding: "14px 18px",
@@ -3256,7 +3922,13 @@ const borderGray = "var(--border-color)";
             </div>
             <div style={{ padding: 18 }}>
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 12, color: textGray, marginBottom: 'var(--space-2, 8px)' }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: textGray,
+                    marginBottom: "var(--space-2, 8px)",
+                  }}
+                >
                   {conflictModal.result.message}
                 </div>
                 <div style={{ maxHeight: 200, overflowY: "auto" }}>
@@ -3284,17 +3956,30 @@ const borderGray = "var(--border-color)";
                         {c.examItemName} · {c.examDate} {c.examTime}
                       </AppText>
                       <AppText size="xs" as="div" style={{ color: "#7f1d1d" }}>
-                        {t("apptPage.deviceLabel")}{c.deviceName?.split("（")[0]} | {t("apptPage.statusLabel")}{" "}
+                        {t("apptPage.deviceLabel")}
+                        {c.deviceName?.split("（")[0]} |{" "}
+                        {t("apptPage.statusLabel")}{" "}
                         {STATUS_CONFIG[c.status]?.label}
                       </AppText>
                     </div>
                   ))}
                 </div>
               </div>
-              <AppText size="xs" color="warning" as="div" style={{ padding: "10px 12px", background: "var(--color-warning-bg)", borderRadius: 6, border: "1px solid var(--color-warning-border)", marginBottom: 14 }}>
+              <AppText
+                size="xs"
+                color="warning"
+                as="div"
+                style={{
+                  padding: "10px 12px",
+                  background: "var(--color-warning-bg)",
+                  borderRadius: 6,
+                  border: "1px solid var(--color-warning-border)",
+                  marginBottom: 14,
+                }}
+              >
                 {t("apptPage.conflictHint")}
               </AppText>
-              <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
+              <div style={{ display: "flex", gap: "var(--space-2, 8px)" }}>
                 <button
                   onClick={() => {
                     setConflictModal({ show: false, result: null });
@@ -3352,7 +4037,10 @@ type ResourceOpsTab = "waitlist" | "reminder" | "green";
 const RES_BLUE = "var(--color-primary-800)";
 const RES_BORDER = "var(--border-color)";
 
-const MODALITY_OPTIONS = ["CT", "MR", "DR", "MG", "US", "DSA"].map((v) => ({ value: v, label: v }));
+const MODALITY_OPTIONS = ["CT", "MR", "DR", "MG", "US", "DSA"].map((v) => ({
+  value: v,
+  label: v,
+}));
 const WAIT_PRIORITY_OPTIONS = [
   { value: "normal", label: "普通" },
   { value: "urgent", label: "加急" },
@@ -3369,7 +4057,11 @@ const ROOM_STATUS_OPTIONS = [
   { value: "CLOSED", label: "关闭" },
 ];
 
-const RES_LABEL: CSSProperties = { fontSize: 12, color: "var(--text-secondary)", fontWeight: 600 };
+const RES_LABEL: CSSProperties = {
+  fontSize: 12,
+  color: "var(--text-secondary)",
+  fontWeight: 600,
+};
 
 const toIsoOrNull = (value: string): string | undefined => {
   if (!value) return undefined;
@@ -3388,15 +4080,39 @@ function AppointmentResourcePanel() {
   const [greenList, setGreenList] = useState<GreenChannelReservationDto[]>([]);
 
   const [roomOpen, setRoomOpen] = useState(false);
-  const [roomForm, setRoomForm] = useState({ name: "", modality: "CT", location: "", maxPerSlot: "", status: "ACTIVE" });
+  const [roomForm, setRoomForm] = useState({
+    name: "",
+    modality: "CT",
+    location: "",
+    maxPerSlot: "",
+    status: "ACTIVE",
+  });
 
-  const [waitForm, setWaitForm] = useState({ patientName: "", phone: "", modality: "CT", priority: "normal", preferredDate: "" });
+  const [waitForm, setWaitForm] = useState({
+    patientName: "",
+    phone: "",
+    modality: "CT",
+    priority: "normal",
+    preferredDate: "",
+  });
 
   const [remOpen, setRemOpen] = useState(false);
-  const [remForm, setRemForm] = useState({ patientName: "", phone: "", channel: "SMS", scheduledAt: "" });
+  const [remForm, setRemForm] = useState({
+    patientName: "",
+    phone: "",
+    channel: "SMS",
+    scheduledAt: "",
+  });
 
   const [greenOpen, setGreenOpen] = useState(false);
-  const [greenForm, setGreenForm] = useState({ patientName: "", patientId: "", modality: "CT", bodyPart: "", deviceId: "", startAt: "" });
+  const [greenForm, setGreenForm] = useState({
+    patientName: "",
+    patientId: "",
+    modality: "CT",
+    bodyPart: "",
+    deviceId: "",
+    startAt: "",
+  });
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -3408,18 +4124,24 @@ function AppointmentResourcePanel() {
         appointmentApi.getReminderPlans(),
         appointmentApi.getGreenChannel(),
       ]);
-      if (roomRes.success && Array.isArray(roomRes.data)) setRooms(roomRes.data);
-      if (waitRes.success && Array.isArray(waitRes.data)) setWaitlist(waitRes.data);
+      if (roomRes.success && Array.isArray(roomRes.data))
+        setRooms(roomRes.data);
+      if (waitRes.success && Array.isArray(waitRes.data))
+        setWaitlist(waitRes.data);
       if (nextRes.success) setNextWait(nextRes.data ?? null);
-      if (remRes.success && Array.isArray(remRes.data)) setReminders(remRes.data);
-      if (greenRes.success && Array.isArray(greenRes.data)) setGreenList(greenRes.data);
+      if (remRes.success && Array.isArray(remRes.data))
+        setReminders(remRes.data);
+      if (greenRes.success && Array.isArray(greenRes.data))
+        setGreenList(greenRes.data);
     } catch {
       /* 后端不可用: 保留既有数据, 面板维持空态 */
     }
     setBusy(false);
   }, []);
 
-  useEffect(() => { void load() }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const handleCreateRoom = async () => {
     if (!roomForm.name.trim() || !roomForm.modality) {
@@ -3435,7 +4157,13 @@ function AppointmentResourcePanel() {
     });
     if (res.success) {
       message.success("诊室已创建");
-      setRoomForm({ name: "", modality: "CT", location: "", maxPerSlot: "", status: "ACTIVE" });
+      setRoomForm({
+        name: "",
+        modality: "CT",
+        location: "",
+        maxPerSlot: "",
+        status: "ACTIVE",
+      });
       void load();
     } else {
       message.error(res.error?.message ?? "创建诊室失败");
@@ -3466,7 +4194,13 @@ function AppointmentResourcePanel() {
     });
     if (res.success) {
       message.success("已加入候补队列");
-      setWaitForm({ patientName: "", phone: "", modality: "CT", priority: "normal", preferredDate: "" });
+      setWaitForm({
+        patientName: "",
+        phone: "",
+        modality: "CT",
+        priority: "normal",
+        preferredDate: "",
+      });
       void load();
     } else {
       message.error(res.error?.message ?? "加入候补失败");
@@ -3497,7 +4231,12 @@ function AppointmentResourcePanel() {
     });
     if (res.success) {
       message.success("提醒计划已创建");
-      setRemForm({ patientName: "", phone: "", channel: "SMS", scheduledAt: "" });
+      setRemForm({
+        patientName: "",
+        phone: "",
+        channel: "SMS",
+        scheduledAt: "",
+      });
       setRemOpen(false);
       void load();
     } else {
@@ -3528,7 +4267,11 @@ function AppointmentResourcePanel() {
 
   const handleCreateGreen = async () => {
     const at = toIsoOrNull(greenForm.startAt);
-    if (!greenForm.patientName.trim() || !greenForm.modality || !greenForm.deviceId.trim()) {
+    if (
+      !greenForm.patientName.trim() ||
+      !greenForm.modality ||
+      !greenForm.deviceId.trim()
+    ) {
       message.warning("请填写患者姓名、模态与设备");
       return;
     }
@@ -3542,7 +4285,14 @@ function AppointmentResourcePanel() {
     });
     if (res.success) {
       message.success("绿色通道预约已创建");
-      setGreenForm({ patientName: "", patientId: "", modality: "CT", bodyPart: "", deviceId: "", startAt: "" });
+      setGreenForm({
+        patientName: "",
+        patientId: "",
+        modality: "CT",
+        bodyPart: "",
+        deviceId: "",
+        startAt: "",
+      });
       setGreenOpen(false);
       void load();
     } else {
@@ -3553,14 +4303,48 @@ function AppointmentResourcePanel() {
   const roomColumns: TableColumnsType<RoomDto> = [
     { title: "诊室", dataIndex: "name", key: "name" },
     { title: "模态", dataIndex: "modality", key: "modality", width: 90 },
-    { title: "位置", key: "location", render: (_v: unknown, r: RoomDto) => r.location || "-" },
-    { title: "单时段上限", dataIndex: "maxPerSlot", key: "maxPerSlot", width: 110, render: (v: unknown) => (v === undefined || v === null ? "-" : String(v)) },
-    { title: "开放时间", key: "openTime", width: 150, render: (_v: unknown, r: RoomDto) => `${r.openTime ?? "--:--"} ~ ${r.closeTime ?? "--:--"}` },
-    { title: "状态", dataIndex: "status", key: "status", width: 110, render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "-")}</Tag> },
     {
-      title: "操作", key: "action", width: 80,
+      title: "位置",
+      key: "location",
+      render: (_v: unknown, r: RoomDto) => r.location || "-",
+    },
+    {
+      title: "单时段上限",
+      dataIndex: "maxPerSlot",
+      key: "maxPerSlot",
+      width: 110,
+      render: (v: unknown) => (v === undefined || v === null ? "-" : String(v)),
+    },
+    {
+      title: "开放时间",
+      key: "openTime",
+      width: 150,
+      render: (_v: unknown, r: RoomDto) =>
+        `${r.openTime ?? "--:--"} ~ ${r.closeTime ?? "--:--"}`,
+    },
+    {
+      title: "状态",
+      dataIndex: "status",
+      key: "status",
+      width: 110,
+      render: (v: unknown) => (
+        <Tag color={toneToAntd(v)}>{String(v ?? "-")}</Tag>
+      ),
+    },
+    {
+      title: "操作",
+      key: "action",
+      width: 80,
       render: (_v: unknown, r: RoomDto) => (
-        <Button size="small" danger type="link" disabled={!r.id} onClick={() => { if (r.id) void handleDeleteRoom(r.id) }}>
+        <Button
+          size="small"
+          danger
+          type="link"
+          disabled={!r.id}
+          onClick={() => {
+            if (r.id) void handleDeleteRoom(r.id);
+          }}
+        >
           删除
         </Button>
       ),
@@ -3568,28 +4352,54 @@ function AppointmentResourcePanel() {
   ];
 
   const waitColumns: TableColumnsType<WaitlistEntryDto> = [
-    { title: "序号", key: "seq", width: 70, render: (_v: unknown, r: WaitlistEntryDto) => r.seq ?? "-" },
+    {
+      title: "序号",
+      key: "seq",
+      width: 70,
+      render: (_v: unknown, r: WaitlistEntryDto) => r.seq ?? "-",
+    },
     { title: "患者", dataIndex: "patientName", key: "patientName" },
     { title: "模态", dataIndex: "modality", key: "modality", width: 80 },
     {
-      title: "优先级", dataIndex: "priority", key: "priority", width: 90,
-      render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "normal")}</Tag>,
+      title: "优先级",
+      dataIndex: "priority",
+      key: "priority",
+      width: 90,
+      render: (v: unknown) => (
+        <Tag color={toneToAntd(v)}>{String(v ?? "normal")}</Tag>
+      ),
     },
     {
-      title: "期望时间", key: "preferred", width: 170,
-      render: (_v: unknown, r: WaitlistEntryDto) => `${r.preferredDate ?? "-"} ${r.preferredTime ?? ""}`.trim(),
+      title: "期望时间",
+      key: "preferred",
+      width: 170,
+      render: (_v: unknown, r: WaitlistEntryDto) =>
+        `${r.preferredDate ?? "-"} ${r.preferredTime ?? ""}`.trim(),
     },
     {
-      title: "状态", dataIndex: "status", key: "status", width: 100,
-      render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "WAITING")}</Tag>,
+      title: "状态",
+      dataIndex: "status",
+      key: "status",
+      width: 100,
+      render: (v: unknown) => (
+        <Tag color={toneToAntd(v)}>{String(v ?? "WAITING")}</Tag>
+      ),
     },
     {
-      title: "操作", key: "action", width: 90,
+      title: "操作",
+      key: "action",
+      width: 90,
       render: (_v: unknown, r: WaitlistEntryDto) =>
         r.status === "ASSIGNED" ? (
           <Tag color={toneToAntd("success")}>已分配</Tag>
         ) : (
-          <Button size="small" type="link" onClick={() => void handleAssignWait(r.id)}>分配</Button>
+          <Button
+            size="small"
+            type="link"
+            onClick={() => void handleAssignWait(r.id)}
+          >
+            分配
+          </Button>
         ),
     },
   ];
@@ -3598,20 +4408,38 @@ function AppointmentResourcePanel() {
     { title: "患者", dataIndex: "patientName", key: "patientName" },
     { title: "渠道", dataIndex: "channel", key: "channel", width: 90 },
     {
-      title: "计划时间", dataIndex: "scheduledAt", key: "scheduledAt", width: 170,
-      render: (v: unknown) => (v ? new Date(String(v)).toLocaleString("zh-CN") : "-"),
+      title: "计划时间",
+      dataIndex: "scheduledAt",
+      key: "scheduledAt",
+      width: 170,
+      render: (v: unknown) =>
+        v ? new Date(String(v)).toLocaleString("zh-CN") : "-",
     },
     {
-      title: "状态", dataIndex: "status", key: "status", width: 100,
-      render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "-")}</Tag>,
+      title: "状态",
+      dataIndex: "status",
+      key: "status",
+      width: 100,
+      render: (v: unknown) => (
+        <Tag color={toneToAntd(v)}>{String(v ?? "-")}</Tag>
+      ),
     },
     {
-      title: "操作", key: "action", width: 90,
+      title: "操作",
+      key: "action",
+      width: 90,
       render: (_v: unknown, r: ReminderPlanDto) =>
         r.status === "SENT" ? (
           <Tag color={toneToAntd("success")}>已发送</Tag>
         ) : (
-          <Button size="small" type="link" icon={<Send size={12} />} onClick={() => void handleFireOne(r.id)}>发送</Button>
+          <Button
+            size="small"
+            type="link"
+            icon={<Send size={12} />}
+            onClick={() => void handleFireOne(r.id)}
+          >
+            发送
+          </Button>
         ),
     },
   ];
@@ -3619,18 +4447,34 @@ function AppointmentResourcePanel() {
   const greenColumns: TableColumnsType<GreenChannelReservationDto> = [
     { title: "患者", dataIndex: "patientName", key: "patientName" },
     { title: "模态", dataIndex: "modality", key: "modality", width: 80 },
-    { title: "部位", dataIndex: "bodyPart", key: "bodyPart", render: (v: unknown) => String(v ?? "-") },
     {
-      title: "设备", key: "device",
-      render: (_v: unknown, r: GreenChannelReservationDto) => r.deviceName || r.deviceId,
+      title: "部位",
+      dataIndex: "bodyPart",
+      key: "bodyPart",
+      render: (v: unknown) => String(v ?? "-"),
     },
     {
-      title: "预留开始", dataIndex: "reservedStartAt", key: "reservedStartAt", width: 170,
-      render: (v: unknown) => (v ? new Date(String(v)).toLocaleString("zh-CN") : "-"),
+      title: "设备",
+      key: "device",
+      render: (_v: unknown, r: GreenChannelReservationDto) =>
+        r.deviceName || r.deviceId,
     },
     {
-      title: "优先级", dataIndex: "priority", key: "priority", width: 90,
-      render: (v: unknown) => <Tag color={toneToAntd(v)}>{String(v ?? "STAT")}</Tag>,
+      title: "预留开始",
+      dataIndex: "reservedStartAt",
+      key: "reservedStartAt",
+      width: 170,
+      render: (v: unknown) =>
+        v ? new Date(String(v)).toLocaleString("zh-CN") : "-",
+    },
+    {
+      title: "优先级",
+      dataIndex: "priority",
+      key: "priority",
+      width: 90,
+      render: (v: unknown) => (
+        <Tag color={toneToAntd(v)}>{String(v ?? "STAT")}</Tag>
+      ),
     },
   ];
 
@@ -3675,10 +4519,23 @@ function AppointmentResourcePanel() {
           <Building2 size={14} /> 诊室 / 候补 / 提醒 / 绿色通道
         </span>
         <Tooltip title="机房资源维护 (列表 + 新建)">
-          <Button size="small" icon={<Settings size={13} />} onClick={() => setRoomOpen(true)}>诊室管理</Button>
+          <Button
+            size="small"
+            icon={<Settings size={13} />}
+            onClick={() => setRoomOpen(true)}
+          >
+            诊室管理
+          </Button>
         </Tooltip>
         <div style={{ marginLeft: "auto" }}>
-          <Button size="small" icon={<RefreshCw size={13} />} loading={busy} onClick={() => void load()}>刷新</Button>
+          <Button
+            size="small"
+            icon={<RefreshCw size={13} />}
+            loading={busy}
+            onClick={() => void load()}
+          >
+            刷新
+          </Button>
         </div>
       </div>
 
@@ -3693,7 +4550,12 @@ function AppointmentResourcePanel() {
             }}
           >
             {kpis.map((k) => (
-              <StatCard key={k.title} title={k.title} value={k.value} color={k.color} />
+              <StatCard
+                key={k.title}
+                title={k.title}
+                value={k.value}
+                color={k.color}
+              />
             ))}
           </div>
 
@@ -3704,55 +4566,132 @@ function AppointmentResourcePanel() {
             items={[
               {
                 key: "waitlist",
-                label: <span><ListChecks size={13} /> 候补队列</span>,
+                label: (
+                  <span>
+                    <ListChecks size={13} /> 候补队列
+                  </span>
+                ),
                 children: (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)" }}>
-                    <div style={{ display: "flex", gap: "var(--space-2, 8px)", flexWrap: "wrap", alignItems: "flex-end" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--space-3, 12px)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "var(--space-2, 8px)",
+                        flexWrap: "wrap",
+                        alignItems: "flex-end",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "var(--space-1, 4px)",
+                        }}
+                      >
                         <span style={RES_LABEL}>患者姓名</span>
                         <Input
                           size="small"
                           style={{ width: 140 }}
                           value={waitForm.patientName}
-                          onChange={(e) => setWaitForm({ ...waitForm, patientName: e.target.value })}
+                          onChange={(e) =>
+                            setWaitForm({
+                              ...waitForm,
+                              patientName: e.target.value,
+                            })
+                          }
                           placeholder="必填"
                           data-testid="wait-add-name"
                         />
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "var(--space-1, 4px)",
+                        }}
+                      >
                         <span style={RES_LABEL}>联系电话</span>
                         <Input
                           size="small"
                           style={{ width: 140 }}
                           value={waitForm.phone}
-                          onChange={(e) => setWaitForm({ ...waitForm, phone: e.target.value })}
+                          onChange={(e) =>
+                            setWaitForm({ ...waitForm, phone: e.target.value })
+                          }
                         />
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "var(--space-1, 4px)",
+                        }}
+                      >
                         <span style={RES_LABEL}>模态</span>
                         <Select
                           size="small"
                           style={{ width: 110 }}
                           value={waitForm.modality}
-                          onChange={(v) => setWaitForm({ ...waitForm, modality: v })}
+                          onChange={(v) =>
+                            setWaitForm({ ...waitForm, modality: v })
+                          }
                           options={MODALITY_OPTIONS}
                         />
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "var(--space-1, 4px)",
+                        }}
+                      >
                         <span style={RES_LABEL}>优先级</span>
                         <Select
                           size="small"
                           style={{ width: 110 }}
                           value={waitForm.priority}
-                          onChange={(v) => setWaitForm({ ...waitForm, priority: v })}
+                          onChange={(v) =>
+                            setWaitForm({ ...waitForm, priority: v })
+                          }
                           options={WAIT_PRIORITY_OPTIONS}
                         />
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "var(--space-1, 4px)",
+                        }}
+                      >
                         <span style={RES_LABEL}>期望日期</span>
-                        <DatePicker size="small" style={{ width: 150 }} value={waitForm.preferredDate ? dayjs(waitForm.preferredDate) : null} onChange={(d) => setWaitForm({ ...waitForm, preferredDate: d ? d.format('YYYY-MM-DD') : '' })} />
+                        <DatePicker
+                          size="small"
+                          style={{ width: 150 }}
+                          value={
+                            waitForm.preferredDate
+                              ? dayjs(waitForm.preferredDate)
+                              : null
+                          }
+                          onChange={(d) =>
+                            setWaitForm({
+                              ...waitForm,
+                              preferredDate: d ? d.format("YYYY-MM-DD") : "",
+                            })
+                          }
+                        />
                       </div>
-                      <Button size="small" type="primary" icon={<Plus size={13} />} onClick={() => void handleAddWaitlist()}>
+                      <Button
+                        size="small"
+                        type="primary"
+                        icon={<Plus size={13} />}
+                        onClick={() => void handleAddWaitlist()}
+                      >
                         加入候补
                       </Button>
                     </div>
@@ -3768,21 +4707,51 @@ function AppointmentResourcePanel() {
                         flexWrap: "wrap",
                       }}
                     >
-                      <span style={{ fontSize: 12, fontWeight: 700, color: RES_BLUE }}>下一位候补</span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: RES_BLUE,
+                        }}
+                      >
+                        下一位候补
+                      </span>
                       {nextWait ? (
                         <>
-                          <Tag color={toneToAntd(nextWait.priority)}>{String(nextWait.priority)}</Tag>
+                          <Tag color={toneToAntd(nextWait.priority)}>
+                            {String(nextWait.priority)}
+                          </Tag>
                           <b style={{ fontSize: 14 }}>{nextWait.patientName}</b>
-                          <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                            {nextWait.modality} · {nextWait.preferredDate} {nextWait.preferredTime}
+                          <span
+                            style={{
+                              fontSize: 12,
+                              color: "var(--text-secondary)",
+                            }}
+                          >
+                            {nextWait.modality} · {nextWait.preferredDate}{" "}
+                            {nextWait.preferredTime}
                           </span>
-                          <span style={{ fontSize: 12, color: statusColor("urgent"), fontWeight: 700 }}>
+                          <span
+                            style={{
+                              fontSize: 12,
+                              color: statusColor("urgent"),
+                              fontWeight: 700,
+                            }}
+                          >
                             {nextWait.phone || "未登记电话"}
                           </span>
-                          <Button size="small" onClick={() => void handleAssignWait(nextWait.id)}>立即分配</Button>
+                          <Button
+                            size="small"
+                            onClick={() => void handleAssignWait(nextWait.id)}
+                          >
+                            立即分配
+                          </Button>
                         </>
                       ) : (
-                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无待分配候补" />
+                        <Empty
+                          image={Empty.PRESENTED_IMAGE_SIMPLE}
+                          description="暂无待分配候补"
+                        />
                       )}
                     </div>
 
@@ -3798,14 +4767,33 @@ function AppointmentResourcePanel() {
               },
               {
                 key: "reminder",
-                label: <span><Bell size={13} /> 提醒计划</span>,
+                label: (
+                  <span>
+                    <Bell size={13} /> 提醒计划
+                  </span>
+                ),
                 children: (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--space-3, 12px)",
+                    }}
+                  >
                     <Space wrap>
-                      <Button size="small" type="primary" icon={<Plus size={13} />} onClick={() => setRemOpen(true)}>
+                      <Button
+                        size="small"
+                        type="primary"
+                        icon={<Plus size={13} />}
+                        onClick={() => setRemOpen(true)}
+                      >
                         新建提醒计划
                       </Button>
-                      <Button size="small" icon={<Send size={13} />} onClick={() => void handleFireDue()}>
+                      <Button
+                        size="small"
+                        icon={<Send size={13} />}
+                        onClick={() => void handleFireDue()}
+                      >
                         发送全部到期提醒
                       </Button>
                     </Space>
@@ -3821,11 +4809,26 @@ function AppointmentResourcePanel() {
               },
               {
                 key: "green",
-                label: <span><Zap size={13} /> 绿色通道</span>,
+                label: (
+                  <span>
+                    <Zap size={13} /> 绿色通道
+                  </span>
+                ),
                 children: (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--space-3, 12px)",
+                    }}
+                  >
                     <Space wrap>
-                      <Button size="small" type="primary" icon={<Plus size={13} />} onClick={() => setGreenOpen(true)}>
+                      <Button
+                        size="small"
+                        type="primary"
+                        icon={<Plus size={13} />}
+                        onClick={() => setGreenOpen(true)}
+                      >
                         新建绿色通道
                       </Button>
                     </Space>
@@ -3853,30 +4856,108 @@ function AppointmentResourcePanel() {
         width={860}
         destroyOnClose
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "var(--space-3, 12px)" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-3, 12px)",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: "var(--space-3, 12px)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
               <span style={RES_LABEL}>诊室名称 *</span>
-              <Input size="small" value={roomForm.name} onChange={(e) => setRoomForm({ ...roomForm, name: e.target.value })} placeholder="如 CT-1 检查室" data-testid="room-name" />
+              <Input
+                size="small"
+                value={roomForm.name}
+                onChange={(e) =>
+                  setRoomForm({ ...roomForm, name: e.target.value })
+                }
+                placeholder="如 CT-1 检查室"
+                data-testid="room-name"
+              />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
               <span style={RES_LABEL}>模态 *</span>
-              <Select size="small" value={roomForm.modality} onChange={(v) => setRoomForm({ ...roomForm, modality: v })} options={MODALITY_OPTIONS} />
+              <Select
+                size="small"
+                value={roomForm.modality}
+                onChange={(v) => setRoomForm({ ...roomForm, modality: v })}
+                options={MODALITY_OPTIONS}
+              />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
               <span style={RES_LABEL}>位置</span>
-              <Input size="small" value={roomForm.location} onChange={(e) => setRoomForm({ ...roomForm, location: e.target.value })} />
+              <Input
+                size="small"
+                value={roomForm.location}
+                onChange={(e) =>
+                  setRoomForm({ ...roomForm, location: e.target.value })
+                }
+              />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
               <span style={RES_LABEL}>单时段上限</span>
-              <Input size="small" type="number" value={roomForm.maxPerSlot} onChange={(e) => setRoomForm({ ...roomForm, maxPerSlot: e.target.value })} />
+              <Input
+                size="small"
+                type="number"
+                value={roomForm.maxPerSlot}
+                onChange={(e) =>
+                  setRoomForm({ ...roomForm, maxPerSlot: e.target.value })
+                }
+              />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-1, 4px)",
+              }}
+            >
               <span style={RES_LABEL}>状态</span>
-              <Select size="small" value={roomForm.status} onChange={(v) => setRoomForm({ ...roomForm, status: v })} options={ROOM_STATUS_OPTIONS} />
+              <Select
+                size="small"
+                value={roomForm.status}
+                onChange={(v) => setRoomForm({ ...roomForm, status: v })}
+                options={ROOM_STATUS_OPTIONS}
+              />
             </div>
             <div style={{ display: "flex", alignItems: "flex-end" }}>
-              <Button size="small" type="primary" icon={<Plus size={13} />} onClick={() => void handleCreateRoom()}>
+              <Button
+                size="small"
+                type="primary"
+                icon={<Plus size={13} />}
+                onClick={() => void handleCreateRoom()}
+              >
                 新建诊室
               </Button>
             </div>
@@ -3902,22 +4983,83 @@ function AppointmentResourcePanel() {
         width={480}
         destroyOnClose
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)", paddingTop: "var(--space-2, 8px)" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-3, 12px)",
+            paddingTop: "var(--space-2, 8px)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>患者姓名 *</span>
-            <Input size="small" value={remForm.patientName} onChange={(e) => setRemForm({ ...remForm, patientName: e.target.value })} data-testid="reminder-patient" />
+            <Input
+              size="small"
+              value={remForm.patientName}
+              onChange={(e) =>
+                setRemForm({ ...remForm, patientName: e.target.value })
+              }
+              data-testid="reminder-patient"
+            />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>手机号</span>
-            <Input size="small" value={remForm.phone} onChange={(e) => setRemForm({ ...remForm, phone: e.target.value })} />
+            <Input
+              size="small"
+              value={remForm.phone}
+              onChange={(e) =>
+                setRemForm({ ...remForm, phone: e.target.value })
+              }
+            />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>提醒渠道 *</span>
-            <Select size="small" value={remForm.channel} onChange={(v) => setRemForm({ ...remForm, channel: v })} options={REMINDER_CHANNEL_OPTIONS} />
+            <Select
+              size="small"
+              value={remForm.channel}
+              onChange={(v) => setRemForm({ ...remForm, channel: v })}
+              options={REMINDER_CHANNEL_OPTIONS}
+            />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>提醒时间 *</span>
-            <DatePicker showTime format="YYYY-MM-DD HH:mm" size="small" data-testid="reminder-time" value={remForm.scheduledAt ? dayjs(remForm.scheduledAt) : null} onChange={(d) => setRemForm({ ...remForm, scheduledAt: d ? d.format('YYYY-MM-DD HH:mm') : '' })} />
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              size="small"
+              data-testid="reminder-time"
+              value={remForm.scheduledAt ? dayjs(remForm.scheduledAt) : null}
+              onChange={(d) =>
+                setRemForm({
+                  ...remForm,
+                  scheduledAt: d ? d.format("YYYY-MM-DD HH:mm") : "",
+                })
+              }
+            />
           </div>
         </div>
       </Modal>
@@ -3932,34 +5074,118 @@ function AppointmentResourcePanel() {
         width={520}
         destroyOnClose
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3, 12px)", paddingTop: "var(--space-2, 8px)" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-3, 12px)",
+            paddingTop: "var(--space-2, 8px)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>患者姓名 *</span>
-            <Input size="small" value={greenForm.patientName} onChange={(e) => setGreenForm({ ...greenForm, patientName: e.target.value })} data-testid="green-patient" />
+            <Input
+              size="small"
+              value={greenForm.patientName}
+              onChange={(e) =>
+                setGreenForm({ ...greenForm, patientName: e.target.value })
+              }
+              data-testid="green-patient"
+            />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>患者 ID</span>
-            <Input size="small" value={greenForm.patientId} onChange={(e) => setGreenForm({ ...greenForm, patientId: e.target.value })} />
+            <Input
+              size="small"
+              value={greenForm.patientId}
+              onChange={(e) =>
+                setGreenForm({ ...greenForm, patientId: e.target.value })
+              }
+            />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>模态 *</span>
-            <Select size="small" value={greenForm.modality} onChange={(v) => setGreenForm({ ...greenForm, modality: v })} options={MODALITY_OPTIONS} />
+            <Select
+              size="small"
+              value={greenForm.modality}
+              onChange={(v) => setGreenForm({ ...greenForm, modality: v })}
+              options={MODALITY_OPTIONS}
+            />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>检查部位</span>
-            <Input size="small" value={greenForm.bodyPart} onChange={(e) => setGreenForm({ ...greenForm, bodyPart: e.target.value })} />
+            <Input
+              size="small"
+              value={greenForm.bodyPart}
+              onChange={(e) =>
+                setGreenForm({ ...greenForm, bodyPart: e.target.value })
+              }
+            />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>设备 ID *</span>
-            <Input size="small" value={greenForm.deviceId} onChange={(e) => setGreenForm({ ...greenForm, deviceId: e.target.value })} placeholder="如 DEV-CT-01" />
+            <Input
+              size="small"
+              value={greenForm.deviceId}
+              onChange={(e) =>
+                setGreenForm({ ...greenForm, deviceId: e.target.value })
+              }
+              placeholder="如 DEV-CT-01"
+            />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1, 4px)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-1, 4px)",
+            }}
+          >
             <span style={RES_LABEL}>预留开始时间</span>
-            <DatePicker showTime format="YYYY-MM-DD HH:mm" size="small" value={greenForm.startAt ? dayjs(greenForm.startAt) : null} onChange={(d) => setGreenForm({ ...greenForm, startAt: d ? d.format('YYYY-MM-DD HH:mm') : '' })} />
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              size="small"
+              value={greenForm.startAt ? dayjs(greenForm.startAt) : null}
+              onChange={(d) =>
+                setGreenForm({
+                  ...greenForm,
+                  startAt: d ? d.format("YYYY-MM-DD HH:mm") : "",
+                })
+              }
+            />
           </div>
         </div>
       </Modal>
     </div>
   );
 }
-

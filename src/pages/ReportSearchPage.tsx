@@ -6,6 +6,7 @@
 import { FEATURED_TERMS, REPORT_PHRASES } from "../data/knowledgeStatsMock";
 import dayjs from "dayjs";
 import { reportApi } from "../services/api/reportApi";
+import type { ReportQueryParams } from "../services/api/types";
 import type { ReportDto } from "../types/dto";
 import {
   Spin,
@@ -55,6 +56,16 @@ const STATUS_META: Record<string, string> = {
   报告已发: "#10b981",
   已完成: "#10b981",
   待出报告: "var(--color-warning-500)",
+};
+
+const SEARCH_STATUS_TO_STATE: Record<string, string> = {
+  草稿: "WRITING",
+  待审核: "SUBMITTED",
+  审核中: "INITIAL_REVIEW",
+  已审核: "REVIEWED",
+  报告已发: "PUBLISHED",
+  已签发: "SIGNED",
+  已完成: "PUBLISHED",
 };
 
 function highlight(text: string | undefined, query: string) {
@@ -334,17 +345,25 @@ export default function ReportSearchPage() {
       setError(null);
       setSearched(true);
       try {
-        const params: {
-          pageSize: number;
-          sortBy: string;
-          sortDir: "desc";
-          q?: string;
-          modality?: string;
-          status?: string;
-        } = { pageSize: 100, sortBy: "examAt", sortDir: "desc" };
-        if (keyword) params.q = keyword;
-        if (modality !== "all") params.modality = modality;
-        if (status !== "all") params.status = status;
+        const params: ReportQueryParams & { pageSize: number } = {
+          pageSize: 200,
+          sortBy: "examAt",
+          sortDir: "desc",
+        };
+        if (keyword) params.keyword = keyword;
+        if (modalityMulti.length === 1) params.modality = modalityMulti[0];
+        else if (modalityMulti.length === 0 && modality !== "all")
+          params.modality = modality;
+        const stateList = (
+          statusMulti.length > 0
+            ? statusMulti
+            : status !== "all"
+              ? [status]
+              : []
+        )
+          .map((s) => SEARCH_STATUS_TO_STATE[s])
+          .filter(Boolean);
+        if (stateList.length > 0) params.state = stateList.join(",");
         const res = await reportApi.list(params);
         // [F-8] api.getList 统一归一为 { items, total }; 兼容旧裸数组形状
         //       (此前只认裸数组 → 结果恒为空, 检索页永远「未检索到匹配报告」)
@@ -375,13 +394,11 @@ export default function ReportSearchPage() {
             filtered = filtered.filter(
               (r) => (r.reportDate || "").slice(0, 10) <= dateTo,
             );
-          // [G005 v3.0.6.11-99 Wave 10E-1] 模态/状态多选
+          // [G005 v3.0.6.11-99 Wave 10E-1] 模态多选 (状态多选已由后端 state 筛选)
           if (modalityMulti.length > 0)
             filtered = filtered.filter((r) =>
               modalityMulti.includes(r.modality),
             );
-          if (statusMulti.length > 0)
-            filtered = filtered.filter((r) => statusMulti.includes(r.status));
           setResults(filtered);
           setTotal(filtered.length);
           // 检索历史记录

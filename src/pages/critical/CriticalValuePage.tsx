@@ -86,6 +86,18 @@ const TABS = [
   },
 ];
 
+const CRITICAL_STATUS_TO_STATE: Record<string, string> = {
+  pending: "FOUND",
+  resolving: "RESOLVING",
+  resolved: "RESOLVED",
+};
+const CRITICAL_SEVERITY_TO_API: Record<string, string> = {
+  危及生命: "CRITICAL",
+  危急: "URGENT",
+  高危: "HIGH",
+  警告: "LOW",
+};
+
 export default function CriticalValuePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -100,6 +112,15 @@ export default function CriticalValuePage() {
   const [timeRangeFilter, setTimeRangeFilter] = useState<string>("全部");
   const [dateRange, setDateRange] = useState("2026-05-01");
   const [search, setSearch] = useState("");
+  const criticalQuery = useMemo(
+    () => ({
+      take: 200,
+      state: CRITICAL_STATUS_TO_STATE[statusFilter],
+      severity: CRITICAL_SEVERITY_TO_API[severityFilter],
+      dateFrom: dateRange || undefined,
+    }),
+    [statusFilter, severityFilter, dateRange],
+  );
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedCV, setSelectedCV] = useState<CriticalValue | null>(null);
   const [detailTab, setDetailTab] = useState(0);
@@ -159,7 +180,7 @@ export default function CriticalValuePage() {
     let cancelled = false;
     void (async () => {
       setLoading(true);
-      await useCriticalStore.getState().load();
+      await useCriticalStore.getState().load(criticalQuery);
       if (cancelled) return;
       const { values, error } = useCriticalStore.getState();
       if (values.length > 0) {
@@ -187,7 +208,7 @@ export default function CriticalValuePage() {
       // [G005 PERF1] 卸载时释放: 停止 actor + 清除 60s 升级定时器, 防止内存泄漏
       useCriticalStore.getState().dispose?.();
     };
-  }, []);
+  }, [criticalQuery]);
 
   useEffect(() => {
     let cancelled = false;

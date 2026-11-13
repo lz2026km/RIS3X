@@ -618,6 +618,10 @@ export default function WorklistPage() {
       doctorId: "",
     };
   });
+  const filtersRef = useRef(filters);
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -647,7 +651,19 @@ export default function WorklistPage() {
   const mountedRef = useRef(true);
 
   const fetchExams = useCallback(async (): Promise<RadiologyExam[]> => {
-    const res = await examApi.list({});
+    const f = filtersRef.current;
+    const state =
+      f.statuses.length === 1 ? normalizeExamStatus(f.statuses[0]) : undefined;
+    const modality = f.modalities.length === 1 ? f.modalities[0] : undefined;
+    const dateFrom = f.dateStart || undefined;
+    const dateTo = f.dateEnd ? `${f.dateEnd}T23:59:59` : undefined;
+    const res = await examApi.list({
+      state,
+      modality,
+      dateFrom,
+      dateTo,
+      pageSize: 200,
+    });
     if (!mountedRef.current) return [];
     const raw = res.data as unknown;
     const items = extractExamItems(raw);
@@ -661,7 +677,15 @@ export default function WorklistPage() {
     let total = Infinity;
     for (let page = 1; page <= 6 && collected.length < total; page += 1) {
       if (!mountedRef.current) break;
-      const wl = await worklistApi.list({ page: page, pageSize: 200 });
+      const wl = await worklistApi.list({
+        page,
+        pageSize: 200,
+        status: state,
+        modality,
+        dateFrom,
+        dateTo,
+        search: f.search || undefined,
+      });
       const wlRaw = wl.data as unknown;
       const wlItems = extractExamItems(wlRaw);
       if (!wl.success || wlItems === null) break;
@@ -749,6 +773,14 @@ export default function WorklistPage() {
       }
     };
   }, [fetchOnce]);
+
+  const serverFiltersKey = `${filters.dateStart}|${filters.dateEnd}|${filters.modalities.join(",")}|${filters.statuses.join(",")}`;
+  const lastServerFiltersKey = useRef(serverFiltersKey);
+  useEffect(() => {
+    if (lastServerFiltersKey.current === serverFiltersKey) return;
+    lastServerFiltersKey.current = serverFiltersKey;
+    void fetchOnce();
+  }, [serverFiltersKey, fetchOnce]);
 
   // ---- B7. 批量操作动态 (本地活动流, localStorage 持久化最近 30 条) ----
   const [batchActivity, setBatchActivity] = useState<

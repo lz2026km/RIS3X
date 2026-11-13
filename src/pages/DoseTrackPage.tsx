@@ -441,6 +441,7 @@ export default function DoseTrackPage() {
           alerts={alerts}
           dataSource={dataSource}
           deviceDose={deviceDose}
+          modalityFilter={modalityFilter}
         />
       )}
 
@@ -818,12 +819,14 @@ function DoseAnalyticsSection({
   alerts,
   dataSource,
   deviceDose,
+  modalityFilter,
 }: {
   apiPatients: PatientDoseSummary[];
   today: TodayDoseStats | null;
   alerts: DoseAlert[];
   dataSource: "api" | "demo";
   deviceDose: DeviceDoseData[];
+  modalityFilter: string;
 }) {
   const [analyticsSource, setAnalyticsSource] = useState<"api" | "demo">(
     dataSource,
@@ -854,7 +857,11 @@ function DoseAnalyticsSection({
     let cancelled = false;
     void (async () => {
       try {
-        const res = await rdsrApi.getStats();
+        const res = await rdsrApi.getStats(
+          undefined,
+          undefined,
+          modalityFilter === "全部" ? undefined : modalityFilter,
+        );
         if (!cancelled && res.success && res.data) {
           const d = res.data as any;
           setStatsTrend(
@@ -900,7 +907,7 @@ function DoseAnalyticsSection({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [modalityFilter]);
 
   // G1. 患者剂量排行 (按 1 年累计 DLP)
   const patientRank = useMemo(() => {

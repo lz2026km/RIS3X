@@ -480,15 +480,24 @@ export const reportHandlers = [
       url.searchParams.get("state") ?? url.searchParams.get("status");
     const all = list<any>("exams");
     let source = all;
-    if (stateParam) {
-      const stateKey = stateParam.toUpperCase();
-      const direct = all.filter(
-        (r: any) => String(r.state ?? "").toUpperCase() === stateKey,
+    const stateKeys = stateParam
+      ? stateParam
+          .split(",")
+          .map((s) => s.trim().toUpperCase())
+          .filter(Boolean)
+      : [];
+    if (stateKeys.length > 0) {
+      const direct = all.filter((r: any) =>
+        stateKeys.includes(String(r.state ?? "").toUpperCase()),
       );
       if (direct.length > 0) {
         source = direct;
       } else {
         const STATUS_TO_STATE: Record<string, string[]> = {
+          PENDING_ASSIGNMENT: ["draft", "pending"],
+          ASSIGNED: ["draft", "pending"],
+          WRITING: ["draft", "writing"],
+          SUBMITTED: ["submitted", "draft"],
           INITIAL_REVIEW: ["submitted", "draft", "pending"],
           FINAL_REVIEW: ["reviewed"],
           CO_SIGN_REVIEW: ["cosigned"],
@@ -496,18 +505,20 @@ export const reportHandlers = [
           SIGNED: ["signed", "reviewed"],
           REVIEWED: ["reviewed"],
           AMENDING: ["amended"],
+          REJECTED: ["rejected"],
           WITHDRAWN: ["withdrawn", "cancelled"],
           // [W6] 归档报告列表: 状态或 state 为 archived
           ARCHIVED: ["archived"],
         };
-        const matching = all.filter((r: any) =>
-          (STATUS_TO_STATE[stateKey] ?? []).includes(
-            String(r.status ?? r.state ?? "").toLowerCase(),
-          ),
-        );
+        const matching = all.filter((r: any) => {
+          const status = String(r.status ?? r.state ?? "").toLowerCase();
+          return stateKeys.some((key) =>
+            (STATUS_TO_STATE[key] ?? []).includes(status),
+          );
+        });
         source = matching
           .slice(0, 30)
-          .map((r: any) => ({ ...r, state: stateKey }));
+          .map((r: any) => ({ ...r, state: stateKeys[0] }));
       }
     }
     const qMap = new Map(

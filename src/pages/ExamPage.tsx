@@ -78,6 +78,7 @@ import { useNavigate } from "react-router-dom";
 import { t } from "../i18n/appI18n";
 import { statusTone } from "../theme/statusTokens";
 import { PageContainer } from "../components/common";
+import { normalizeExamStatus } from "../utils/statusMaps";
 
 // ==================== 常量配置 ====================
 const PRIMARY = "var(--color-primary)"; // 主品牌色
@@ -173,6 +174,15 @@ const STATUS_CONFIG: Record<
 
 // 设备类型
 const MODALITY_LIST = ["全部", "DR", "CT", "MR", "DSA", "乳腺钼靶"];
+const EXAM_MODALITY_TO_API: Record<string, string> = { 乳腺钼靶: "MG" };
+const toExamServerFilters = (status: string, modality: string) => ({
+  state: status !== "全部" ? normalizeExamStatus(status) : undefined,
+  modality:
+    modality !== "全部"
+      ? (EXAM_MODALITY_TO_API[modality] ?? modality)
+      : undefined,
+  pageSize: 200,
+});
 
 // 患者类型
 const PATIENT_TYPE_LIST = ["全部", "门诊", "住院", "急诊", "体检"];
@@ -416,7 +426,9 @@ export default function ExamPage() {
       } catch {
         /* store handles its own error */
       }
-      const res = await examApi.list({});
+      const res = await examApi.list(
+        toExamServerFilters(filters.status, filters.modality),
+      );
       if (cancelled) return;
       // [W4] api.getList 已归一化为 { items, total }
       const list = res.data?.items ?? [];
@@ -432,7 +444,7 @@ export default function ExamPage() {
     return () => {
       cancelled = true;
     };
-  }, [storeLoad, reloadTick]);
+  }, [storeLoad, reloadTick, filters.status, filters.modality]);
 
   // 从 store.exams 派生技师执行卡片视图
   const techExecutions = useMemo<TechnicianExecution[]>(() => {
@@ -1182,7 +1194,9 @@ export default function ExamPage() {
     } catch {
       /* store handles its own error */
     }
-    const res = await examApi.list({});
+    const res = await examApi.list(
+      toExamServerFilters(filters.status, filters.modality),
+    );
     // [W4] api.getList 已归一化为 { items, total }
     const list = res.data?.items ?? [];
     if (res.success && Array.isArray(list) && list.length > 0) {
@@ -1195,7 +1209,11 @@ export default function ExamPage() {
   const handleExamExport = async () => {
     setExporting(true);
     try {
-      const res = await examApi.exportExams({});
+      const { state, modality } = toExamServerFilters(
+        filters.status,
+        filters.modality,
+      );
+      const res = await examApi.exportExams({ state, modality });
       if (res.success && res.data?.content) {
         const blob = new Blob([res.data.content], {
           type: "text/csv;charset=utf-8",

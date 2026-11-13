@@ -111,65 +111,11 @@ export default function ReportPage() {
   const [accessDenied, setAccessDenied] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      setLoading(true);
-      setAccessDenied(false);
-      const canRead = checkAccess({
-        resource: { type: "report" },
-        action: "read",
-        environment: { time: new Date(), location: user?.department },
-      });
-      if (!canRead) {
-        if (!cancelled) {
-          setAccessDenied(true);
-          setLoading(false);
-        }
-        return;
-      }
-      const res = await reportApi.list({});
-      if (cancelled) return;
-      const rows = listItems<RadiologyReport>(res);
-      if (res.success && rows.length > 0) {
-        setAllReports(rows);
-        setLoadError(null);
-      } else {
-        setAllReports([]);
-        setLoadError(t("reportPage.apiUnavailable"));
-      }
-      setLoading(false);
-      // [W2-4] 患者详情"查看报告"跳转: /reports?reportId=xxx 自动打开详情抽屉
-      //   列表分页(20)可能不含目标报告, 优先按 ID 精确拉取
-      const reportId = new URLSearchParams(window.location.search).get(
-        "reportId",
-      );
-      if (reportId && !cancelled) {
-        const list = listItems<RadiologyReport>(res);
-        const target = list.find(
-          (r) => r.id === reportId || r.reportId === reportId,
-        );
-        if (target) {
-          setDetailReport(target);
-        } else {
-          void (async () => {
-            const detail = await reportApi.getById(reportId);
-            if (!cancelled && detail.success && detail.data) {
-              setDetailReport(detail.data as unknown as RadiologyReport);
-            }
-          })();
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [checkAccess, user?.department, reloadTick]);
-
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("全部");
   const [modalityFilter, setModalityFilter] = useState("全部");
   const [reportDoctorFilter, setReportDoctorFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("全部");
   const [auditorFilter, setAuditorFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -245,6 +191,71 @@ export default function ReportPage() {
   const [reviewReport, setReviewReport] = useState<RadiologyReport | null>(
     null,
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      setAccessDenied(false);
+      const canRead = checkAccess({
+        resource: { type: "report" },
+        action: "read",
+        environment: { time: new Date(), location: user?.department },
+      });
+      if (!canRead) {
+        if (!cancelled) {
+          setAccessDenied(true);
+          setLoading(false);
+        }
+        return;
+      }
+      const res = await reportApi.list({
+        doctorId: reportDoctorFilter || undefined,
+        priority: priorityFilter !== "全部" ? priorityFilter : undefined,
+      });
+      if (cancelled) return;
+      const rows = listItems<RadiologyReport>(res);
+      if (res.success && rows.length > 0) {
+        setAllReports(rows);
+        setLoadError(null);
+      } else {
+        setAllReports([]);
+        setLoadError(t("reportPage.apiUnavailable"));
+      }
+      setLoading(false);
+      // [W2-4] 患者详情"查看报告"跳转: /reports?reportId=xxx 自动打开详情抽屉
+      //   列表分页(20)可能不含目标报告, 优先按 ID 精确拉取
+      const reportId = new URLSearchParams(window.location.search).get(
+        "reportId",
+      );
+      if (reportId && !cancelled) {
+        const list = listItems<RadiologyReport>(res);
+        const target = list.find(
+          (r) => r.id === reportId || r.reportId === reportId,
+        );
+        if (target) {
+          setDetailReport(target);
+        } else {
+          void (async () => {
+            const detail = await reportApi.getById(reportId);
+            if (!cancelled && detail.success && detail.data) {
+              setDetailReport(detail.data as unknown as RadiologyReport);
+            }
+          })();
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    checkAccess,
+    user?.department,
+    reloadTick,
+    reportDoctorFilter,
+    priorityFilter,
+  ]);
+
   const [mfaReportId, setMfaReportId] = useState<string | null>(null);
   // [W2-3] 多版本并排对比 / 危急值一键转入 / 真实导出
   const [diffModal, setDiffModal] = useState<{
@@ -420,6 +431,7 @@ export default function ReportPage() {
     setStatusFilter("全部");
     setModalityFilter("全部");
     setReportDoctorFilter("");
+    setPriorityFilter("全部");
     setAuditorFilter("");
     setDateFrom("");
     setDateTo("");
@@ -1299,6 +1311,8 @@ export default function ReportPage() {
             setModalityFilter={setModalityFilter}
             reportDoctorFilter={reportDoctorFilter}
             setReportDoctorFilter={setReportDoctorFilter}
+            priorityFilter={priorityFilter}
+            setPriorityFilter={setPriorityFilter}
             auditorFilter={auditorFilter}
             setAuditorFilter={setAuditorFilter}
             dateFrom={dateFrom}

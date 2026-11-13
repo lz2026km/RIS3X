@@ -2315,7 +2315,10 @@ export default function ReportWritePage() {
           }
         }
       }
-      const draftsRes = await reportApi.list({ take: "20" });
+      const draftsRes = await reportApi.list({
+        state: "WRITING,SUBMITTED,ASSIGNED,PENDING_ASSIGNMENT,REJECTED",
+        take: "50",
+      });
       // [W4] getList 归一化为 { items, total }
       const draftItems = draftsRes.data?.items ?? [];
       if (draftsRes.success && draftItems.length > 0) {
