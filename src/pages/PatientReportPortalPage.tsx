@@ -89,6 +89,15 @@ export default function PatientReportPortalPage() {
 
   const handleViewReportDetail = async () => {
     if (!selectedAccess) return;
+    // 静态演示数据的 reportId 来自分发台账, 与患者端报告接口不是同一数据源 -> 不再发出必然 404 的请求
+    if (accessSource !== "api") {
+      setReportDetail({
+        id: selectedAccess.reportId,
+        patientName: selectedAccess.patientName,
+        error: t("patientPortal.offlinePreview"),
+      });
+      return;
+    }
     setReportDetailLoading(true);
     setReportDetail(null);
     try {
@@ -789,7 +798,10 @@ export default function PatientReportPortalPage() {
                 <Smartphone size={13} /> {t("patientPortal.h5Preview")}
               </div>
               <div style={{ display: "flex", justifyContent: "center" }}>
-                <PhoneMockup access={selectedAccess} />
+                <PhoneMockup
+                  access={selectedAccess}
+                  fetchReport={accessSource === "api"}
+                />
               </div>
             </div>
           </div>
@@ -1278,7 +1290,10 @@ const buildReportPdf = (report: any, fallbackName: string): Blob | null => {
   return doc.output("blob") as Blob;
 };
 
-const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
+const PhoneMockup: React.FC<{
+  access: PatientReportAccess;
+  fetchReport?: boolean;
+}> = ({ access, fetchReport = true }) => {
   const [tab, setTab] = useState<"home" | "report" | "image" | "me">("home");
   const [reportData, setReportData] = useState<any>(null);
   const [reportLoading, setReportLoading] = useState(false);
@@ -1287,6 +1302,12 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
   useEffect(() => {
     let cancelled = false;
     setReportData(null);
+    if (!fetchReport) {
+      setReportLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
     setReportLoading(true);
     void (async () => {
       try {
@@ -1300,7 +1321,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
     return () => {
       cancelled = true;
     };
-  }, [access.reportId]);
+  }, [access.reportId, fetchReport]);
 
   const loadReport = async (): Promise<any | null> => {
     if (reportData) return reportData;

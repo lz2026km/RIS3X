@@ -156,38 +156,16 @@ export function stripComments(src) {
       }
       continue;
     }
-    // 模板字面量: 原样保留 (含 ${} 内的嵌套模板)
+    // 模板字面量: 原样保留 (含 ${} 内的嵌套模板与引号内括号)
     if (c === '`') {
+      const r = readTemplateLiteral(src, i);
+      if (r) {
+        out += src.slice(i, r.end);
+        i = r.end;
+        continue;
+      }
       out += c;
       i++;
-      let depth = 0;
-      while (i < n) {
-        const ch = src[i];
-        if (ch === '\\') {
-          out += ch + (src[i + 1] ?? '');
-          i += 2;
-          continue;
-        }
-        if (ch === '$' && src[i + 1] === '{') {
-          depth++;
-          out += '${';
-          i += 2;
-          continue;
-        }
-        if (ch === '}' && depth > 0) {
-          depth--;
-          out += ch;
-          i++;
-          continue;
-        }
-        if (ch === '`' && depth === 0) {
-          out += ch;
-          i++;
-          break;
-        }
-        out += ch;
-        i++;
-      }
       continue;
     }
 
@@ -195,6 +173,52 @@ export function stripComments(src) {
     i++;
   }
   return out;
+}
+
+function skipQuoted(s, i) {
+  const quote = s[i];
+  for (let j = i + 1; j < s.length; j++) {
+    if (s[j] === '\\') {
+      j++;
+      continue;
+    }
+    if (s[j] === quote) return j;
+    if (s[j] === '\n' && quote !== '`') return j;
+  }
+  return s.length;
+}
+
+function readBraceExpression(s, startBrace) {
+  let depth = 0;
+  for (let i = startBrace; i < s.length; i++) {
+    const c = s[i];
+    if (c === "'" || c === '"') {
+      i = skipQuoted(s, i);
+      continue;
+    }
+    if (c === '`') {
+      const r = readTemplateLiteral(s, i);
+      if (!r) return null;
+      i = r.end - 1;
+      continue;
+    }
+    if (c === '/' && s[i + 1] === '/') {
+      while (i < s.length && s[i] !== '\n') i++;
+      continue;
+    }
+    if (c === '/' && s[i + 1] === '*') {
+      i += 2;
+      while (i < s.length && !(s[i] === '*' && s[i + 1] === '/')) i++;
+      i++;
+      continue;
+    }
+    if (c === '{') depth++;
+    else if (c === '}') {
+      depth--;
+      if (depth === 0) return { end: i + 1 };
+    }
+  }
+  return null;
 }
 
 /** 从 start 处的反引号起扫描完整模板字面量 (正确处理嵌套 ${} 与内层反引号) */
@@ -208,27 +232,69 @@ export function readTemplateLiteral(s, start) {
     }
     if (c === '`') return { value: s.slice(start + 1, j), end: j + 1 };
     if (c === '$' && s[j + 1] === '{') {
-      let depth = 0;
-      let k = j + 1;
-      for (; k < s.length; k++) {
-        if (s[k] === '`') {
-          const r = readTemplateLiteral(s, k);
-          if (!r) break;
-          k = r.end - 1;
-          continue;
-        }
-        if (s[k] === '{') depth++;
-        else if (s[k] === '}') {
-          depth--;
-          if (depth === 0) break;
-        }
-      }
-      j = k + 1;
+      const r = readBraceExpression(s, j + 1);
+      if (!r) return null;
+      j = r.end;
       continue;
     }
     j++;
   }
   return null;
+}
+
+const QUERY_WRAPPER = /(?:^|\.)(?:withQuery|buildQuery|buildUrl|withParams|appendQuery|stringify)$/i;
+const QUERY_BUILDER_EXPR = /(?:^|[^\w$])(?:buildQuery|toQuery|toQueryString|withQuery|buildUrl|withParams|appendQuery|qs\.stringify|qs)\s*\(/;
+const QUERY_SUFFIX_IDENT = /^(?:q|qs|query|queryString|search|searchParams|suffix)$/i;
+const QUERY_LITERAL_EXPR = /[`'"]\s*[?#]/;
+
+function isQueryExpression(t) {
+  return (
+    QUERY_BUILDER_EXPR.test(t) ||
+    QUERY_LITERAL_EXPR.test(t) ||
+    QUERY_SUFFIX_IDENT.test(t)
+  );
+}
+
+function renderTemplateExpression(expr, consts) {
+  const t = expr.trim();
+  if (!t) return '';
+  if (isQueryExpression(t)) return '';
+  if (consts.has(t)) return consts.get(t);
+  const idm = /^([A-Za-z_$][\w$]*)$/.exec(t);
+  if (idm) {
+    if (consts.has(idm[1])) return consts.get(idm[1]);
+    if (/(?:BASE|PREFIX|URL|HOST|ORIGIN)$/i.test(idm[1])) return '*';
+  }
+  return ':param';
+}
+
+export function renderTemplateLiteral(value, consts = new Map()) {
+  let out = '';
+  let i = 0;
+  while (i < value.length) {
+    const c = value[i];
+    if (c === '\\') {
+      out += value[i + 1] ?? '';
+      i += 2;
+      continue;
+    }
+    if (c === '?' || c === '#') break;
+    if (c === '$' && value[i + 1] === '{') {
+      const r = readBraceExpression(value, i + 1);
+      if (!r) {
+        i += 2;
+        continue;
+      }
+      const expr = value.slice(i + 2, r.end - 1);
+      if (isQueryExpression(expr.trim())) break;
+      out += renderTemplateExpression(expr, consts);
+      i = r.end;
+      continue;
+    }
+    out += c;
+    i++;
+  }
+  return out;
 }
 
 /**
@@ -256,6 +322,126 @@ function skipGenerics(s, i) {
   return i;
 }
 
+function findCallClose(s, openIdx) {
+  let depth = 0;
+  for (let i = openIdx; i < s.length; i++) {
+    const c = s[i];
+    if (c === "'" || c === '"') {
+      i = skipQuoted(s, i);
+      continue;
+    }
+    if (c === '`') {
+      const r = readTemplateLiteral(s, i);
+      if (!r) return -1;
+      i = r.end - 1;
+      continue;
+    }
+    if (c === '/' && s[i + 1] === '/') {
+      while (i < s.length && s[i] !== '\n') i++;
+      continue;
+    }
+    if (c === '/' && s[i + 1] === '*') {
+      i += 2;
+      while (i < s.length && !(s[i] === '*' && s[i + 1] === '/')) i++;
+      i++;
+      continue;
+    }
+    if (c === '(') depth++;
+    else if (c === ')') {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+function skipArgument(s, i) {
+  let depth = 0;
+  for (; i < s.length; i++) {
+    const c = s[i];
+    if (c === "'" || c === '"') {
+      i = skipQuoted(s, i);
+      continue;
+    }
+    if (c === '`') {
+      const r = readTemplateLiteral(s, i);
+      if (!r) return i + 1;
+      i = r.end - 1;
+      continue;
+    }
+    if (c === '/' && s[i + 1] === '/') {
+      while (i < s.length && s[i] !== '\n') i++;
+      continue;
+    }
+    if (c === '/' && s[i + 1] === '*') {
+      i += 2;
+      while (i < s.length && !(s[i] === '*' && s[i + 1] === '/')) i++;
+      i++;
+      continue;
+    }
+    if (c === '(' || c === '[' || c === '{') {
+      depth++;
+      continue;
+    }
+    if (c === ')' || c === ']' || c === '}') {
+      if (depth === 0) return i;
+      depth--;
+      continue;
+    }
+    if (c === ',' && depth === 0) return i;
+  }
+  return i;
+}
+
+function readWrapperPath(text, openParen, consts, depth) {
+  if (depth > 6) return null;
+  const close = findCallClose(text, openParen);
+  let pos = openParen + 1;
+  while (pos < text.length) {
+    while (pos < text.length && /\s/.test(text[pos])) pos++;
+    if (text[pos] === ')') break;
+    const r = readPathExpression(text, pos, consts, depth + 1);
+    if (r && r.value) return { value: r.value, end: close >= 0 ? close + 1 : r.end };
+    const next = skipArgument(text, pos);
+    if (next <= pos) break;
+    pos = next;
+    while (pos < text.length && /\s/.test(text[pos])) pos++;
+    if (text[pos] === ',') {
+      pos++;
+      continue;
+    }
+    break;
+  }
+  return null;
+}
+
+function readPathExpression(text, i, consts, depth = 0) {
+  while (i < text.length && /\s/.test(text[i])) i++;
+  const c = text[i];
+  if (c === '`') {
+    const r = readTemplateLiteral(text, i);
+    if (!r || !r.value) return r ? { value: '', end: r.end } : null;
+    return { value: renderTemplateLiteral(r.value, consts), end: r.end };
+  }
+  if (c === "'" || c === '"') {
+    const end = skipQuoted(text, i);
+    if (end >= text.length) return null;
+    return { value: text.slice(i + 1, end), end: end + 1 };
+  }
+  if (c && /[A-Za-z_$]/.test(c)) {
+    const idm = /^[A-Za-z_$][\w$]*(?:\s*\.\s*[A-Za-z_$][\w$]*)*/.exec(text.slice(i));
+    if (!idm) return null;
+    const name = idm[0].replace(/\s+/g, '');
+    let j = i + idm[0].length;
+    while (j < text.length && /\s/.test(text[j])) j++;
+    if (text[j] === '(' && QUERY_WRAPPER.test(name)) {
+      return readWrapperPath(text, j, consts, depth);
+    }
+    if (consts.has(name)) return { value: consts.get(name), end: j };
+  }
+  return null;
+}
+
 /**
  * [B2/B3/B4 修复] 抽取 HTTP 调用路径。
  * 支持: 反引号模板 / 字符串字面量 / 裸标识符常量 (http.post(OCSP))。
@@ -279,23 +465,9 @@ export function extractPaths(text, consts = new Map()) {
     i++;
     while (i < text.length && /\s/.test(text[i])) i++;
 
-    const c = text[i];
-    if (c === '`') {
-      const r = readTemplateLiteral(text, i);
-      if (r && r.value) out.push(r.value);
-      if (r) re.lastIndex = r.end;
-    } else if (c === "'" || c === '"') {
-      const end = text.indexOf(c, i + 1);
-      if (end > 0) {
-        out.push(text.slice(i + 1, end));
-        re.lastIndex = end + 1;
-      }
-    } else if (c && /[A-Za-z_$]/.test(c)) {
-      const idm = /^[A-Za-z_$][\w$]*/.exec(text.slice(i));
-      const ident = idm ? idm[0] : '';
-      if (ident && consts.has(ident)) out.push(consts.get(ident));
-      if (ident) re.lastIndex = i + ident.length;
-    }
+    const r = readPathExpression(text, i, consts);
+    if (r && r.value) out.push(r.value);
+    if (r) re.lastIndex = r.end;
   }
   return out;
 }
@@ -426,7 +598,7 @@ export function toSegments(full) {
     .replace(/^https?:\/\/[^/]+/, '')
     .replace(/^\/?api(\/v\d+)?\/?/, '');
   const segs = stripped
-    .split('?')[0]
+    .split(/[?#]/)[0]
     .split('/')
     .map((seg) => {
       if (seg === '*' || seg.includes('${')) return '*';
@@ -453,6 +625,7 @@ export function segmentsMatch(aSegs, bSegs) {
     const a = aSegs[i];
     const b = bSegs[i];
     if (a === '*' || b === '*') continue;
+    if (a.startsWith(':') || a.startsWith('$')) continue;
     if (b.startsWith(':') || b.startsWith('$')) continue;
     if (a !== b) return false;
   }
@@ -463,6 +636,16 @@ export function segmentsMatch(aSegs, bSegs) {
 export function matchesRoute(pathSegs, routeSet) {
   for (const r of routeSet) {
     if (segmentsMatch(pathSegs, r.split('/'))) return true;
+  }
+  return false;
+}
+
+/** (动词, 路径) 是否存在于后端 verbRoutes 索引 (段级比较) */
+export function hasVerbRoute(verb, pathSegs, verbRoutes) {
+  for (const key of verbRoutes.keys()) {
+    const [v, ...rest] = key.split(' ');
+    if (v !== verb) continue;
+    if (segmentsMatch(pathSegs, rest.join(' ').split('/'))) return true;
   }
   return false;
 }
@@ -515,26 +698,14 @@ export function parseBackendRoutes(files, root) {
  */
 export function extractRawRequestPaths(text, consts = new Map()) {
   const out = [];
-  const readArg = (i) => {
-    while (i < text.length && /\s/.test(text[i])) i++;
-    const c = text[i];
-    if (c === '`') {
-      const r = readTemplateLiteral(text, i);
-      return r ? { value: r.value, end: r.end } : null;
-    }
-    if (c === "'" || c === '"') {
-      const end = text.indexOf(c, i + 1);
-      return end > 0 ? { value: text.slice(i + 1, end), end: end + 1 } : null;
-    }
-    return null;
-  };
+  const readArg = (i) => readPathExpression(text, i, consts);
 
   const fetchRe = /(?:^|[^\w$.])fetch\s*\(\s*/g;
   let m;
   while ((m = fetchRe.exec(text))) {
     const i = m.index + m[0].length;
     const r = readArg(i);
-    if (r && r.value) {
+    if (r && r.value && !r.value.includes('${this.')) {
       out.push({ path: r.value, verb: 'GET' });
       fetchRe.lastIndex = r.end;
     }
@@ -596,21 +767,13 @@ export function collectFrontendCalls(files, root, opts = {}) {
       while (i < src.length && /\s/.test(src[i])) i++;
       const c = src[i];
       let rawPath = null;
-      if (c === '`') {
-        const r = readTemplateLiteral(src, i);
-        if (r && r.value) rawPath = r.value;
-        if (r) re.lastIndex = r.end;
-      } else if (c === "'" || c === '"') {
-        const end = src.indexOf(c, i + 1);
-        if (end > 0) {
-          rawPath = src.slice(i + 1, end);
-          re.lastIndex = end + 1;
-        }
-      } else if (c && /[A-Za-z_$]/.test(c)) {
-        const idm = /^[A-Za-z_$][\w$]*/.exec(src.slice(i));
-        const ident = idm ? idm[0] : '';
-        if (ident && consts.has(ident)) rawPath = consts.get(ident);
-        if (ident) re.lastIndex = i + ident.length;
+      const r = readPathExpression(src, i, consts);
+      if (r) {
+        if (r.value) rawPath = r.value;
+        re.lastIndex = r.end;
+      } else if (c === '`') {
+        const t = readTemplateLiteral(src, i);
+        if (t) re.lastIndex = t.end;
       }
       if (!rawPath) continue;
       const full = substituteConstants(rawPath, consts);

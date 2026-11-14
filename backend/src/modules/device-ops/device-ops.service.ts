@@ -1249,6 +1249,21 @@ export class DeviceOpsService {
     return { ...def, nextRunAt: nextRunAt(def.frequency, def.timeOfDay, now) };
   }
 
+  getReportDefinition(
+    id: string,
+  ): SeedReportDefinition & { nextRunAt: string | null } {
+    const def = this.reportDefs.find((d) => d.id === id);
+    if (!def) throw new NotFoundException(`报表定义 ${id} 不存在`);
+    return {
+      ...def,
+      nextRunAt: nextRunAt(
+        def.frequency,
+        def.timeOfDay,
+        new Date().toISOString(),
+      ),
+    };
+  }
+
   updateReportDefinition(
     id: string,
     body: Partial<SeedReportDefinition>,

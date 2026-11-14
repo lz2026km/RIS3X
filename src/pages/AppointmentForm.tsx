@@ -31,6 +31,7 @@ import {
   type TechnicianDto,
   type AppointmentConflictDto,
 } from "../services/api";
+import type { AccessionParseResultDto } from "../services/api/appointmentApi";
 
 const primaryBlue = "var(--color-primary-800)";
 const textGray = "#64748b";
@@ -90,6 +91,12 @@ export default function AppointmentForm(props: AppointmentFormProps) {
   const [technicians, setTechnicians] = useState<TechnicianDto[]>([]);
   const [conflicts, setConflicts] = useState<AppointmentConflictDto[]>([]);
   const [checking, setChecking] = useState(false);
+  const [accessionPreview, setAccessionPreview] = useState("");
+  const [accessionPreviewFailed, setAccessionPreviewFailed] = useState(false);
+  const [accessionInput, setAccessionInput] = useState("");
+  const [accessionParsed, setAccessionParsed] =
+    useState<AccessionParseResultDto | null>(null);
+  const [accessionParseFailed, setAccessionParseFailed] = useState(false);
 
   useEffect(() => {
     if (!showForm) return;
@@ -111,6 +118,67 @@ export default function AppointmentForm(props: AppointmentFormProps) {
       cancelled = true;
     };
   }, [showForm]);
+
+  useEffect(() => {
+    if (!showForm || !formData.deviceId || !formData.examDate) {
+      setAccessionPreview("");
+      setAccessionPreviewFailed(false);
+      return;
+    }
+    let cancelled = false;
+    setAccessionPreview("");
+    setAccessionPreviewFailed(false);
+    const year = Number(String(formData.examDate).slice(0, 4)) || undefined;
+    appointmentApi
+      .nextAccession(formData.examType, year)
+      .then((res) => {
+        if (cancelled) return;
+        if (res.success && res.data?.accessionNumber) {
+          setAccessionPreview(res.data.accessionNumber);
+        } else {
+          setAccessionPreviewFailed(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAccessionPreviewFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [showForm, formData.deviceId, formData.examDate, formData.examType]);
+
+  useEffect(() => {
+    const text = accessionInput.trim();
+    if (!text) {
+      setAccessionParsed(null);
+      setAccessionParseFailed(false);
+      return;
+    }
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      appointmentApi
+        .parseAccession(text)
+        .then((res) => {
+          if (cancelled) return;
+          if (res.success && res.data) {
+            setAccessionParsed(res.data);
+            setAccessionParseFailed(false);
+          } else {
+            setAccessionParsed(null);
+            setAccessionParseFailed(true);
+          }
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setAccessionParsed(null);
+          setAccessionParseFailed(true);
+        });
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [accessionInput]);
 
   if (!showForm) return null;
 
@@ -621,6 +689,87 @@ export default function AppointmentForm(props: AppointmentFormProps) {
                     style={inputStyle(borderGray)}
                   />
                 </FormField>
+              </div>
+            </div>
+            <div
+              style={{
+                border: `1px dashed ${borderGray}`,
+                borderRadius: 8,
+                padding: "8px 10px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+                background: "var(--bg-deep)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: primaryBlue,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-1, 4px)",
+                }}
+              >
+                <ClipboardCheck size={12} />
+                {t("w5Appt.accessionPreview")}
+              </div>
+              <div style={{ fontSize: 12, color: primaryBlue }}>
+                {accessionPreview ? (
+                  <span data-testid="accession-preview">
+                    {t("w5Appt.accessionWillAssign", {
+                      accession: accessionPreview,
+                    })}
+                  </span>
+                ) : accessionPreviewFailed ? (
+                  <span style={{ color: "var(--color-warning-600)" }}>
+                    {t("w5Appt.accessionPreviewUnavailable")}
+                  </span>
+                ) : (
+                  <span style={{ color: textGray }}>
+                    {t("w5Appt.accessionPreviewWaiting")}
+                  </span>
+                )}
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 2fr",
+                  gap: "var(--space-2, 8px)",
+                  alignItems: "end",
+                }}
+              >
+                <div>
+                  <div
+                    style={{ fontSize: 12, color: textGray, marginBottom: 2 }}
+                  >
+                    {t("w5Appt.accessionCheck")}
+                  </div>
+                  <input
+                    value={accessionInput}
+                    onChange={(e) => setAccessionInput(e.target.value)}
+                    placeholder={t("w5Appt.accessionCheckPlaceholder")}
+                    style={inputStyle(borderGray)}
+                  />
+                </div>
+                <div style={{ fontSize: 11, color: textGray }}>
+                  {accessionParseFailed ? (
+                    <span style={{ color: "var(--color-error-600)" }}>
+                      {t("w5Appt.accessionParseFailed")}
+                    </span>
+                  ) : accessionParsed ? (
+                    <span data-testid="accession-parse-result">
+                      {accessionParsed.valid
+                        ? t("w5Appt.accessionParseValid", {
+                            modality: accessionParsed.modality ?? "-",
+                            year: accessionParsed.year ?? "-",
+                            seq: accessionParsed.seq ?? "-",
+                          })
+                        : t("w5Appt.accessionParseInvalid")}
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </div>
             <div

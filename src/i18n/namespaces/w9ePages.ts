@@ -265,6 +265,8 @@ export default {
       "预览为变量插值结果: 来自当前报告上下文的变量已自动填充, 未识别占位符保留原样",
     "w9e.sectionTemplateEngine.noSections": "该模板无可生成段落",
     "w9e.sectionTemplateEngine.varHint": "模板变量: {{vars}} (插入时自动填充)",
+    "w9e.sectionTemplateEngine.recentUsed": "最近使用 (按更新时间倒序, 前 5)",
+    "w9e.sectionTemplateEngine.matchedGroup": "按模态/部位匹配",
 
     // ---- components/report/v3/R3.WRITING/AiLesionAutoInjector ----
     "w9e.aiInjector.insertedOne": "已插入「{{label}}」到报告编辑器",
@@ -1290,6 +1292,9 @@ export default {
       "This template has no generatable sections",
     "w9e.sectionTemplateEngine.varHint":
       "Template variables: {{vars}} (auto-filled on insert)",
+    "w9e.sectionTemplateEngine.recentUsed":
+      "Recently used (by updated time, top 5)",
+    "w9e.sectionTemplateEngine.matchedGroup": "Matched by modality / body part",
 
     // ---- components/report/v3/R3.WRITING/AiLesionAutoInjector ----
     "w9e.aiInjector.insertedOne": 'Inserted "{{label}}" into the report editor',

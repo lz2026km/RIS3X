@@ -22,6 +22,7 @@ import {
   collectFrontendCalls,
   segmentsMatch,
   matchesRoute,
+  hasVerbRoute,
 } from './lib/route-parse.mjs';
 
 const ROOT = process.cwd();
@@ -128,13 +129,6 @@ for (const r of backendRoutes) {
 // [B7] 动词不匹配: 路径在后端存在, 但该动词不存在。
 // 注意必须段级比较 —— 后端键是字面量路径 (`GET ai-diagnosis/lung-cad/results`),
 // 而前端可能是通配 (`GET ai-diagnosis/*/results`), 直接字符串相等会全量误报。
-const backendByVerb = new Map();
-for (const key of verbRoutes.keys()) {
-  const [verb, ...rest] = key.split(' ');
-  const p = rest.join(' ');
-  if (!backendByVerb.has(verb)) backendByVerb.set(verb, []);
-  backendByVerb.get(verb).push(p.split('/'));
-}
 const verbMismatch = [];
 for (const [vp, files] of apiCalls.byVerbPath) {
   const [verb, ...rest] = vp.split(' ');
@@ -142,8 +136,7 @@ for (const [vp, files] of apiCalls.byVerbPath) {
   const segs = segsOf(path);
   // 路径本身必须存在于后端 (任意动词); 否则属 deadCalls 范畴
   if (!matchesRoute(segs, backendRoutes)) continue;
-  const list = backendByVerb.get(verb) ?? [];
-  if (list.some((bs) => segmentsMatch(segs, bs))) continue;
+  if (hasVerbRoute(verb, segs, verbRoutes)) continue;
   verbMismatch.push({ path: `${verb} ${path}`, files: [...files] });
 }
 

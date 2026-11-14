@@ -1,9 +1,20 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Card, Space, Tag, Button, Select, DatePicker, message } from "antd";
 import {
-  Card, Space, Tag, Button, Select, DatePicker, message,
-} from "antd";
-import { Archive, Filter, RotateCcw, Search, ChevronDown, ChevronRight, AlertCircle, CheckCircle, Clock, Send } from "lucide-react";
+  Archive,
+  Filter,
+  RotateCcw,
+  Search,
+  ChevronDown,
+  ChevronRight,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Send,
+  FileText,
+} from "lucide-react";
 import { hl7Api } from "../../services/api/integrationApi";
+import Hl7OruDetailDrawer from "../../components/integration/Hl7OruDetailDrawer";
 import { usePagination } from "../../hooks/usePagination";
 import { DataTable } from "../../components/common/DataTable";
 import { ErrorBanner } from "../../components/feedback";
@@ -28,12 +39,17 @@ export const Hl7ArchivePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [detailRecord, setDetailRecord] = useState<Hl7ArchiveRecord | null>(
+    null,
+  );
   const { pageData, pagination } = usePagination(data, 10);
 
   const [filterType, setFilterType] = useState<string | undefined>();
   const [filterDirection, setFilterDirection] = useState<string | undefined>();
   const [filterAck, setFilterAck] = useState<string | undefined>();
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
+  const [dateRange, setDateRange] = useState<
+    [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
+  >(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -45,8 +61,10 @@ export const Hl7ArchivePage: React.FC = () => {
         from: dateRange?.[0]?.toISOString(),
         to: dateRange?.[1]?.toISOString(),
       });
-      if (res.success) { setData(res.data); setLoadError(null); }
-      else setLoadError(t("w9.states.error"));
+      if (res.success) {
+        setData(res.data);
+        setLoadError(null);
+      } else setLoadError(t("w9.states.error"));
     } catch {
       setLoadError(t("w9.states.error"));
     } finally {
@@ -54,7 +72,9 @@ export const Hl7ArchivePage: React.FC = () => {
     }
   }, [filterType, filterDirection, filterAck, dateRange]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleRetry = async (record: Hl7ArchiveRecord) => {
     const res = await hl7Api.retryBatch([record.id]);
@@ -74,13 +94,22 @@ export const Hl7ArchivePage: React.FC = () => {
       render: (v: string) => <Tag color="purple">{v}</Tag>,
       width: 140,
     },
-    { title: t("hl7Archive.colControlId"), dataIndex: "controlId", key: "controlId", width: 180 },
+    {
+      title: t("hl7Archive.colControlId"),
+      dataIndex: "controlId",
+      key: "controlId",
+      width: 180,
+    },
     {
       title: t("hl7Archive.colDirection"),
       dataIndex: "direction",
       key: "direction",
       render: (v: string) => {
-        const colorMap: Record<string, string> = { INBOUND: "blue", OUTBOUND: "orange", ACK: "green" };
+        const colorMap: Record<string, string> = {
+          INBOUND: "blue",
+          OUTBOUND: "orange",
+          ACK: "green",
+        };
         return <Tag color={colorMap[v] || "default"}>{v}</Tag>;
       },
       width: 110,
@@ -95,7 +124,11 @@ export const Hl7ArchivePage: React.FC = () => {
           FAILED: <AlertCircle className="w-3 h-3" />,
           PENDING: <Clock className="w-3 h-3" />,
         };
-        const colorMap: Record<string, string> = { SUCCESS: "green", FAILED: "red", PENDING: "orange" };
+        const colorMap: Record<string, string> = {
+          SUCCESS: "green",
+          FAILED: "red",
+          PENDING: "orange",
+        };
         return (
           <Space size={4}>
             {iconMap[v]}
@@ -105,7 +138,12 @@ export const Hl7ArchivePage: React.FC = () => {
       },
       width: 130,
     },
-    { title: t("hl7Archive.colRetryCount"), dataIndex: "retryCount", key: "retryCount", width: 90 },
+    {
+      title: t("hl7Archive.colRetryCount"),
+      dataIndex: "retryCount",
+      key: "retryCount",
+      width: 90,
+    },
     {
       title: t("hl7Archive.colCreatedAt"),
       dataIndex: "createdAt",
@@ -116,13 +154,29 @@ export const Hl7ArchivePage: React.FC = () => {
     {
       title: t("hl7Archive.colActions"),
       key: "action",
-      width: 100,
-      render: (_: unknown, record: Hl7ArchiveRecord) =>
-        record.ackStatus === "FAILED" ? (
-          <Button size="small" type="primary" danger icon={<Send className="w-3 h-3" />} onClick={() => handleRetry(record)}>
-            {t("hl7Archive.manualResend")}
+      width: 180,
+      render: (_: unknown, record: Hl7ArchiveRecord) => (
+        <Space size={4}>
+          <Button
+            size="small"
+            icon={<FileText className="w-3 h-3" />}
+            onClick={() => setDetailRecord(record)}
+          >
+            {t("hl7Archive.detail")}
           </Button>
-        ) : null,
+          {record.ackStatus === "FAILED" && (
+            <Button
+              size="small"
+              type="primary"
+              danger
+              icon={<Send className="w-3 h-3" />}
+              onClick={() => handleRetry(record)}
+            >
+              {t("hl7Archive.manualResend")}
+            </Button>
+          )}
+        </Space>
+      ),
     },
   ];
 
@@ -133,20 +187,39 @@ export const Hl7ArchivePage: React.FC = () => {
           <Space>
             <Archive className="w-5 h-5 text-purple-600" />
             <div>
-              <div className="text-base font-semibold">{t("hl7Archive.title")}</div>
-              <div className="text-xs text-slate-500">{t("hl7Archive.subtitle")}</div>
+              <div className="text-base font-semibold">
+                {t("hl7Archive.title")}
+              </div>
+              <div className="text-xs text-slate-500">
+                {t("hl7Archive.subtitle")}
+              </div>
             </div>
           </Space>
           <Space>
             <Tag color="purple">{t("hl7Archive.archiveTag")}</Tag>
-            <Button size="small" icon={<RotateCcw className="w-3 h-3" />} onClick={fetchData}>{t("hl7Archive.refresh")}</Button>
+            <Button
+              size="small"
+              icon={<RotateCcw className="w-3 h-3" />}
+              onClick={fetchData}
+            >
+              {t("hl7Archive.refresh")}
+            </Button>
           </Space>
         </div>
       </Card>
 
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
-      <Card size="small" className="shadow-sm" title={<Space><Filter className="w-4 h-4" /><span>{t("hl7Archive.filter")}</span></Space>}>
+      <Card
+        size="small"
+        className="shadow-sm"
+        title={
+          <Space>
+            <Filter className="w-4 h-4" />
+            <span>{t("hl7Archive.filter")}</span>
+          </Space>
+        }
+      >
         <Space wrap>
           <Select
             allowClear
@@ -186,8 +259,17 @@ export const Hl7ArchivePage: React.FC = () => {
               { value: "PENDING", label: t("hl7Archive.pending") },
             ]}
           />
-          <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />
-          <Button icon={<Search className="w-3 h-3" />} type="primary" onClick={fetchData}>{t("hl7Archive.query")}</Button>
+          <RangePicker
+            value={dateRange as any}
+            onChange={(v) => setDateRange(v as any)}
+          />
+          <Button
+            icon={<Search className="w-3 h-3" />}
+            type="primary"
+            onClick={fetchData}
+          >
+            {t("hl7Archive.query")}
+          </Button>
         </Space>
       </Card>
 
@@ -201,7 +283,8 @@ export const Hl7ArchivePage: React.FC = () => {
         pagination={pagination}
         expandable={{
           expandedRowKeys: expandedId !== null ? [expandedId] : [],
-          onExpand: (expanded, record) => setExpandedId(expanded ? record.id : null),
+          onExpand: (expanded, record) =>
+            setExpandedId(expanded ? record.id : null),
           expandedRowRender: (record) => (
             <pre className="bg-slate-900 text-slate-100 p-3 rounded text-xs font-mono overflow-auto max-h-64 whitespace-pre-wrap">
               {record.rawMessage}
@@ -210,11 +293,22 @@ export const Hl7ArchivePage: React.FC = () => {
           rowExpandable: () => true,
           expandIcon: ({ expanded, onExpand, record }) =>
             expanded ? (
-              <ChevronDown className="w-4 h-4 cursor-pointer" onClick={(e) => onExpand(record, e as any)} />
+              <ChevronDown
+                className="w-4 h-4 cursor-pointer"
+                onClick={(e) => onExpand(record, e as any)}
+              />
             ) : (
-              <ChevronRight className="w-4 h-4 cursor-pointer" onClick={(e) => onExpand(record, e as any)} />
+              <ChevronRight
+                className="w-4 h-4 cursor-pointer"
+                onClick={(e) => onExpand(record, e as any)}
+              />
             ),
         }}
+      />
+
+      <Hl7OruDetailDrawer
+        record={detailRecord}
+        onClose={() => setDetailRecord(null)}
       />
     </div>
   );

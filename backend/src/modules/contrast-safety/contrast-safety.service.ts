@@ -34,8 +34,11 @@ import {
   type ExtravasationSeverity,
   type ExtravasationStats,
   type HandleExtravasationInput,
+  type ObservationDataSource,
   type ObservationDto,
   type ObservationRecord,
+  type ObservationRecordEntry,
+  type ObservationStatus,
   type PreInjectionCheckInput,
   type PreInjectionCheckItem,
   type PreInjectionCheckResult,
@@ -53,6 +56,23 @@ interface ObservationRecordInput {
   at?: string;
   recordedBy?: string;
   reactionId?: string;
+}
+
+interface ObservationRow {
+  id: string;
+  tenantId: string;
+  injectionId: string | null;
+  patientId: string;
+  patientName: string;
+  startedAt: Date;
+  observationMins: number;
+  status: string;
+  symptoms: string;
+  actions: string;
+  recordedBy: string | null;
+  dischargedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 function round1(n: number): number {
@@ -300,9 +320,10 @@ export class ContrastSafetyService {
   // 注射后留观
   // ────────────────────────────────────────────────────────────────────────────
 
-  /** POST /contrast/observation/start — 开始留观计时 (默认 30 分钟) */
+  /** POST /contrast/observation/start — 开始留观计时 (默认 30 分钟), DB 优先, 失败回退内存 */
   async startObservation(input: {
     patientId: string;
+    patientName?: string;
     examId?: string;
     contrastType?: string;
     injectionId?: string;
@@ -317,10 +338,47 @@ export class ContrastSafetyService {
         : DEFAULT_OBSERVATION_MINUTES;
     const startedAt = input.startedAt ? new Date(input.startedAt) : now;
     const endsAt = new Date(startedAt.getTime() + durationMinutes * 60_000);
+    const tenantId = currentTenantId();
+
+    if (this.prisma?.contrastObservation?.create) {
+      try {
+        const patientName = await this.resolvePatientName(
+          input.patientId,
+          tenantId,
+          input.patientName,
+        );
+        const row = (await this.prisma.contrastObservation.create({
+          data: {
+            tenantId,
+            patientId: input.patientId,
+            patientName,
+            injectionId: input.injectionId ?? null,
+            startedAt,
+            observationMins: durationMinutes,
+            status: "observing",
+            symptoms: "",
+            actions: "",
+            recordedBy: input.operator ?? null,
+          },
+        })) as unknown as ObservationRow;
+        const record = this.rowToObservation(row);
+        await this.recordAudit("contrast-observation", record.id, {
+          action: "start",
+          ...record,
+        });
+        return this.toObservationDto(record, "db");
+      } catch (err) {
+        this.logger.debug(
+          `[ContrastSafety] observation persistence skipped: ${(err as Error).message}`,
+        );
+      }
+    }
+
     this.observationSeq += 1;
     const record: ObservationRecord = {
       id: `obs-${this.observationSeq}`,
       patientId: input.patientId,
+      patientName: input.patientName,
       examId: input.examId,
       contrastType: input.contrastType,
       injectionId: input.injectionId,
@@ -339,31 +397,104 @@ export class ContrastSafetyService {
       action: "start",
       ...record,
     });
-    return this.toObservationDto(record);
+    return this.toObservationDto(record, "seed");
   }
 
-  /** GET /contrast/observation — 留观列表 (可按患者过滤) */
-  listObservations(patientId?: string): {
+  /** GET /contrast/observation — 留观列表 (DB 优先, 可按患者过滤; 失败回退内存 + seed) */
+  async listObservations(patientId?: string): Promise<{
     items: ObservationDto[];
     total: number;
-  } {
-    const items = [...this.observations.values()]
+    source: ObservationDataSource;
+  }> {
+    const tenantId = currentTenantId();
+    if (this.prisma?.contrastObservation?.findMany) {
+      try {
+        const rows = await this.prisma.contrastObservation.findMany({
+          where: {
+            tenantId,
+            ...(patientId ? { patientId } : {}),
+          },
+          orderBy: { startedAt: "desc" },
+        });
+        const items = (rows as unknown as ObservationRow[]).map((row) =>
+          this.toObservationDto(this.rowToObservation(row), "db"),
+        );
+        return { items, total: items.length, source: "db" };
+      } catch (err) {
+        this.logger.debug(
+          `[ContrastSafety] observation list fallback: ${(err as Error).message}`,
+        );
+      }
+    }
+
+    const stored = [...this.observations.values()];
+    const base = stored.length > 0 ? stored : this.seedObservations();
+    const items = base
       .filter((o) => !patientId || o.patientId === patientId)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-      .map((o) => this.toObservationDto(o));
-    return { items, total: items.length };
+      .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
+      .map((o) => this.toObservationDto(o, "seed"));
+    return { items, total: items.length, source: "seed" };
   }
 
   /** GET /contrast/observation/:id — 留观状态 (剩余时间 + 观察记录) */
-  getObservation(id: string): ObservationDto {
-    return this.toObservationDto(this.findObservation(id));
+  async getObservation(id: string): Promise<ObservationDto> {
+    const row = await this.findObservationRow(id);
+    if (row) {
+      return this.toObservationDto(this.rowToObservation(row), "db");
+    }
+    return this.toObservationDto(this.findObservation(id), "seed");
   }
 
-  /** POST /contrast/observation/:id/record — 追加观察记录 */
+  /** POST /contrast/observation/:id/record — 追加观察记录 (DB 优先, 失败回退内存) */
   async addObservationRecord(
     id: string,
     input: ObservationRecordInput,
   ): Promise<ObservationDto> {
+    const row = await this.findObservationRow(id);
+    if (row) {
+      try {
+        if (this.observationStatusOf(row) === "discharged") {
+          throw new BadRequestException({
+            ok: false,
+            code: "OBSERVATION_DISCHARGED",
+            message: "留观已结束, 不可追加记录",
+          });
+        }
+        const at = input.at ?? new Date().toISOString();
+        const updated = (await this.prisma!.contrastObservation.update({
+          where: { id: row.id },
+          data: {
+            symptoms: this.appendObservationLine(
+              row.symptoms,
+              at,
+              input.symptoms,
+            ),
+            actions: this.appendObservationLine(
+              row.actions,
+              at,
+              input.action ?? "",
+            ),
+            recordedBy: input.recordedBy ?? row.recordedBy ?? "system",
+            status: input.reactionId
+              ? "reaction"
+              : this.observationStatusOf(row),
+          },
+        })) as unknown as ObservationRow;
+        const record = this.rowToObservation(updated);
+        await this.recordAudit("contrast-observation", record.id, {
+          action: "record",
+          entry: record.records[record.records.length - 1],
+        });
+        return this.toObservationDto(record, "db");
+      } catch (err) {
+        if (err instanceof BadRequestException) throw err;
+        this.logger.debug(
+          `[ContrastSafety] observation record fallback: ${(err as Error).message}`,
+        );
+        this.observations.set(row.id, this.rowToObservation(row));
+      }
+    }
+
     const record = this.findObservation(id);
     if (record.status === "discharged") {
       throw new BadRequestException({
@@ -379,12 +510,15 @@ export class ContrastSafetyService {
       recordedBy: input.recordedBy ?? record.operator ?? "system",
       reactionId: input.reactionId,
     });
+    if (input.reactionId) {
+      record.status = "reaction";
+    }
     record.updatedAt = new Date().toISOString();
     await this.recordAudit("contrast-observation", record.id, {
       action: "record",
       entry: record.records[record.records.length - 1],
     });
-    return this.toObservationDto(record);
+    return this.toObservationDto(record, "seed");
   }
 
   /** POST /contrast/observation/:id/discharge — 离院确认 (需满时长或医生放行) */
@@ -392,8 +526,61 @@ export class ContrastSafetyService {
     id: string,
     input: ObservationDischargeInput,
   ): Promise<ObservationDto> {
+    const row = await this.findObservationRow(id);
+    if (row) {
+      try {
+        if (this.observationStatusOf(row) === "discharged") {
+          return this.toObservationDto(this.rowToObservation(row), "db");
+        }
+        const now = Date.now();
+        const startedAt = this.asDate(row.startedAt);
+        const durationMinutes =
+          Number(row.observationMins) > 0
+            ? Number(row.observationMins)
+            : DEFAULT_OBSERVATION_MINUTES;
+        const elapsedSeconds = Math.max(
+          0,
+          Math.floor((now - startedAt.getTime()) / 1000),
+        );
+        const requiredSeconds = durationMinutes * 60;
+        if (elapsedSeconds < requiredSeconds && input.doctorRelease !== true) {
+          throw new BadRequestException({
+            ok: false,
+            code: "OBSERVATION_DURATION_NOT_MET",
+            message: "留观时长未满, 需医生放行方可离院",
+            requiredSeconds,
+            elapsedSeconds,
+            remainingSeconds: requiredSeconds - elapsedSeconds,
+          });
+        }
+        const updated = (await this.prisma!.contrastObservation.update({
+          where: { id: row.id },
+          data: {
+            status: "discharged",
+            dischargedAt: new Date(now),
+            recordedBy: input.dischargedBy ?? row.recordedBy ?? "system",
+          },
+        })) as unknown as ObservationRow;
+        const record = this.rowToObservation(updated);
+        record.doctorRelease = input.doctorRelease === true;
+        record.dischargeNotes = input.notes;
+        await this.recordAudit("contrast-observation", record.id, {
+          action: "discharge",
+          ...record,
+        });
+        return this.toObservationDto(record, "db");
+      } catch (err) {
+        if (err instanceof BadRequestException) throw err;
+        this.logger.debug(
+          `[ContrastSafety] observation discharge fallback: ${(err as Error).message}`,
+        );
+        this.observations.set(row.id, this.rowToObservation(row));
+      }
+    }
+
     const record = this.findObservation(id);
-    if (record.status === "discharged") return this.toObservationDto(record);
+    if (record.status === "discharged")
+      return this.toObservationDto(record, "seed");
 
     const now = Date.now();
     const elapsedSeconds = Math.max(
@@ -422,7 +609,7 @@ export class ContrastSafetyService {
       action: "discharge",
       ...record,
     });
-    return this.toObservationDto(record);
+    return this.toObservationDto(record, "seed");
   }
 
   // ────────────────────────────────────────────────────────────────────────────
@@ -570,7 +757,7 @@ export class ContrastSafetyService {
    * 现在由真实记录计算, 指标口径全部来自本服务已落库的
    * allergy-test / injection / observation / extravasation 数据。
    */
-  qualityCompliance(periodStart: string, periodEnd: string) {
+  async qualityCompliance(periodStart: string, periodEnd: string) {
     const totalInjections = this.injectionTotal();
     const extravasations = this.listExtravasations({}).items;
     const extravRate =
@@ -579,9 +766,31 @@ export class ContrastSafetyService {
     const allPass = extravasations.every(
       (e) => (e.management ?? "").trim().length > 0,
     );
-    const obs = this.listObservations().items;
-    const obsDischarged = obs.filter((o) => Boolean(o.dischargedAt)).length;
+    const obs = (await this.listObservations()).items;
+    return this.buildQualityCompliance(
+      periodStart,
+      periodEnd,
+      totalInjections,
+      extravasations.length,
+      extravRate,
+      severe,
+      allPass,
+      obs.length,
+      obs.filter((o) => Boolean(o.dischargedAt)).length,
+    );
+  }
 
+  private buildQualityCompliance(
+    periodStart: string,
+    periodEnd: string,
+    totalInjections: number,
+    extravasationCount: number,
+    extravRate: number,
+    severe: number,
+    allPass: boolean,
+    obsCount: number,
+    obsDischarged = 0,
+  ) {
     const pct = (v: number, target: number) =>
       target > 0 ? Number(((v / target) * 100).toFixed(1)) : 0;
     const round = (v: number, d = 2) => Number(v.toFixed(d));
@@ -605,7 +814,7 @@ export class ContrastSafetyService {
         targetValue: 0.3,
         unit: "%",
         trend: extravRate > 0.3 ? ("up" as const) : ("down" as const),
-        details: `外渗 ${extravasations.length} 例 / 增强 ${totalInjections} 例`,
+        details: `外渗 ${extravasationCount} 例 / 增强 ${totalInjections} 例`,
       },
       {
         id: "severe-extravasation",
@@ -621,25 +830,21 @@ export class ContrastSafetyService {
         id: "extravasation-management",
         name: "外渗处置记录完整率",
         category: "adherence" as const,
-        currentValue: pct(
-          allPass ? extravasations.length : 0,
-          extravasations.length,
-        ),
+        currentValue: pct(allPass ? extravasationCount : 0, extravasationCount),
         targetValue: 100,
         unit: "%",
         trend: allPass ? ("down" as const) : ("up" as const),
-        details: `已记录处置措施 ${allPass ? extravasations.length : 0} / ${extravasations.length}`,
+        details: `已记录处置措施 ${allPass ? extravasationCount : 0} / ${extravasationCount}`,
       },
       {
         id: "observation-discharge",
         name: "观察结束记录完成率",
         category: "adherence" as const,
-        currentValue: pct(obsDischarged, obs.length),
+        currentValue: pct(obsDischarged, obsCount),
         targetValue: 100,
         unit: "%",
-        trend:
-          obsDischarged >= obs.length ? ("down" as const) : ("up" as const),
-        details: `已完成观察结束记录 ${obsDischarged} / ${obs.length}`,
+        trend: obsDischarged >= obsCount ? ("down" as const) : ("up" as const),
+        details: `已完成观察结束记录 ${obsDischarged} / ${obsCount}`,
       },
     ];
 
@@ -657,9 +862,9 @@ export class ContrastSafetyService {
         checkId: "REG-OBSERVE-CLOSED",
         name: "观察闭环管理",
         regulation: "对比剂不良反应观察规范",
-        status: (obsDischarged >= obs.length ? "pass" : "pending") as
+        status: (obsDischarged >= obsCount ? "pass" : "pending") as
           "pass" | "pending",
-        details: `观察记录 ${obs.length} 条, 已结束 ${obsDischarged} 条`,
+        details: `观察记录 ${obsCount} 条, 已结束 ${obsDischarged} 条`,
       },
       {
         checkId: "REG-SEVERE-ZERO",
@@ -780,7 +985,140 @@ export class ContrastSafetyService {
     });
   }
 
-  private toObservationDto(o: ObservationRecord): ObservationDto {
+  private async findObservationRow(id: string): Promise<ObservationRow | null> {
+    if (!this.prisma?.contrastObservation?.findFirst) return null;
+    try {
+      const row = await this.prisma.contrastObservation.findFirst({
+        where: { id, tenantId: currentTenantId() },
+      });
+      return (row as unknown as ObservationRow) ?? null;
+    } catch (err) {
+      this.logger.debug(
+        `[ContrastSafety] observation lookup fallback: ${(err as Error).message}`,
+      );
+      return null;
+    }
+  }
+
+  private async resolvePatientName(
+    patientId: string,
+    tenantId: string,
+    explicit?: string,
+  ): Promise<string> {
+    if (explicit?.trim()) return explicit.trim();
+    try {
+      const patient = await this.prisma?.patient?.findFirst?.({
+        where: { id: patientId, tenantId },
+        select: { name: true },
+      });
+      return patient?.name ?? "";
+    } catch (err) {
+      this.logger.debug(
+        `[ContrastSafety] patient name lookup skipped: ${(err as Error).message}`,
+      );
+      return "";
+    }
+  }
+
+  private asDate(value: Date | string): Date {
+    return value instanceof Date ? value : new Date(value);
+  }
+
+  private observationStatusOf(row: ObservationRow): ObservationStatus {
+    return row.status === "discharged"
+      ? "discharged"
+      : row.status === "reaction"
+        ? "reaction"
+        : "observing";
+  }
+
+  private formatObservationLine(at: string, text: string): string {
+    return `[${at}] ${text ?? ""}`.trimEnd();
+  }
+
+  private appendObservationLine(
+    existing: string,
+    at: string,
+    text: string,
+  ): string {
+    const line = this.formatObservationLine(at, text);
+    return existing && existing.trim().length > 0
+      ? `${existing}\n${line}`
+      : line;
+  }
+
+  private parseObservationLines(
+    value: string,
+    fallbackAt: Date,
+  ): Array<{ at: string; text: string }> {
+    return (value ?? "")
+      .split(/\r?\n/)
+      .filter((line) => line.trim().length > 0)
+      .map((line) => {
+        const matched = /^\[([^\]]+)\]\s?(.*)$/.exec(line);
+        if (!matched) {
+          return { at: fallbackAt.toISOString(), text: line };
+        }
+        const parsedAt = new Date(matched[1]!);
+        return {
+          at: Number.isNaN(parsedAt.getTime())
+            ? fallbackAt.toISOString()
+            : parsedAt.toISOString(),
+          text: matched[2] ?? "",
+        };
+      });
+  }
+
+  private rowToObservation(row: ObservationRow): ObservationRecord {
+    const startedAt = this.asDate(row.startedAt);
+    const createdAt = this.asDate(row.createdAt);
+    const updatedAt = this.asDate(row.updatedAt);
+    const dischargedAt = row.dischargedAt
+      ? this.asDate(row.dischargedAt)
+      : null;
+    const durationMinutes =
+      Number(row.observationMins) > 0
+        ? Number(row.observationMins)
+        : DEFAULT_OBSERVATION_MINUTES;
+    const endsAt = new Date(startedAt.getTime() + durationMinutes * 60_000);
+    const recordedBy = row.recordedBy ?? "system";
+    const symptomLines = this.parseObservationLines(row.symptoms, startedAt);
+    const actionLines = this.parseObservationLines(row.actions, startedAt);
+    const entryCount = Math.max(symptomLines.length, actionLines.length);
+    const records: ObservationRecordEntry[] = [];
+    for (let i = 0; i < entryCount; i += 1) {
+      const symptom = symptomLines[i];
+      const action = actionLines[i];
+      records.push({
+        at: symptom?.at ?? action?.at ?? startedAt.toISOString(),
+        symptoms: symptom?.text ?? "",
+        action: action?.text ?? "",
+        recordedBy,
+      });
+    }
+    return {
+      id: row.id,
+      patientId: row.patientId,
+      patientName: row.patientName || undefined,
+      injectionId: row.injectionId ?? undefined,
+      startedAt: startedAt.toISOString(),
+      durationMinutes,
+      endsAt: endsAt.toISOString(),
+      status: this.observationStatusOf(row),
+      operator: row.recordedBy ?? undefined,
+      records,
+      doctorRelease: false,
+      dischargedAt: dischargedAt?.toISOString(),
+      dischargedBy: dischargedAt ? recordedBy : undefined,
+      createdAt: createdAt.toISOString(),
+      updatedAt: updatedAt.toISOString(),
+    };
+  }
+
+  private toObservationDto(
+    o: ObservationRecord,
+    source: ObservationDataSource = "seed",
+  ): ObservationDto {
     const now = Date.now();
     const started = new Date(o.startedAt).getTime();
     const ends = new Date(o.endsAt).getTime();
@@ -798,6 +1136,7 @@ export class ContrastSafetyService {
       o.status === "discharged" || elapsedSeconds >= o.durationMinutes * 60;
     return {
       ...o,
+      source,
       records: o.records.map((r) => ({ ...r })),
       elapsedSeconds,
       elapsedMinutes,

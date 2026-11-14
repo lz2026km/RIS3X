@@ -53,22 +53,28 @@ export interface ObservationRecordEntry {
   reactionId?: string;
 }
 
+export type ObservationStatus = "observing" | "discharged" | "reaction";
+
+export type ObservationDataSource = "db" | "seed";
+
 export interface ObservationRecord {
   id: string;
   patientId: string;
+  patientName?: string;
   examId?: string;
   contrastType?: string;
   injectionId?: string;
   startedAt: string;
   durationMinutes: number;
   endsAt: string;
-  status: "observing" | "discharged";
+  status: ObservationStatus;
   operator?: string;
   records: ObservationRecordEntry[];
   doctorRelease: boolean;
   dischargedAt?: string;
   dischargedBy?: string;
   dischargeNotes?: string;
+  source?: ObservationDataSource;
   createdAt: string;
   updatedAt: string;
 }
@@ -79,6 +85,7 @@ export interface ObservationDto extends ObservationRecord {
   remainingSeconds: number;
   progressPercent: number;
   canDischarge: boolean;
+  source: ObservationDataSource;
 }
 
 export interface AllergyTestListResult {

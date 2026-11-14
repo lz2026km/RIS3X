@@ -36,6 +36,7 @@ import { uniqueId } from "../../utils/uniqueId";
 // [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-ICME-05 对比剂外渗发生率
 import { RqiIndicatorLink } from "../../components/qc/RqiIndicatorLink";
 import ExtravasationHandleModal from "../../components/contrast/ExtravasationHandleModal";
+import ObservationBoard from "../../components/contrast/ObservationBoard";
 import { AppSelectField } from "../../components/common/AppSelectField";
 // [v3.0.6.11-104 Wave 3D] 临床资料接入: eGFR 30-59 警告 + 注射前安全核查 + 介入操作核查 (独立子组件, 避开 Wave 3B 区块)
 import ContrastDataSections from "./ContrastDataSections";
@@ -559,6 +560,7 @@ export default function ContrastInjectionWorkstationPage() {
     setStartingObs(true);
     const payload = {
       patientId,
+      patientName: patientName || undefined,
       examId: examId ?? uniqueId("E"),
       contrastType: selectedProto?.contrastName,
       operator: "current-user",
@@ -1871,6 +1873,8 @@ export default function ContrastInjectionWorkstationPage() {
               </div>
             )}
           </div>
+
+          <ObservationBoard />
 
           <div style={panelStyle}>
             <div

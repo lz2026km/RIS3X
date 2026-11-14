@@ -4,22 +4,43 @@
  * 从模板 structure 解析段落树 (text/variable/field/structured 块) + 变量插值, 一键填充编辑器。
  * 书写页工具栏「模板段落树」按钮打开, 预览后插入 (ReportWritePage 集成)。
  */
-import { useMemo, useState, useEffect } from 'react';
-import { Modal, Button, Tag, Spin, Empty, Tooltip, Alert } from 'antd';
-import { TreePine, FileText, Sparkles, CheckCircle2 } from 'lucide-react';
-import { templatesApi, type TemplateDto, type TemplateStructure } from '@services/api/templatesApi';
-import { resolveTemplateVariables, describeTemplateVariables, collectTemplateVariables } from '@utils/templateVariables';
-import { t } from '../../../../i18n/appI18n';
+import { useMemo, useState, useEffect } from "react";
+import { Modal, Button, Tag, Spin, Empty, Tooltip, Alert } from "antd";
+import {
+  TreePine,
+  FileText,
+  Sparkles,
+  CheckCircle2,
+  History,
+} from "lucide-react";
+import {
+  templatesApi,
+  type TemplateDto,
+  type TemplateStructure,
+} from "@services/api/templatesApi";
+import {
+  resolveTemplateVariables,
+  describeTemplateVariables,
+  collectTemplateVariables,
+} from "@utils/templateVariables";
+import { t } from "../../../../i18n/appI18n";
 
 /** 段落标题 (节段标记), 命中则作为段落树分支标题 */
 const SECTION_TITLE_SET = new Set([
-  '影像所见', '检查所见', '诊断意见', '诊断结论', '结论', '建议', '对比', '检查技术',
+  "影像所见",
+  "检查所见",
+  "诊断意见",
+  "诊断结论",
+  "结论",
+  "建议",
+  "对比",
+  "检查技术",
 ]);
 
 export interface SectionTreeNode {
   id: string;
   title: string;
-  type: 'text' | 'field' | 'variable' | 'structured';
+  type: "text" | "field" | "variable" | "structured";
   raw: string;
   rendered: string;
   hasUnresolved: boolean;
@@ -27,33 +48,46 @@ export interface SectionTreeNode {
 
 /** 规范化节段标题: 去冒号/括号 */
 function normalizeTitle(text: string): string {
-  return String(text ?? '').replace(/[：:]\s*$/, '').replace(/^【(.+)】$/, '$1').trim();
+  return String(text ?? "")
+    .replace(/[：:]\s*$/, "")
+    .replace(/^【(.+)】$/, "$1")
+    .trim();
 }
 
 /** 模板 structure/body -> 段落树 */
-export function buildSectionTree(structure: TemplateStructure | null | undefined, body: string): SectionTreeNode[] {
-  const blocks: TemplateStructure = Array.isArray(structure) && structure.length > 0 ? structure : [];
+export function buildSectionTree(
+  structure: TemplateStructure | null | undefined,
+  body: string,
+): SectionTreeNode[] {
+  const blocks: TemplateStructure =
+    Array.isArray(structure) && structure.length > 0 ? structure : [];
   if (blocks.length === 0) {
-    const parts = String(body ?? '').split(/\n{2,}/).filter((p) => p.trim().length > 0);
+    const parts = String(body ?? "")
+      .split(/\n{2,}/)
+      .filter((p) => p.trim().length > 0);
     return parts.map((p, i) => ({
       id: `sec-${i}`,
-      title: p.trim().slice(0, 12) || t('w9e.sectionTemplateEngine.paraN', { n: i + 1 }),
-      type: 'text' as const,
+      title:
+        p.trim().slice(0, 12) ||
+        t("w9e.sectionTemplateEngine.paraN", { n: i + 1 }),
+      type: "text" as const,
       raw: p,
       rendered: p,
       hasUnresolved: false,
     }));
   }
   const nodes: SectionTreeNode[] = [];
-  let sectionTitle = '';
+  let sectionTitle = "";
   blocks.forEach((b, i) => {
-    const content = b?.content ?? '';
-    if (!content || content.trim() === '') return;
+    const content = b?.content ?? "";
+    if (!content || content.trim() === "") return;
     const trimmed = content.trim();
     const clean = normalizeTitle(trimmed);
-    const isTitleLike = SECTION_TITLE_SET.has(clean) || trimmed.startsWith('【');
-    if (isTitleLike || b.type === 'structured') {
-      sectionTitle = clean || t('w9e.sectionTemplateEngine.structuredParagraph');
+    const isTitleLike =
+      SECTION_TITLE_SET.has(clean) || trimmed.startsWith("【");
+    if (isTitleLike || b.type === "structured") {
+      sectionTitle =
+        clean || t("w9e.sectionTemplateEngine.structuredParagraph");
       nodes.push({
         id: `sec-${i}`,
         title: sectionTitle,
@@ -64,7 +98,8 @@ export function buildSectionTree(structure: TemplateStructure | null | undefined
       });
       return;
     }
-    const hasUnresolved = describeTemplateVariables(content, null).unresolved.length > 0;
+    const hasUnresolved =
+      describeTemplateVariables(content, null).unresolved.length > 0;
     nodes.push({
       id: `blk-${i}`,
       title: sectionTitle || content.trim().slice(0, 12),
@@ -89,9 +124,12 @@ export interface SectionTemplateEngineProps {
 }
 
 const matchLevel = (t: TemplateDto, mod: string, bp: string): number => {
-  const tMod = String(t?.modality ?? '').trim().toUpperCase();
-  const tBp = String(t?.bodyPart ?? '').trim();
-  const m = mod && tMod && (tMod === mod || tMod.includes(mod) || mod.includes(tMod));
+  const tMod = String(t?.modality ?? "")
+    .trim()
+    .toUpperCase();
+  const tBp = String(t?.bodyPart ?? "").trim();
+  const m =
+    mod && tMod && (tMod === mod || tMod.includes(mod) || mod.includes(tMod));
   const b = bp && tBp && (tBp === bp || tBp.includes(bp) || bp.includes(tBp));
   if (m && b) return 0;
   if (m) return 1;
@@ -99,56 +137,168 @@ const matchLevel = (t: TemplateDto, mod: string, bp: string): number => {
   return -1;
 };
 
-const LEVEL_TAG: Record<number, string> = { 0: 'volcano', 1: 'cyan', 2: 'blue' };
-const LEVEL_TEXT: Record<number, string> = { 0: t('w9e.sectionTemplateEngine.levelExact'), 1: t('w9e.sectionTemplateEngine.levelModality'), 2: t('w9e.sectionTemplateEngine.levelBodyPart') };
+const LEVEL_TAG: Record<number, string> = {
+  0: "volcano",
+  1: "cyan",
+  2: "blue",
+};
+const LEVEL_TEXT: Record<number, string> = {
+  0: t("w9e.sectionTemplateEngine.levelExact"),
+  1: t("w9e.sectionTemplateEngine.levelModality"),
+  2: t("w9e.sectionTemplateEngine.levelBodyPart"),
+};
 
-export default function SectionTemplateEngine({ open, modality, bodyPart, context, onClose, onApply }: SectionTemplateEngineProps) {
+export default function SectionTemplateEngine({
+  open,
+  modality,
+  bodyPart,
+  context,
+  onClose,
+  onApply,
+}: SectionTemplateEngineProps) {
   const [templates, setTemplates] = useState<TemplateDto[]>([]);
+  const [allTemplates, setAllTemplates] = useState<TemplateDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const mod = useMemo(() => String(modality ?? '').trim().toUpperCase(), [modality]);
-  const bp = useMemo(() => String(bodyPart ?? '').trim(), [bodyPart]);
+  const mod = useMemo(
+    () =>
+      String(modality ?? "")
+        .trim()
+        .toUpperCase(),
+    [modality],
+  );
+  const bp = useMemo(() => String(bodyPart ?? "").trim(), [bodyPart]);
 
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
     setLoading(true);
-    setError('');
-    templatesApi.list({ status: 'approved' }).then((res: any) => {
-      if (cancelled) return;
-      if (res.success && Array.isArray(res.data)) {
-        const all = res.data as TemplateDto[];
-        const sections = all.filter((t) => (t.templateType ?? 'SECTION') === 'SECTION' || Array.isArray(t.structure) || String(t.body ?? '').length > 0);
-        const scored = sections
-          .map((t) => ({ t, lv: matchLevel(t, mod, bp) }))
-          .filter((x) => x.lv >= 0)
-          .sort((a, b) => a.lv - b.lv || String(a.t?.name ?? '').localeCompare(String(b.t?.name ?? ''), 'zh-CN'));
-        setTemplates(scored.map((x) => x.t));
-        if (scored.length > 0) setSelectedId(scored[0]!.t.id);
-        if (scored.length === 0) setError(t('w9e.sectionTemplateEngine.noTemplateForModality'));
-      } else {
-        setError(t('w9e.sectionTemplateEngine.loadFailed'));
-      }
-    }).catch(() => { if (!cancelled) setError(t('w9e.sectionTemplateEngine.loadFailed')); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+    setError("");
+    templatesApi
+      .list({ status: "approved" })
+      .then((res: any) => {
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.data)) {
+          const all = res.data as TemplateDto[];
+          const sections = all.filter(
+            (t) =>
+              (t.templateType ?? "SECTION") === "SECTION" ||
+              Array.isArray(t.structure) ||
+              String(t.body ?? "").length > 0,
+          );
+          const scored = sections
+            .map((t) => ({ t, lv: matchLevel(t, mod, bp) }))
+            .filter((x) => x.lv >= 0)
+            .sort(
+              (a, b) =>
+                a.lv - b.lv ||
+                String(a.t?.name ?? "").localeCompare(
+                  String(b.t?.name ?? ""),
+                  "zh-CN",
+                ),
+            );
+          setTemplates(scored.map((x) => x.t));
+          setAllTemplates(sections);
+          if (scored.length > 0) setSelectedId(scored[0]!.t.id);
+          if (scored.length === 0) {
+            const recentFirst = [...sections]
+              .filter((x) => x.updatedAt)
+              .sort(
+                (a, b) =>
+                  new Date(b.updatedAt as string).getTime() -
+                  new Date(a.updatedAt as string).getTime(),
+              )[0];
+            if (recentFirst) setSelectedId(recentFirst.id);
+            else setError(t("w9e.sectionTemplateEngine.noTemplateForModality"));
+          }
+        } else {
+          setError(t("w9e.sectionTemplateEngine.loadFailed"));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setError(t("w9e.sectionTemplateEngine.loadFailed"));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [open, mod, bp]);
 
-  const selected = useMemo(() => templates.find((t) => t.id === selectedId) ?? null, [templates, selectedId]);
+  const selected = useMemo(
+    () =>
+      [...templates, ...allTemplates].find((t) => t.id === selectedId) ?? null,
+    [templates, allTemplates, selectedId],
+  );
+
+  const recentTemplates = useMemo(
+    () =>
+      [...allTemplates]
+        .filter((x) => x.updatedAt)
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt as string).getTime() -
+            new Date(a.updatedAt as string).getTime(),
+        )
+        .slice(0, 5),
+    [allTemplates],
+  );
+
+  const regularTemplates = useMemo(() => {
+    const recentIds = new Set(recentTemplates.map((x) => x.id));
+    return templates.filter((x) => !recentIds.has(x.id));
+  }, [templates, recentTemplates]);
+
+  const renderTemplateChip = (tpl: TemplateDto) => {
+    const lv = matchLevel(tpl, mod, bp);
+    return (
+      <button
+        key={tpl.id}
+        type="button"
+        onClick={() => setSelectedId(tpl.id)}
+        className={`px-2 py-1 rounded border text-[11px] cursor-pointer transition-colors ${selectedId === tpl.id ? "bg-amber-500 text-white border-amber-500" : "bg-white text-slate-600 border-slate-200 hover:border-amber-300"}`}
+      >
+        {tpl.name}
+        {lv >= 0 && (
+          <Tag
+            className="m-0 ml-1 text-[9px]"
+            color={selectedId === tpl.id ? "gold" : LEVEL_TAG[lv]}
+          >
+            {LEVEL_TEXT[lv]}
+          </Tag>
+        )}
+      </button>
+    );
+  };
 
   const tree = useMemo(() => {
     if (!selected) return [];
-    const structure = Array.isArray(selected.structure) ? selected.structure : null;
-    const nodes = buildSectionTree(structure, selected.body ?? '');
-    return nodes.map((n) => ({ ...n, rendered: resolveTemplateVariables(n.raw, context, { keepUnresolved: true }) }));
+    const structure = Array.isArray(selected.structure)
+      ? selected.structure
+      : null;
+    const nodes = buildSectionTree(structure, selected.body ?? "");
+    return nodes.map((n) => ({
+      ...n,
+      rendered: resolveTemplateVariables(n.raw, context, {
+        keepUnresolved: true,
+      }),
+    }));
   }, [selected, context]);
 
-  const fullText = useMemo(() => tree.map((n) => n.rendered).filter((t) => t.trim().length > 0).join('\n'), [tree]);
+  const fullText = useMemo(
+    () =>
+      tree
+        .map((n) => n.rendered)
+        .filter((t) => t.trim().length > 0)
+        .join("\n"),
+    [tree],
+  );
 
   const unresolvedCount = useMemo(() => {
-    const all = tree.map((n) => n.raw).join('\n');
+    const all = tree.map((n) => n.raw).join("\n");
     return describeTemplateVariables(all, context).unresolved.length;
   }, [tree, context]);
 
@@ -158,20 +308,44 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
     onClose();
   };
 
-  const renderNode = (n: { id: string; title: string; type: string; rendered: string; hasUnresolved: boolean }) => {
-    const isSection = n.type === 'structured' || SECTION_TITLE_SET.has(normalizeTitle(n.rendered));
+  const renderNode = (n: {
+    id: string;
+    title: string;
+    type: string;
+    rendered: string;
+    hasUnresolved: boolean;
+  }) => {
+    const isSection =
+      n.type === "structured" ||
+      SECTION_TITLE_SET.has(normalizeTitle(n.rendered));
     if (isSection) {
       return (
         <div key={n.id} className="flex items-center gap-1.5 py-1">
           <TreePine className="w-3 h-3 text-amber-500 shrink-0" />
-          <span className="text-xs font-bold text-slate-800">{normalizeTitle(n.rendered) || t('w9e.sectionTemplateEngine.structuredParagraph')}</span>
+          <span className="text-xs font-bold text-slate-800">
+            {normalizeTitle(n.rendered) ||
+              t("w9e.sectionTemplateEngine.structuredParagraph")}
+          </span>
         </div>
       );
     }
     return (
-      <div key={n.id} className="pl-5 py-0.5 text-xs text-slate-600 border-l border-slate-200 ml-1.5">
-        <span className="whitespace-pre-wrap leading-relaxed">{n.rendered || <span className="text-slate-300">{t('w9e.sectionTemplateEngine.emptyParagraph')}</span>}</span>
-        {n.hasUnresolved && <Tag color="purple" className="m-0 ml-1 text-[10px]">{t('w9e.sectionTemplateEngine.unresolvedVar')}</Tag>}
+      <div
+        key={n.id}
+        className="pl-5 py-0.5 text-xs text-slate-600 border-l border-slate-200 ml-1.5"
+      >
+        <span className="whitespace-pre-wrap leading-relaxed">
+          {n.rendered || (
+            <span className="text-slate-300">
+              {t("w9e.sectionTemplateEngine.emptyParagraph")}
+            </span>
+          )}
+        </span>
+        {n.hasUnresolved && (
+          <Tag color="purple" className="m-0 ml-1 text-[10px]">
+            {t("w9e.sectionTemplateEngine.unresolvedVar")}
+          </Tag>
+        )}
       </div>
     );
   };
@@ -181,8 +355,13 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
       title={
         <span className="flex items-center gap-2">
           <TreePine className="w-4 h-4 text-amber-500" />
-          <span>{t('w9e.sectionTemplateEngine.title')}</span>
-          <Tag color="blue" className="text-[10px] m-0">{t('w9e.sectionTemplateEngine.matchTag', { mod: mod || '—', bp: bp || '—' })}</Tag>
+          <span>{t("w9e.sectionTemplateEngine.title")}</span>
+          <Tag color="blue" className="text-[10px] m-0">
+            {t("w9e.sectionTemplateEngine.matchTag", {
+              mod: mod || "—",
+              bp: bp || "—",
+            })}
+          </Tag>
         </span>
       }
       open={open}
@@ -192,13 +371,29 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
       footer={
         <div className="flex items-center justify-between">
           <span className="text-[11px] text-slate-400">
-            {t('w9e.sectionTemplateEngine.footerSummary', { sections: tree.length, chars: fullText.length })}
-            {unresolvedCount > 0 && <span className="text-purple-600 ml-2">{t('w9e.sectionTemplateEngine.unresolvedSummary', { count: unresolvedCount })}</span>}
+            {t("w9e.sectionTemplateEngine.footerSummary", {
+              sections: tree.length,
+              chars: fullText.length,
+            })}
+            {unresolvedCount > 0 && (
+              <span className="text-purple-600 ml-2">
+                {t("w9e.sectionTemplateEngine.unresolvedSummary", {
+                  count: unresolvedCount,
+                })}
+              </span>
+            )}
           </span>
           <div className="flex gap-2">
-            <Button onClick={onClose}>{t('w9e.sectionTemplateEngine.cancel')}</Button>
-            <Button type="primary" icon={<CheckCircle2 className="w-3 h-3" />} onClick={handleApply} disabled={!fullText.trim()}>
-              {t('w9e.sectionTemplateEngine.applyAll')}
+            <Button onClick={onClose}>
+              {t("w9e.sectionTemplateEngine.cancel")}
+            </Button>
+            <Button
+              type="primary"
+              icon={<CheckCircle2 className="w-3 h-3" />}
+              onClick={handleApply}
+              disabled={!fullText.trim()}
+            >
+              {t("w9e.sectionTemplateEngine.applyAll")}
             </Button>
           </div>
         </div>
@@ -206,36 +401,56 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
     >
       <div className="pt-2 space-y-3">
         {loading ? (
-          <div className="text-center py-8"><Spin /> {t('w9e.sectionTemplateEngine.matching')}</div>
+          <div className="text-center py-8">
+            <Spin /> {t("w9e.sectionTemplateEngine.matching")}
+          </div>
         ) : error && templates.length === 0 ? (
-          <Empty image={<FileText size={40} style={{ opacity: 0.4 }} />} description={error} />
+          <Empty
+            image={<FileText size={40} style={{ opacity: 0.4 }} />}
+            description={error}
+          />
         ) : (
           <>
-            <div className="flex gap-1.5 flex-wrap">
-              {templates.length === 0 && (
-                <span className="text-xs text-slate-400">{t('w9e.sectionTemplateEngine.noMatchHint')}</span>
-              )}
-              {templates.map((t) => {
-                const lv = matchLevel(t, mod, bp);
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setSelectedId(t.id)}
-                    className={`px-2 py-1 rounded border text-[11px] cursor-pointer transition-colors ${selectedId === t.id ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300'}`}
-                  >
-                    {t.name}
-                    {lv >= 0 && <Tag className="m-0 ml-1 text-[9px]" color={selectedId === t.id ? 'gold' : LEVEL_TAG[lv]}>{LEVEL_TEXT[lv]}</Tag>}
-                  </button>
-                );
-              })}
+            {recentTemplates.length > 0 && (
+              <div className="space-y-1">
+                <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500">
+                  <History className="w-3 h-3 text-amber-500" />
+                  {t("w9e.sectionTemplateEngine.recentUsed")}
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  {recentTemplates.map((tpl) => renderTemplateChip(tpl))}
+                </div>
+              </div>
+            )}
+            <div className="space-y-1">
+              <div className="text-[11px] font-bold text-slate-500">
+                {t("w9e.sectionTemplateEngine.matchedGroup")}
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {templates.length === 0 && (
+                  <span className="text-xs text-slate-400">
+                    {t("w9e.sectionTemplateEngine.noMatchHint")}
+                  </span>
+                )}
+                {regularTemplates.map((tpl) => renderTemplateChip(tpl))}
+              </div>
             </div>
-            <Alert type="info" showIcon className="!text-[11px]" message={t('w9e.sectionTemplateEngine.previewNote')} />
+            <Alert
+              type="info"
+              showIcon
+              className="!text-[11px]"
+              message={t("w9e.sectionTemplateEngine.previewNote")}
+            />
             <div className="border border-slate-200 rounded p-3 max-h-[360px] overflow-y-auto bg-slate-50/60">
               {tree.length === 0 ? (
-                <Empty image={<FileText size={36} style={{ opacity: 0.4 }} />} description={t('w9e.sectionTemplateEngine.noSections')} />
+                <Empty
+                  image={<FileText size={36} style={{ opacity: 0.4 }} />}
+                  description={t("w9e.sectionTemplateEngine.noSections")}
+                />
               ) : (
-                <div className="space-y-1">{tree.map((n) => renderNode(n))}</div>
+                <div className="space-y-1">
+                  {tree.map((n) => renderNode(n))}
+                </div>
               )}
             </div>
           </>
@@ -250,7 +465,11 @@ export function SectionVariableHint({ text }: { text: string }) {
   const vars = useMemo(() => collectTemplateVariables(text), [text]);
   if (vars.length === 0) return null;
   return (
-    <Tooltip title={t('w9e.sectionTemplateEngine.varHint', { vars: vars.map((v) => `{{${v}}}`).join(' ') })}>
+    <Tooltip
+      title={t("w9e.sectionTemplateEngine.varHint", {
+        vars: vars.map((v) => `{{${v}}}`).join(" "),
+      })}
+    >
       <Sparkles className="w-3 h-3 text-purple-500 cursor-help" />
     </Tooltip>
   );

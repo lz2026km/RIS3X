@@ -10,7 +10,10 @@ const delayMs = (min = 40, max = 150) =>
   Math.floor(Math.random() * (max - min) + min);
 
 const nowHL7 = () =>
-  new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
+  new Date()
+    .toISOString()
+    .replace(/[-:T.Z]/g, "")
+    .slice(0, 14);
 
 // ── 内存归档 (与 backend prisma.hl7MessageArchive 形状对齐) ──
 interface ArchiveEntry {
@@ -32,7 +35,8 @@ let archive: ArchiveEntry[] = [
     direction: "OUTBOUND",
     ackStatus: "SUCCESS",
     retryCount: 0,
-    rawMessage: "MSH|^~\\&|G005_RIS|G005_HOSPITAL|HIS_RECEIVER|HIS|20260801090000||ORU^R01|G005-RPT-001-202608010900|P|2.5.1\rPID|1||P000001^^^G005^MR||张明远^张明远||19850615|M",
+    rawMessage:
+      "MSH|^~\\&|G005_RIS|G005_HOSPITAL|HIS_RECEIVER|HIS|20260801090000||ORU^R01|G005-RPT-001-202608010900|P|2.5.1\rPID|1||P000001^^^G005^MR||张明远^张明远||19850615|M\rOBR|1|ACC20260001^^G005^FILL|ACC20260001^^G005^FILL|CT^CT^DCM|||20260801083000|||||||||D0001^王医生^^^G005^DOC\rOBX|1|TX|18782-3^Radiology study observation^LN||双肺纹理清晰, 未见明显异常密度影||||||F\rOBX|2|TX|19005-8^Radiology study conclusion^LN||未见明显异常||||||F",
     createdAt: "2026-08-01T09:00:00.000Z",
   },
   {
@@ -42,7 +46,8 @@ let archive: ArchiveEntry[] = [
     direction: "OUTBOUND",
     ackStatus: "SUCCESS",
     retryCount: 0,
-    rawMessage: "MSH|^~\\&|G005_RIS|G005_HOSPITAL|HIS_ORDER|HIS|20260801080000||ORM^O01|ORM-G005-ACC20260001-202608010800|P|2.5.1\rPID|1||P000001^^^G005^MR||张明远^张明远||19850615|M",
+    rawMessage:
+      "MSH|^~\\&|G005_RIS|G005_HOSPITAL|HIS_ORDER|HIS|20260801080000||ORM^O01|ORM-G005-ACC20260001-202608010800|P|2.5.1\rPID|1||P000001^^^G005^MR||张明远^张明远||19850615|M",
     createdAt: "2026-08-01T08:00:00.000Z",
   },
   {
@@ -52,7 +57,8 @@ let archive: ArchiveEntry[] = [
     direction: "OUTBOUND",
     ackStatus: "PENDING",
     retryCount: 1,
-    rawMessage: "MSH|^~\\&|G005_RIS|G005|HIS|HOSPITAL|20260801070000||SIU^S12|SIU-G005-P000001-202608010700|P|2.5.1\rPID|1||P000001^^^G005^MR||张明远^张明远||M",
+    rawMessage:
+      "MSH|^~\\&|G005_RIS|G005|HIS|HOSPITAL|20260801070000||SIU^S12|SIU-G005-P000001-202608010700|P|2.5.1\rPID|1||P000001^^^G005^MR||张明远^张明远||M",
     createdAt: "2026-08-01T07:00:00.000Z",
   },
 ];
@@ -70,7 +76,13 @@ let mllpTls = false;
 let mllpWhitelist = ["127.0.0.1/32", "10.0.0.0/8"];
 let mllpConnections = 0;
 let mllpMessages = 0;
-let mllpLogs: Array<{ id: number; peer: string; event: string; timestamp: string; detail?: string }> = [];
+let mllpLogs: Array<{
+  id: number;
+  peer: string;
+  event: string;
+  timestamp: string;
+  detail?: string;
+}> = [];
 let logSeq = 0;
 
 const pushLog = (peer: string, event: string, detail?: string) => {
@@ -86,10 +98,12 @@ const buildORU = (r: any): string => {
   const msh = `MSH|^~\\&|G005_RIS|G005_HOSPITAL|HIS_RECEIVER|HIS|${ts}||ORU^R01|${ctrlId}|P|2.5.1`;
   const pid = `PID|1||${r.patientId ?? ""}^^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^MR||${r.patientName ?? ""}^${r.patientName ?? ""}||${(r.patientBirthDate ?? "").replace(/-/g, "")}|${r.patientSex === "F" ? "F" : r.patientSex === "M" ? "M" : "O"}`;
   const pv1 = `PV1|1|O||||||||||||${r.accessionNumber ?? ""}^^G005^ACC`;
-  const obr = `OBR|1|${r.accessionNumber ?? ""}^^G005^FILL|${r.accessionNumber ?? ""}^^G005^FILL|${r.modality ?? ""}^${r.modality ?? ""}^DCM||||${(r.studyDate ?? "").replace(/-/g, "")}${(r.studyTime ?? "").replace(/:/g, "")}|||||||||${r.authorId ?? ""}^${r.authorName ?? ""}^^^G005^DOC`;
+  const obr = `OBR|1|${r.accessionNumber ?? ""}^^G005^FILL|${r.accessionNumber ?? ""}^^G005^FILL|${r.modality ?? ""}^${r.modality ?? ""}^DCM|||${(r.studyDate ?? "").replace(/-/g, "")}${(r.studyTime ?? "").replace(/:/g, "")}|||||||||${r.authorId ?? ""}^${r.authorName ?? ""}^^^G005^DOC`;
   const obx1 = `OBX|1|TX|18782-3^Radiology study observation^LN||${r.findings ?? ""}`;
   const obx2 = `OBX|2|TX|19005-8^Radiology study conclusion^LN||${r.conclusion ?? ""}`;
-  const obx3 = r.radsCategory ? `OBX|3|CE|RADS^RADS Category^DCM||${r.radsCategory}` : "";
+  const obx3 = r.radsCategory
+    ? `OBX|3|CE|RADS^RADS Category^DCM||${r.radsCategory}`
+    : "";
   return [msh, pid, pv1, obr, obx1, obx2, obx3].filter(Boolean).join("\r");
 };
 
@@ -121,8 +135,22 @@ export const hl7Handlers = [
     const body = (await request.json()) as any;
     const message = buildORU(body);
     const controlId = `G005-${body?.reportId ?? "REPORT"}-${nowHL7()}`;
-    pushArchive({ messageType: "ORU^R01", controlId, direction: "OUTBOUND", ackStatus: "SUCCESS", retryCount: 0, rawMessage: message, createdAt: new Date().toISOString() });
-    return response({ message, controlId, messageType: "ORU^R01", generatedAt: new Date().toISOString(), bytes: message.length });
+    pushArchive({
+      messageType: "ORU^R01",
+      controlId,
+      direction: "OUTBOUND",
+      ackStatus: "SUCCESS",
+      retryCount: 0,
+      rawMessage: message,
+      createdAt: new Date().toISOString(),
+    });
+    return response({
+      message,
+      controlId,
+      messageType: "ORU^R01",
+      generatedAt: new Date().toISOString(),
+      bytes: message.length,
+    });
   }),
 
   http.post(`${API}/orm`, async ({ request }) => {
@@ -130,8 +158,22 @@ export const hl7Handlers = [
     const body = (await request.json()) as any;
     const message = buildORM(body);
     const controlId = `ORM-G005-${body?.accessionNumber ?? "ACC"}-${nowHL7()}`;
-    pushArchive({ messageType: "ORM^O01", controlId, direction: "OUTBOUND", ackStatus: "SUCCESS", retryCount: 0, rawMessage: message, createdAt: new Date().toISOString() });
-    return response({ message, controlId, messageType: "ORM^O01", generatedAt: new Date().toISOString(), bytes: message.length });
+    pushArchive({
+      messageType: "ORM^O01",
+      controlId,
+      direction: "OUTBOUND",
+      ackStatus: "SUCCESS",
+      retryCount: 0,
+      rawMessage: message,
+      createdAt: new Date().toISOString(),
+    });
+    return response({
+      message,
+      controlId,
+      messageType: "ORM^O01",
+      generatedAt: new Date().toISOString(),
+      bytes: message.length,
+    });
   }),
 
   http.post(`${API}/dft`, async ({ request }) => {
@@ -139,8 +181,22 @@ export const hl7Handlers = [
     const body = (await request.json()) as any;
     const message = buildDFT(body);
     const controlId = `DFT-G005-${body?.invoiceNumber ?? "INV"}-${nowHL7()}`;
-    pushArchive({ messageType: "DFT^P03", controlId, direction: "OUTBOUND", ackStatus: "SUCCESS", retryCount: 0, rawMessage: message, createdAt: new Date().toISOString() });
-    return response({ message, controlId, messageType: "DFT^P03", generatedAt: new Date().toISOString(), bytes: message.length });
+    pushArchive({
+      messageType: "DFT^P03",
+      controlId,
+      direction: "OUTBOUND",
+      ackStatus: "SUCCESS",
+      retryCount: 0,
+      rawMessage: message,
+      createdAt: new Date().toISOString(),
+    });
+    return response({
+      message,
+      controlId,
+      messageType: "DFT^P03",
+      generatedAt: new Date().toISOString(),
+      bytes: message.length,
+    });
   }),
 
   // batch 双重用途: { reports: [] } 批量构建 / { ids: [] } 重发归档
@@ -151,13 +207,20 @@ export const hl7Handlers = [
       const count = body.ids.length;
       archive = archive.map((a) =>
         body.ids.includes(a.id)
-          ? { ...a, ackStatus: "SUCCESS" as const, retryCount: a.retryCount + 1 }
+          ? {
+              ...a,
+              ackStatus: "SUCCESS" as const,
+              retryCount: a.retryCount + 1,
+            }
           : a,
       );
       return response({ success: true, retried: count });
     }
     const reports: any[] = Array.isArray(body?.reports) ? body.reports : [];
-    const messages = reports.map((r) => ({ reportId: r.reportId, message: buildORU(r) }));
+    const messages = reports.map((r) => ({
+      reportId: r.reportId,
+      message: buildORU(r),
+    }));
     return response({ count: messages.length, messages });
   }),
 
@@ -165,10 +228,26 @@ export const hl7Handlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     mllpMessages += 1;
-    pushLog("RIS→HIS", "message", `push-oru exam=${body?.examId} report=${body?.reportId}`);
+    pushLog(
+      "RIS→HIS",
+      "message",
+      `push-oru exam=${body?.examId} report=${body?.reportId}`,
+    );
     const message = `MSH|^~\\&|G005_RIS|G005_HOSPITAL|HIS_RECEIVER|HIS|${nowHL7()}||ORU^R01|G005-${body?.reportId ?? "R"}-${nowHL7()}|P|2.5.1`;
-    pushArchive({ messageType: "ORU^R01", controlId: `G005-${body?.reportId ?? "R"}-${nowHL7()}`, direction: "OUTBOUND", ackStatus: "SUCCESS", retryCount: 0, rawMessage: message, createdAt: new Date().toISOString() });
-    return response({ pushed: true, examId: body?.examId ?? "", reportId: body?.reportId ?? "" });
+    pushArchive({
+      messageType: "ORU^R01",
+      controlId: `G005-${body?.reportId ?? "R"}-${nowHL7()}`,
+      direction: "OUTBOUND",
+      ackStatus: "SUCCESS",
+      retryCount: 0,
+      rawMessage: message,
+      createdAt: new Date().toISOString(),
+    });
+    return response({
+      pushed: true,
+      examId: body?.examId ?? "",
+      reportId: body?.reportId ?? "",
+    });
   }),
 
   // ── 归档 ──
@@ -227,7 +306,8 @@ export const hl7Handlers = [
   http.post(`${API}/mllp/whitelist/add`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    if (body?.cidr && !mllpWhitelist.includes(body.cidr)) mllpWhitelist = [...mllpWhitelist, body.cidr];
+    if (body?.cidr && !mllpWhitelist.includes(body.cidr))
+      mllpWhitelist = [...mllpWhitelist, body.cidr];
     return response({ success: true });
   }),
 

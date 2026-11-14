@@ -110,22 +110,28 @@ export interface ObservationRecordEntry {
   reactionId?: string;
 }
 
+export type ContrastObservationStatus = "observing" | "discharged" | "reaction";
+
+export type ContrastObservationSource = "db" | "seed";
+
 export interface ContrastObservation {
   id: string;
   patientId: string;
+  patientName?: string;
   examId?: string;
   contrastType?: string;
   injectionId?: string;
   startedAt: string;
   durationMinutes: number;
   endsAt: string;
-  status: "observing" | "discharged";
+  status: ContrastObservationStatus;
   operator?: string;
   records: ObservationRecordEntry[];
   doctorRelease: boolean;
   dischargedAt?: string;
   dischargedBy?: string;
   dischargeNotes?: string;
+  source?: ContrastObservationSource;
   elapsedSeconds: number;
   elapsedMinutes: number;
   remainingSeconds: number;
@@ -135,8 +141,15 @@ export interface ContrastObservation {
   updatedAt: string;
 }
 
+export interface ContrastObservationList {
+  items: ContrastObservation[];
+  total: number;
+  source: ContrastObservationSource;
+}
+
 export interface StartObservationDto {
   patientId: string;
+  patientName?: string;
   examId?: string;
   contrastType?: string;
   injectionId?: string;
@@ -266,10 +279,8 @@ export const contrastSafetyApi = {
   },
 
   listObservations: (patientId?: string) =>
-    api.get<{ items: ContrastObservation[]; total: number }>(
-      patientId
-        ? `/contrast/observation?patientId=${encodeURIComponent(patientId)}`
-        : "/contrast/observation",
+    api.get<ContrastObservationList>(
+      `/contrast/observation${patientId ? `?patientId=${encodeURIComponent(patientId)}` : ""}`,
     ),
 
   getObservation: (id: string) =>

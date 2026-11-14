@@ -20,6 +20,7 @@ import {
   toPath,
   segmentsMatch,
   matchesRoute,
+  hasVerbRoute,
   parseBackendRoutes,
   collectFrontendCalls,
   extractRawRequestPaths,
@@ -240,6 +241,77 @@ function checkTrue(name, actual) {
   check('接收者: searchParams', isHttpReceiver('searchParams'), false);
   check('接收者: responseCache', isHttpReceiver('responseCache'), false);
   check('接收者: map', isHttpReceiver('map'), false);
+}
+
+// ============================================================================
+// 模板串 / 查询串包装: 嵌套反引号、withQuery/buildQuery、? 与 # 剥离
+// ============================================================================
+{
+  const consts = new Map();
+  check(
+    '模板: 嵌套反引号不丢调用',
+    extractPaths('api.get(`/worklist/${id}/qc${status ? `?state=${status}` : ""}`)', consts).map(toPath),
+    ['worklist/:param/qc'],
+  );
+  checkTrue(
+    '模板: 嵌套模板路径命中后端 :id',
+    matchesRoute(['worklist', ':param', 'qc'], new Set(['worklist/:id/qc'])),
+  );
+
+  check(
+    '包装: withQuery 取首参路径',
+    extractPaths("api.get(withQuery('/device-mgmt/usage-trend', { days }))", consts).map(toPath),
+    ['device-mgmt/usage-trend'],
+  );
+  check(
+    '包装: withQuery 首参模板',
+    extractPaths("api.get(withQuery(`/device-ops/assets/${encodeURIComponent(id)}/depreciation`, params))", consts).map(toPath),
+    ['device-ops/assets/:param/depreciation'],
+  );
+  check(
+    '包装: withQuery + qs.stringify 其余忽略',
+    extractPaths("api.get(withQuery('/x', qs.stringify({ a })))", consts).map(toPath),
+    ['x'],
+  );
+  check(
+    '模板: ${buildQuery({})} 不产生多余段',
+    extractPaths('api.get(`/quality-indicators/compute${buildQuery({ period })}`)', consts).map(toPath),
+    ['quality-indicators/compute'],
+  );
+  check(
+    '模板: 查询串整体剥离 (多段 ${} 混合)',
+    extractPaths('api.get(`/appointments/accession/next?modality=${encodeURIComponent(m)}${year != null ? `&year=${year}` : ""}`)', consts).map(toPath),
+    ['appointments/accession/next'],
+  );
+  check(
+    '模板: ? 与 # 均不参与路径匹配',
+    extractPaths('api.get(`/system/storage/buckets/${encodeURIComponent(name)}/objects/${encodeURIComponent(key)}/signed-url${e !== undefined ? `?e=${e}` : ""}&_t=${Date.now()}`)', consts).map(toPath),
+    ['system/storage/buckets/:param/objects/:param/signed-url'],
+  );
+  check(
+    '模板: 常量基址 + 嵌套模板',
+    extractPaths('api.get(`${EYE_API}/pixel/histogram/${encodeURIComponent(instanceId)}${frame ? `?frame=${frame}` : ""}`)', new Map([['EYE_API', '/api/v1/eye']])).map(toPath),
+    ['eye/pixel/histogram/:param'],
+  );
+}
+
+// ============================================================================
+// 反例: 解析修复不得放宽到掩盖真实缺口 / 动词错配
+// ============================================================================
+{
+  checkTrue(
+    '反例: 真实不存在的路径仍判孤儿',
+    !matchesRoute(['hl7', 'oru', 'messages'], new Set(['hl7/oru/messages/:id'])),
+  );
+  checkTrue(
+    '反例: 段数不同仍判孤儿',
+    !matchesRoute(['contrast', 'observation'], new Set(['contrast/observation/:id'])),
+  );
+  check('反例: 后端无该路径仍为死调用', matchesRoute(['no-such', 'route'], new Set(['a/b'])), false);
+  const verbRoutes = new Map([['GET security/ra/requests/:id', new Set(['w13SecurityApi.ts'])]]);
+  const segs = ['security', 'ra', 'requests', ':param'];
+  check('反例: 路径存在但动词不符仍可检出', matchesRoute(segs, new Set(['security/ra/requests/:id'])) && !hasVerbRoute('POST', segs, verbRoutes), true);
+  check('反例: 动词一致不误报', hasVerbRoute('GET', segs, verbRoutes), true);
 }
 
 // ============================================================================

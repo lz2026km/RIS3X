@@ -2579,36 +2579,96 @@ const healthHandlers = [
 const hl7Handlers = [
   http.get(`${API_BASE}/hl7/overview`, () =>
     HttpResponse.json({
-      inbound: 1280,
-      outbound: 960,
-      failed: 12,
-      pending: 4,
+      totalMessages: 2240,
+      todayMessages: 86,
+      inboundCount: 1280,
+      outboundCount: 960,
+      failedCount: 12,
+      pendingCount: 4,
       successRate: 99.1,
-      last24h: 86,
+      seeded: true,
     }),
   ),
   http.get(`${API_BASE}/hl7/message-types`, () =>
     HttpResponse.json([
-      { type: "ORU^R01", count: 820, direction: "OUTBOUND" },
-      { type: "ORM^O01", count: 460, direction: "INBOUND" },
-      { type: "ADT^A01", count: 320, direction: "INBOUND" },
+      {
+        messageType: "ORU^R01",
+        count: 820,
+        percent: 36.6,
+        avgBytes: 512,
+        direction: "OUTBOUND",
+        seeded: true,
+      },
+      {
+        messageType: "ORM^O01",
+        count: 460,
+        percent: 20.5,
+        avgBytes: 384,
+        direction: "INBOUND",
+        seeded: true,
+      },
+      {
+        messageType: "ADT^A01",
+        count: 320,
+        percent: 14.3,
+        avgBytes: 256,
+        direction: "INBOUND",
+        seeded: true,
+      },
     ]),
   ),
   http.get(`${API_BASE}/hl7/error-analysis`, () =>
     HttpResponse.json({
-      total: 12,
-      byType: { parse_error: 5, timeout: 4, ack_failed: 3 },
-      topErrors: [{ code: "PARSE", message: "MSH 段缺失", count: 5 }],
+      totalErrors: 12,
+      byErrorType: [
+        { errorType: "parse_error", count: 5, percent: 41.7 },
+        { errorType: "timeout", count: 4, percent: 33.3 },
+        { errorType: "ack_failed", count: 3, percent: 25.0 },
+      ],
+      byChannel: [
+        { channel: "MLLP", count: 9 },
+        { channel: "HTTP", count: 3 },
+      ],
+      byHour: [
+        { hour: "08", count: 2 },
+        { hour: "09", count: 4 },
+        { hour: "10", count: 3 },
+        { hour: "11", count: 3 },
+      ],
+      recentErrors: [
+        {
+          id: "hl7-err-001",
+          messageType: "ORU^R01",
+          ackStatus: "AE",
+          createdAt: nowIso(),
+        },
+        {
+          id: "hl7-err-002",
+          messageType: "ORM^O01",
+          ackStatus: "AR",
+          createdAt: nowIso(),
+        },
+      ],
+      seeded: true,
     }),
   ),
   http.get(`${API_BASE}/hl7/throughput`, ({ request }) => {
     const days = clampDays(new URL(request.url).searchParams.get("days"));
     return HttpResponse.json(
-      range(days, (i) => ({
-        date: dateOnly(i - days + 1),
-        inbound: 40 + (i % 9),
-        outbound: 30 + (i % 7),
-      })),
+      range(days, (i) => {
+        const success = 70 + (i % 9);
+        const failed = 1 + (i % 3);
+        const total = success + failed;
+        return {
+          date: dateOnly(i - days + 1),
+          label: dateOnly(i - days + 1),
+          total,
+          success,
+          failed,
+          successRate: Number(((success / total) * 100).toFixed(1)),
+          seeded: true,
+        };
+      }),
     );
   }),
 ];

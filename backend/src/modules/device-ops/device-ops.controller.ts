@@ -278,6 +278,11 @@ export class DeviceOpsController {
     return ok(this.svc.listReportDefinitions());
   }
 
+  @Get("scheduled-reports/:id")
+  getReportDefinition(@Param("id") id: string) {
+    return ok(this.svc.getReportDefinition(id));
+  }
+
   @Post("scheduled-reports")
   @HttpCode(201)
   createReportDefinition(

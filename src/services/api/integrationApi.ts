@@ -342,6 +342,31 @@ export const hl7Api = {
     return api.get<Hl7ArchiveRecord[]>(`/hl7/archive?${sp.toString()}`);
   },
 
+  // [v3.0.6.16-9] ORU 消息详情 (此前后端有端点但前端从未调用)
+  getOruMessage: (id: string) =>
+    api.get<Record<string, unknown>>(
+      `/hl7/oru/messages/${encodeURIComponent(id)}`,
+    ),
+
+  // 归档表 id 与 ORU 消息 id 不是同一体系, 先按 controlId 在消息日志中定位再取详情
+  getOruMessageByControlId: async (controlId: string) => {
+    if (!controlId) return null;
+    const listRes = await api.get<{
+      total?: number;
+      entries?: Array<Record<string, unknown>>;
+    }>("/hl7/oru/messages?limit=200");
+    if (!listRes.success) return null;
+    const entries = listRes.data?.entries ?? [];
+    const match = entries.find(
+      (e) => String(e["controlId"] ?? "") === controlId,
+    );
+    const id = match ? String(match["id"] ?? "") : "";
+    if (!id) return null;
+    return api.get<Record<string, unknown>>(
+      `/hl7/oru/messages/${encodeURIComponent(id)}`,
+    );
+  },
+
   retryBatch: (ids: number[]) =>
     api.post<{ success: boolean }>("/hl7/batch", { ids }),
 

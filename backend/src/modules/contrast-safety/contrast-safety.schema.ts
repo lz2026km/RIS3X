@@ -56,6 +56,7 @@ export const ContrastInjectionSchema = z.object({
 
 export const ObservationStartSchema = z.object({
   patientId: z.string().min(1),
+  patientName: z.string().optional(),
   examId: z.string().optional(),
   contrastType: z.string().optional(),
   injectionId: z.string().optional(),

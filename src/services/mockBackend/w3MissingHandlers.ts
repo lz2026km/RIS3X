@@ -327,13 +327,14 @@ interface ObservationRecordEntry {
 interface ObservationRecord {
   id: string;
   patientId: string;
+  patientName?: string;
   examId?: string;
   contrastType?: string;
   injectionId?: string;
   startedAt: string;
   durationMinutes: number;
   endsAt: string;
-  status: "observing" | "discharged";
+  status: "observing" | "discharged" | "reaction";
   operator?: string;
   records: ObservationRecordEntry[];
   doctorRelease: boolean;
@@ -364,6 +365,7 @@ function toObservationDto(o: ObservationRecord) {
   return {
     ...o,
     records: o.records.map((r) => ({ ...r })),
+    source: "seed" as const,
     elapsedSeconds,
     elapsedMinutes,
     remainingSeconds,
@@ -665,6 +667,7 @@ const contrastHandlers = [
     const record: ObservationRecord = {
       id: `obs-${observationSeq}`,
       patientId: String(body.patientId),
+      patientName: body.patientName ? String(body.patientName) : undefined,
       examId: body.examId ? String(body.examId) : undefined,
       contrastType: body.contrastType ? String(body.contrastType) : undefined,
       injectionId: body.injectionId ? String(body.injectionId) : undefined,
@@ -689,7 +692,7 @@ const contrastHandlers = [
       .filter((o) => !patientId || o.patientId === patientId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .map(toObservationDto);
-    return HttpResponse.json({ items, total: items.length });
+    return HttpResponse.json({ items, total: items.length, source: "seed" });
   }),
 
   http.get(`${API_BASE}/contrast/observation/:id`, async ({ params }) => {
@@ -759,6 +762,9 @@ const contrastHandlers = [
           : (record.operator ?? "system"),
         reactionId: body.reactionId ? String(body.reactionId) : undefined,
       });
+      if (body.reactionId) {
+        record.status = "reaction";
+      }
       record.updatedAt = nowIso();
       return HttpResponse.json(toObservationDto(record));
     },
