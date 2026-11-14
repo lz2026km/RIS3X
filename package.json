@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.16-8",
-  "description": "G005 Radiology RIS v3.0.6.16-8 - Table Density & Column-Width Normalization (row height 231px→37px)",
+  "version": "3.0.6.16-9",
+  "description": "G005 Radiology RIS v3.0.6.16-9 - Table Density & Column-Width Normalization (row height 231px→37px)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
@@ -36,9 +36,11 @@
     "guard:table": "node scripts/table-guard.mjs",
     "guard:filter": "node scripts/filter-guard.mjs",
     "guard:demo": "node scripts/demo-guard.mjs",
+    "guard:list-unwrap": "node scripts/list-unwrap-guard.mjs",
+    "guard:enum-coverage": "node scripts/enum-coverage-guard.mjs",
     "guard:backend": "node scripts/backend-guard.mjs",
     "guard:selfcheck": "node scripts/guard-selfcheck.mjs",
-    "guard:all": "node scripts/guard-selfcheck.mjs && node scripts/ui-guard.mjs && node scripts/table-guard.mjs && node scripts/select-guard.mjs && node scripts/filter-guard.mjs && node scripts/demo-guard.mjs && node scripts/api-contract-guard.mjs && node scripts/backend-guard.mjs"
+    "guard:all": "node scripts/guard-selfcheck.mjs && node scripts/ui-guard.mjs && node scripts/table-guard.mjs && node scripts/select-guard.mjs && node scripts/filter-guard.mjs && node scripts/demo-guard.mjs && node scripts/list-unwrap-guard.mjs && node scripts/enum-coverage-guard.mjs && node scripts/api-contract-guard.mjs && node scripts/backend-guard.mjs"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^2.0.0",

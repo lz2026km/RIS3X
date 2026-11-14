@@ -1,0 +1,26 @@
+[
+  {
+    "file": "src/pages/ops/DeviceOpsPage.tsx",
+    "enum": "DeviceState",
+    "values": ["IDLE", "IN_USE", "MAINTENANCE", "BROKEN", "OFFLINE"],
+    "reason": "设备改单下拉只暴露可手工切换的运行态; RETIRED 走独立的退役审批流程 (devicemgmt retire/approve), 不允许在此直接置位"
+  },
+  {
+    "file": "src/pages/report/reportUtils.tsx",
+    "enum": "ReportState",
+    "values": [
+      "DRAFT",
+      "WRITING",
+      "ASSIGNED",
+      "PENDING_ASSIGNMENT",
+      "REJECTED"
+    ],
+    "reason": "WRITABLE_EN_STATES 是「可继续书写」白名单, 按语义只应包含可写态; 不是报告状态筛选全集"
+  },
+  {
+    "file": "src/services/api/rqiReportCenterApi.ts",
+    "enum": "ReportState",
+    "values": ["DRAFT", "SUBMITTED", "ACCEPTED", "REJECTED"],
+    "reason": "RQI 上报批次状态是独立词汇表 (REPORT_BATCH_STATUSES), 与 ReportState 状态机无关, 仅部分 token 同名"
+  }
+]

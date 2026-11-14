@@ -28,6 +28,12 @@ import {
   isHttpReceiver,
   toHttpVerb,
 } from './lib/route-parse.mjs';
+import { analyzeListUnwrap } from './list-unwrap-guard.mjs';
+import {
+  parsePrismaEnums,
+  analyzeEnumCoverage,
+  filterAllowlisted,
+} from './enum-coverage-guard.mjs';
 
 let pass = 0;
 const failures = [];
@@ -340,6 +346,106 @@ function checkTrue(name, actual) {
   // 单段根路径 (B3)
   const pat = collectFrontendCalls([`${root}/src/services/api/patientApi.ts`.replace(/\\/g, '/')], root);
   checkTrue('真实: patientApi 单段 patients (B3 回归)', pat.byPath.has('patients'));
+}
+
+// ============================================================================
+// list-unwrap-guard 夹具: getList 返回 {items,total}, 不得按裸数组消费
+// ============================================================================
+{
+  const bad = [
+    'async function f() {',
+    "  const res = await api.getList<Foo>('/x');",
+    '  if (Array.isArray(res.data)) return res.data;',
+    '}',
+  ].join('\n');
+  check(
+    'list-unwrap: getList + Array.isArray(res.data) 判违规',
+    analyzeListUnwrap(bad, 'fixture-a.ts').violations.length,
+    1,
+  );
+}
+
+{
+  const good =
+    "async function f() { const res = await api.getList<Foo>('/x'); return listItems<Foo>(res); }";
+  check(
+    'list-unwrap: listItems(res) 通过',
+    analyzeListUnwrap(good, 'fixture-b.ts').violations.length,
+    0,
+  );
+}
+
+{
+  const good =
+    "async function f() { const res = await api.getList<Foo>('/x'); return res.data.items; }";
+  check(
+    'list-unwrap: res.data.items 通过',
+    analyzeListUnwrap(good, 'fixture-c.ts').violations.length,
+    0,
+  );
+}
+
+{
+  const bad = "const hit = Array.isArray(api.getList<Foo>('/x').data) ? 1 : 0;";
+  check(
+    'list-unwrap: 直接链式 Array.isArray(getList().data) 判违规',
+    analyzeListUnwrap(bad, 'fixture-d.ts').violations.map((v) => v.kind),
+    ['direct-chain'],
+  );
+}
+
+// ============================================================================
+// enum-coverage-guard 夹具: 状态数组必须覆盖枚举全集 (或进入 allowlist)
+// ============================================================================
+const fixtureEnums = new Map([
+  ['ReportState', ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW']],
+]);
+
+{
+  check(
+    'enum-coverage: 解析 prisma 枚举',
+    [...parsePrismaEnums('enum ReportState {\n  A\n  B\n  C\n}').get('ReportState')],
+    ['A', 'B', 'C'],
+  );
+}
+
+{
+  const src =
+    "const REPORT_STATE_OPTIONS = ['SUBMITTED', 'INITIAL_REVIEW', 'FINAL_REVIEW'];";
+  check(
+    'enum-coverage: 状态数组覆盖全部枚举通过',
+    analyzeEnumCoverage(src, fixtureEnums, 'fixture-status.ts').length,
+    0,
+  );
+}
+
+{
+  const src = "const REPORT_STATE_OPTIONS = ['SUBMITTED', 'INITIAL_REVIEW'];";
+  check(
+    'enum-coverage: 状态数组缺 1 个枚举值判缺口',
+    analyzeEnumCoverage(src, fixtureEnums, 'fixture-status.ts').map(
+      (g) => `${g.enum}:${g.missing.join(',')}`,
+    ),
+    ['ReportState:FINAL_REVIEW'],
+  );
+}
+
+{
+  const src = "const REPORT_STATE_OPTIONS = ['SUBMITTED', 'INITIAL_REVIEW'];";
+  const gaps = analyzeEnumCoverage(src, fixtureEnums, 'src/pages/ReportXPage.tsx');
+  const { kept, allowed } = filterAllowlisted(gaps, [
+    {
+      file: 'src/pages/ReportXPage.tsx',
+      enum: 'ReportState',
+      values: ['SUBMITTED', 'INITIAL_REVIEW'],
+      reason: 'fixture: 仅待审子集',
+    },
+  ]);
+  check(
+    'enum-coverage: allowlist 命中通过',
+    [kept.length, allowed.length],
+    [0, 1],
+  );
 }
 
 // ============================================================================
